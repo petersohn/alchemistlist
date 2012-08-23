@@ -144,7 +144,7 @@ public class DbAdapter {
             		new String[] {STRINGS_ID,STRINGS_VALUE}, 
             		STRINGS_VALUE+" like ?", 
             		new String[] {match+"%"},
-                    null, null, null, null);
+                    null, null, STRINGS_VALUE, null);
         if (cursor != null) {
         	Log.d(TAG, "Number of results: " + cursor.getCount());
             cursor.moveToFirst();
@@ -205,13 +205,25 @@ public class DbAdapter {
     private String assocQueryString(String filter) {
     	return "select assoc."+ASSOC_ID+" "+ASSOC_ID+", "+
     			"strings1."+STRINGS_VALUE+" value1, "+
-    			" strings2."+STRINGS_VALUE+" value2 "+
-    			" from "+TABLE_ASSOC+" assoc, "+
-        		TABLE_STRINGS+" strings1, "+
-    			TABLE_STRINGS+" strings2 " +
-        		"where ("+filter+") and " +
-        		"strings1."+STRINGS_ID+"=assoc."+ASSOC_ID1+
-        		" and strings2."+STRINGS_ID+"=assoc."+ASSOC_ID2;
+    			" strings2."+STRINGS_VALUE+" value2 from ("+
+    			
+    			"select * from "+TABLE_ASSOC+
+        		" where ("+filter+") " +
+        		" union "+
+				"select "+ASSOC_ID+", "+
+				ASSOC_ID2+" "+ASSOC_ID1+", "+
+				ASSOC_ID1+" "+ASSOC_ID2+" from "+
+				TABLE_ASSOC+
+				" where ("+filter+")" +
+				") assoc, " +
+				
+				TABLE_STRINGS+" strings1, "+
+				TABLE_STRINGS+" strings2 " +
+				" where " +
+				
+				" strings1."+STRINGS_ID+"=assoc."+ASSOC_ID1+
+        		" and strings2."+STRINGS_ID+"=assoc."+ASSOC_ID2+
+        		" order by value1 asc, value2 asc";
     }
     
     private Cursor doSearchAssoc(String filter, String[] filterParams) {
@@ -229,17 +241,14 @@ public class DbAdapter {
     
     public Cursor searchAssoc(long id) throws SQLException {
     	return doSearchAssoc(
-    			"assoc."+ASSOC_ID1+"=?1 or " +
-        		"assoc."+ASSOC_ID2+"=?1",
+        		"assoc."+ASSOC_ID1+"=?1",
         		new String[] {Long.toString(id)});
     }
     
     public Cursor searchAssoc(long id1, long id2) throws SQLException {
     	return doSearchAssoc(
     			"(assoc."+ASSOC_ID1+"=?1 and " +
-				"assoc."+ASSOC_ID2+"=?2) or" +
-				"(assoc."+ASSOC_ID1+"=?2 and " +
-				"assoc."+ASSOC_ID2+"=?1)",
+				"assoc."+ASSOC_ID2+"=?2)",
 				new String[] {Long.toString(id1), Long.toString(id2)});
     }
     
