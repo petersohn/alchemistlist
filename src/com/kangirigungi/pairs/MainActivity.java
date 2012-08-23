@@ -66,11 +66,11 @@ public class MainActivity extends Activity {
 				onClearClick(v, R.id.item2Text);
 			}
 		});
-        btn = (Button)findViewById(R.id.item1Text);
+        btn = (Button)findViewById(R.id.item2Text);
         btn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				onChangeClick(v, R.id.item1Text);
+				onChangeClick(v, R.id.item2Text);
 			}
 		});
         btn = (Button)findViewById(R.id.btnAddAssoc);
@@ -176,7 +176,7 @@ public class MainActivity extends Activity {
 		input.setText(textView.getText());
 		alert.setView(input);
 
-		alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+		alert.setPositiveButton(getString(android.R.string.ok), new DialogInterface.OnClickListener() {
 		public void onClick(DialogInterface dialog, int whichButton) {
 				String value = input.getText().toString();
 				Log.i(TAG, "Value changed to " + value);
@@ -186,7 +186,7 @@ public class MainActivity extends Activity {
 			}
 		});
 
-		alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+		alert.setNegativeButton(getString(android.R.string.cancel), new DialogInterface.OnClickListener() {
 		public void onClick(DialogInterface dialog, int whichButton) {
 			Log.d(TAG, "Change cancelled.");
 		}
