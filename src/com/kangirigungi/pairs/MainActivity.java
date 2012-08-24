@@ -344,6 +344,7 @@ public class MainActivity extends Activity {
 						Log.i(TAG, "Import database from file: " + result);
 						try {
 							dbAdapter.importDatabase(result);
+							refreshList();
 						} catch (IOException e) {
 							Log.e(TAG, e.getMessage());
 						}
