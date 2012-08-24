@@ -9,6 +9,8 @@
     <string name="clear">clear</string><string name="addAssoc">Add</string>
     <string name="delAssoc">Delete</string>
     <string name="delString">Delete string</string>
+    <string name="menu_export">Export</string>
+    <string name="menu_import">Import</string>
     
 
 </resources>

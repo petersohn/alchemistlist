@@ -16,12 +16,20 @@
 
 package com.kangirigungi.pairs;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.channels.FileChannel;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Environment;
 import android.util.Log;
 
 /**
@@ -38,6 +46,7 @@ public class DbAdapter {
 
 
     private static final String TAG = "DbAdapter";
+    private static final String packageName = "com.kangirigungi.pairs";
     private DatabaseHelper mDbHelper;
     private SQLiteDatabase database;
 
@@ -263,5 +272,52 @@ public class DbAdapter {
     }
 
 	public void cleanup() {
+	}
+	
+	private void copyFile(File from, File to) throws IOException {
+		FileChannel src = null;
+        FileChannel dst = null;
+        try {
+      	  src = new FileInputStream(from).getChannel();
+      	  dst = new FileOutputStream(to).getChannel();
+            dst.transferFrom(src, 0, src.size());
+        } finally {
+      	  if (src != null) {
+      		  src.close();
+      	  }
+      	  if (dst != null) {
+      		  dst.close();
+      	  }
+        }
+	}
+	
+	public void exportDatabase(String filename) throws IOException {
+		File sd = Environment.getExternalStorageDirectory();
+		File data = Environment.getDataDirectory();
+		
+		if (sd.canWrite()) {
+		    String currentDBPath = "//data//"+ packageName +"//databases//"+DATABASE_NAME;
+		    String backupDBPath = filename;
+		    File currentDb = new File(data, currentDBPath);
+		    File backupDb = new File(sd, backupDBPath);
+		    copyFile(currentDb, backupDb);
+		} else {
+			Log.e(TAG, "SD card is not writable.");
+		}
+	}
+	
+	public void importDatabase(String filename) throws IOException {
+		File sd = Environment.getExternalStorageDirectory();
+		File data = Environment.getDataDirectory();
+		
+		if (sd.canRead()) {
+		    String currentDBPath = "//data//"+ packageName +"//databases//"+DATABASE_NAME;
+		    String backupDBPath = filename;
+		    File currentDb = new File(data, currentDBPath);
+		    File backupDb = new File(sd, backupDBPath);
+		    copyFile(backupDb, currentDb);
+		} else {
+			Log.e(TAG, "SD card is not readable.");
+		}
 	}
 }
