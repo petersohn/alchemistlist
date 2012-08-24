@@ -1,5 +1,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/menu_settings"
-        android:title="@string/menu_settings"
+    <item android:id="@+id/menu_backup"
+        android:title="@string/menu_backup"
         android:orderInCategory="100" />
+    <item android:id="@+id/menu_restore" android:title="@string/menu_restore"></item>
 </menu>

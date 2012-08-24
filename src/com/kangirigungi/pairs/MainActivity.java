@@ -1,20 +1,21 @@
 package com.kangirigungi.pairs;
 
+import java.io.IOException;
+
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.Menu;
+import android.view.MenuItem;
+import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
@@ -35,7 +36,7 @@ public class MainActivity extends Activity {
         btn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				onChooseClick(v, R.id.item1Text);
+				onChangeClick(v, R.id.item1Text);
 			}
 		});
         btn = (Button)findViewById(R.id.item1Clear);
@@ -49,14 +50,14 @@ public class MainActivity extends Activity {
         btn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				onChangeClick(v, R.id.item1Text);
+				onChooseClick(v, R.id.item1Text);
 			}
 		});
         btn = (Button)findViewById(R.id.item2Button);
         btn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				onChooseClick(v, R.id.item2Text);
+				onChangeClick(v, R.id.item2Text);
 			}
 		});
         btn = (Button)findViewById(R.id.item2Clear);
@@ -70,7 +71,7 @@ public class MainActivity extends Activity {
         btn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				onChangeClick(v, R.id.item2Text);
+				onChooseClick(v, R.id.item2Text);
 			}
 		});
         btn = (Button)findViewById(R.id.btnAddAssoc);
@@ -169,36 +170,25 @@ public class MainActivity extends Activity {
 			Log.d(TAG, "No value");
 			return;
 		}
-		AlertDialog.Builder alert = new AlertDialog.Builder(this);
-
-		alert.setTitle("Change string");
-		alert.setMessage("change the value of the string");
-
-		// Set an EditText view to get user input 
-		final EditText input = new EditText(this);
 		final Button textView = (Button)findViewById(textId);
-		input.setText(textView.getText());
-		alert.setView(input);
-
-		alert.setPositiveButton(getString(android.R.string.ok), new DialogInterface.OnClickListener() {
-		public void onClick(DialogInterface dialog, int whichButton) {
-				String value = input.getText().toString();
-				Log.i(TAG, "Value changed to " + value);
-				dbAdapter.changeString(id.longValue(), value);
-				refreshList();
-				textView.setText(value);
-			}
-		});
-
-		alert.setNegativeButton(getString(android.R.string.cancel), new DialogInterface.OnClickListener() {
-		public void onClick(DialogInterface dialog, int whichButton) {
-			Log.d(TAG, "Change cancelled.");
-		}
-		});
-
-		alert.show();
+		InputQuery alert = new InputQuery(this);
 		
-		
+		alert.run("Change string",
+				"change the value of the string", textView.getText(),
+				new InputQueryResultListener() {
+					@Override
+					public void onOk(String result) {
+						Log.i(TAG, "Value changed to " + result);
+						dbAdapter.changeString(id.longValue(), result);
+						textView.setText(result);
+						refreshList();
+						
+					}
+					@Override
+					public void onCancel() {
+						Log.d(TAG, "Change cancelled.");			
+					}
+				});
 	}
     
     private void onAddAssocClick(View v) {
@@ -304,6 +294,65 @@ public class MainActivity extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_main, menu);
+        menu.findItem(R.id.menu_backup).setOnMenuItemClickListener(new OnMenuItemClickListener() {
+			
+			@Override
+			public boolean onMenuItemClick(MenuItem item) {
+				exportDatabase();
+				return false;
+			}
+		});
+        menu.findItem(R.id.menu_restore).setOnMenuItemClickListener(new OnMenuItemClickListener() {
+			
+			@Override
+			public boolean onMenuItemClick(MenuItem item) {
+				importDatabase();
+				return false;
+			}
+		});
         return true;
+    }
+    
+    private void exportDatabase() {
+    	InputQuery alert = new InputQuery(this);
+    	alert.run("Export database",
+				"File name of the database dump", "backup.db",
+				new InputQueryResultListener() {
+					@Override
+					public void onOk(String result) {
+						Log.i(TAG, "Export database to file: " + result);
+						try {
+							dbAdapter.exportDatabase(result);
+						} catch (IOException e) {
+							Log.e(TAG, e.getMessage());
+						}
+					}
+					@Override
+					public void onCancel() {
+						Log.d(TAG, "Export cancelled.");			
+					}
+				});
+    }
+    
+    private void importDatabase() {
+    	InputQuery alert = new InputQuery(this);
+    	alert.run("Import database",
+				"File name of the database dump", "backup.db",
+				new InputQueryResultListener() {
+					@Override
+					public void onOk(String result) {
+						Log.i(TAG, "Import database from file: " + result);
+						try {
+							dbAdapter.importDatabase(result);
+							refreshList();
+						} catch (IOException e) {
+							Log.e(TAG, e.getMessage());
+						}
+					}
+					@Override
+					public void onCancel() {
+						Log.d(TAG, "Import cancelled.");			
+					}
+				});
     }
 }
