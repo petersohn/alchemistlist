@@ -169,36 +169,25 @@ public class MainActivity extends Activity {
 			Log.d(TAG, "No value");
 			return;
 		}
-		AlertDialog.Builder alert = new AlertDialog.Builder(this);
-
-		alert.setTitle("Change string");
-		alert.setMessage("change the value of the string");
-
-		// Set an EditText view to get user input 
-		final EditText input = new EditText(this);
 		final Button textView = (Button)findViewById(textId);
-		input.setText(textView.getText());
-		alert.setView(input);
-
-		alert.setPositiveButton(getString(android.R.string.ok), new DialogInterface.OnClickListener() {
-		public void onClick(DialogInterface dialog, int whichButton) {
-				String value = input.getText().toString();
-				Log.i(TAG, "Value changed to " + value);
-				dbAdapter.changeString(id.longValue(), value);
-				refreshList();
-				textView.setText(value);
-			}
-		});
-
-		alert.setNegativeButton(getString(android.R.string.cancel), new DialogInterface.OnClickListener() {
-		public void onClick(DialogInterface dialog, int whichButton) {
-			Log.d(TAG, "Change cancelled.");
-		}
-		});
-
-		alert.show();
+		InputQuery alert = new InputQuery(this);
 		
-		
+		alert.run("Change string",
+				"change the value of the string", textView.getText(),
+				new InputQueryResultListener() {
+					@Override
+					public void onOk(String result) {
+						Log.i(TAG, "Value changed to " + result);
+						dbAdapter.changeString(id.longValue(), result);
+						textView.setText(result);
+						refreshList();
+						
+					}
+					@Override
+					public void onCancel() {
+						Log.d(TAG, "Change cancelled.");			
+					}
+				});
 	}
     
     private void onAddAssocClick(View v) {
