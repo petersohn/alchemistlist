@@ -294,7 +294,7 @@ public class MainActivity extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_main, menu);
-        menu.findItem(R.id.menu_export).setOnMenuItemClickListener(new OnMenuItemClickListener() {
+        menu.findItem(R.id.menu_backup).setOnMenuItemClickListener(new OnMenuItemClickListener() {
 			
 			@Override
 			public boolean onMenuItemClick(MenuItem item) {
@@ -302,7 +302,7 @@ public class MainActivity extends Activity {
 				return false;
 			}
 		});
-        menu.findItem(R.id.menu_import).setOnMenuItemClickListener(new OnMenuItemClickListener() {
+        menu.findItem(R.id.menu_restore).setOnMenuItemClickListener(new OnMenuItemClickListener() {
 			
 			@Override
 			public boolean onMenuItemClick(MenuItem item) {
