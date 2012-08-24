@@ -216,19 +216,17 @@ public class DbAdapter {
     			" strings2."+STRINGS_VALUE+" value2 from ("+
     			
     			"select * from "+TABLE_ASSOC+
-        		" where ("+filter+") " +
         		" union "+
 				"select "+ASSOC_ID+", "+
 				ASSOC_ID2+" "+ASSOC_ID1+", "+
 				ASSOC_ID1+" "+ASSOC_ID2+" from "+
 				TABLE_ASSOC+
-				" where ("+filter+")" +
 				") assoc, " +
 				
 				TABLE_STRINGS+" strings1, "+
 				TABLE_STRINGS+" strings2 " +
-				" where " +
 				
+				" where ("+filter+") and " +
 				" strings1."+STRINGS_ID+"=assoc."+ASSOC_ID1+
         		" and strings2."+STRINGS_ID+"=assoc."+ASSOC_ID2+
         		" order by value1 asc, value2 asc";
