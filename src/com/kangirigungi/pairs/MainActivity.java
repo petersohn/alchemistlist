@@ -35,7 +35,7 @@ public class MainActivity extends Activity {
         btn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				onChooseClick(v, R.id.item1Text);
+				onChangeClick(v, R.id.item1Text);
 			}
 		});
         btn = (Button)findViewById(R.id.item1Clear);
@@ -49,14 +49,14 @@ public class MainActivity extends Activity {
         btn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				onChangeClick(v, R.id.item1Text);
+				onChooseClick(v, R.id.item1Text);
 			}
 		});
         btn = (Button)findViewById(R.id.item2Button);
         btn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				onChooseClick(v, R.id.item2Text);
+				onChangeClick(v, R.id.item2Text);
 			}
 		});
         btn = (Button)findViewById(R.id.item2Clear);
@@ -70,7 +70,7 @@ public class MainActivity extends Activity {
         btn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				onChangeClick(v, R.id.item2Text);
+				onChooseClick(v, R.id.item2Text);
 			}
 		});
         btn = (Button)findViewById(R.id.btnAddAssoc);
@@ -114,9 +114,13 @@ public class MainActivity extends Activity {
         dbAdapter.open();
         if (savedInstanceState != null) {
         	Long value = (Long)savedInstanceState.getSerializable("item1");
-        	setTextId(R.id.item1Text, value.longValue());
+        	if (value != null) {
+        		setTextId(R.id.item1Text, value.longValue());
+        	}
         	value = (Long)savedInstanceState.getSerializable("item2");
-        	setTextId(R.id.item2Text, value.longValue());
+        	if (value != null) {
+        		setTextId(R.id.item2Text, value.longValue());
+        	}
         }
     }
     

@@ -5,7 +5,7 @@
     <string name="menu_settings">Settings</string>
     <string name="title_activity_main">Pair Organizer</string>
     <string name="title_activity_text_chooser">TextChooser</string>
-    <string name="choose">set</string>
+    <string name="choose">change</string>
     <string name="clear">clear</string><string name="addAssoc">Add</string>
     <string name="delAssoc">Delete</string>
     <string name="delString">Delete string</string>
