@@ -19,9 +19,9 @@ public class InputQuery {
 	public void run(CharSequence title, CharSequence message, CharSequence defaultValue,
 			final InputQueryResultListener resultListener) {
 		AlertDialog.Builder alert = new AlertDialog.Builder(context);
-
-		alert.setTitle("Change string");
-		alert.setMessage("change the value of the string");
+		Log.v(TAG, "Title: " + title + ". Message: " + message + ". Default value: " + defaultValue);
+		alert.setTitle(title);
+		alert.setMessage(message);
 
 		// Set an EditText view to get user input 
 		final EditText input = new EditText(context);
