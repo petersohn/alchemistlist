@@ -11,6 +11,12 @@
     <string name="delString">Delete string</string>
     <string name="menu_backup">Backup</string>
     <string name="menu_restore">Restore</string>
+    <string name="change_title">Change string</string>
+    <string name="change_value">Change the value of the string to</string>
+    <string name="export_title">Export database</string>
+    <string name="export_value">File name of the database dump</string>
+    <string name="import_title">Import database</string>
+    <string name="import_value">File name of the database dump</string>
     
 
 </resources>
