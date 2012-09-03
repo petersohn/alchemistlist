@@ -138,6 +138,12 @@ public class MainActivity extends Activity {
 		super.onStop();
 	}
     
+    @Override
+	protected void onDestroy() {
+    	dbAdapter.close();
+		super.onDestroy();
+	}
+    
     private void setTextId(int textId, long id) {
     	Button textView = (Button)findViewById(textId);
 		textView.setText(dbAdapter.getString(id));
