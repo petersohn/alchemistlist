@@ -92,6 +92,12 @@ public class TextChooser extends Activity {
         return true;
     }
     
+    @Override
+   	protected void onDestroy() {
+       	dbAdapter.close();
+   		super.onDestroy();
+   	}
+    
     private void refreshList() {
     	Log.d(TAG, "refreshList()");
     	EditText valueField = (EditText)findViewById(R.id.textValue);

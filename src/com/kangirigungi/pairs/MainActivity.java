@@ -131,18 +131,38 @@ public class MainActivity extends Activity {
         outState.putSerializable("item1", textIds.get(R.id.item1Text));
         outState.putSerializable("item2", textIds.get(R.id.item2Text));
     }
+   
+    @Override
+   	protected void onPause() {
+       	Log.v(TAG, "onPause()");
+   		super.onPause();
+   	}
     
     @Override
 	protected void onStop() {
+    	Log.v(TAG, "onStop()");
     	dbAdapter.cleanup();
 		super.onStop();
 	}
     
     @Override
 	protected void onDestroy() {
+    	Log.v(TAG, "onDestroy()");
     	dbAdapter.close();
 		super.onDestroy();
 	}
+    
+    @Override
+   	protected void onStart() {
+       	Log.v(TAG, "onStart()");
+   		super.onStart();
+    }
+    
+    @Override
+   	protected void onResume() {
+       	Log.v(TAG, "onResume()");
+   		super.onResume();
+   	}
     
     private void setTextId(int textId, long id) {
     	Button textView = (Button)findViewById(textId);

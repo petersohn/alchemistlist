@@ -40,12 +40,14 @@ public class DbManager {
     	if (isOpen) {
     		close();
     	}
+    	Log.v(TAG, "open()");
         dbHelper = helper;
         database = dbHelper.getWritableDatabase();
         isOpen = true;
     }
 
     public void close() {
+    	Log.v(TAG, "close()");
         dbHelper.close();
         isOpen = false;
     }
