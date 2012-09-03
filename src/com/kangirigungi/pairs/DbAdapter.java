@@ -16,11 +16,7 @@
 
 package com.kangirigungi.pairs;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.channels.FileChannel;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -28,7 +24,6 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.os.Environment;
 import android.util.Log;
 
 /**
@@ -42,18 +37,18 @@ import android.util.Log;
  * recommended).
  */
 public class DbAdapter {
-
-
     private static final String TAG = "DbAdapter";
-    private static final String packageName = "com.kangirigungi.pairs";
-    private DatabaseHelper mDbHelper;
-    private SQLiteDatabase database;
-
+    
+    private Context context;
+    
+    DbManager dbManager;
+    SQLiteDatabase database;
+    
     /**
      * Database creation sql statement
      */
 
-    private static final String DATABASE_NAME = "data";
+    private static final String DATABASE_NAME_BASE = "data";
     
     private static final String TABLE_STRINGS = "strings";
     public static final String STRINGS_ID = "_id";
@@ -66,14 +61,12 @@ public class DbAdapter {
     
     private static final int DATABASE_VERSION = 2;
 
-    private final Context mCtx;
-
-    private static class DatabaseHelper extends SQLiteOpenHelper {
+    private class DatabaseHelper extends SQLiteOpenHelper {
 
     	private static final String TAG = "DbAdapter.DatabaseHelper";
     	
-        DatabaseHelper(Context context) {
-            super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        DatabaseHelper(String dbName) {
+            super(context, DATABASE_NAME_BASE + dbName, null, DATABASE_VERSION);
         }
 
         @Override
@@ -106,26 +99,19 @@ public class DbAdapter {
      * @param ctx the Context within which to work
      */
     public DbAdapter(Context ctx) {
-        this.mCtx = ctx;
+        this.context = ctx;
+        dbManager = new DbManager();
     }
 
-    /**
-     * Open the notes database. If it cannot be opened, try to create a new
-     * instance of the database. If it cannot be created, throw an exception to
-     * signal the failure
-     * 
-     * @return this (self reference, allowing this to be chained in an
-     *         initialization call)
-     * @throws SQLException if the database could be neither opened or created
-     */
     public DbAdapter open() throws SQLException {
-        mDbHelper = new DatabaseHelper(mCtx);
-        database = mDbHelper.getWritableDatabase();
+    	dbManager.open(new DatabaseHelper(""));
+    	database = dbManager.getDatabase();
         return this;
     }
 
     public void close() {
-        mDbHelper.close();
+        dbManager.close();
+        database = null;
     }
 
     public String getString(long id) {
@@ -273,50 +259,12 @@ public class DbAdapter {
 	public void cleanup() {
 	}
 	
-	private void copyFile(File from, File to) throws IOException {
-		FileChannel src = null;
-        FileChannel dst = null;
-        try {
-      	  src = new FileInputStream(from).getChannel();
-      	  dst = new FileOutputStream(to).getChannel();
-            dst.transferFrom(src, 0, src.size());
-        } finally {
-      	  if (src != null) {
-      		  src.close();
-      	  }
-      	  if (dst != null) {
-      		  dst.close();
-      	  }
-        }
+	public void backupDatabase(String filename) throws IOException {
+		dbManager.backupDatabase(filename);
 	}
 	
-	public void exportDatabase(String filename) throws IOException {
-		File sd = Environment.getExternalStorageDirectory();
-		File data = Environment.getDataDirectory();
-		
-		if (sd.canWrite()) {
-		    String currentDBPath = "//data//"+ packageName +"//databases//"+DATABASE_NAME;
-		    String backupDBPath = filename;
-		    File currentDb = new File(data, currentDBPath);
-		    File backupDb = new File(sd, backupDBPath);
-		    copyFile(currentDb, backupDb);
-		} else {
-			Log.e(TAG, "SD card is not writable.");
-		}
+	public void restoreDatabase(String filename) throws IOException {
+		dbManager.restoreDatabase(filename);
 	}
 	
-	public void importDatabase(String filename) throws IOException {
-		File sd = Environment.getExternalStorageDirectory();
-		File data = Environment.getDataDirectory();
-		
-		if (sd.canRead()) {
-		    String currentDBPath = "//data//"+ packageName +"//databases//"+DATABASE_NAME;
-		    String backupDBPath = filename;
-		    File currentDb = new File(data, currentDBPath);
-		    File backupDb = new File(sd, backupDBPath);
-		    copyFile(backupDb, currentDb);
-		} else {
-			Log.e(TAG, "SD card is not readable.");
-		}
-	}
 }

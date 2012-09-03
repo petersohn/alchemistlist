@@ -322,7 +322,7 @@ public class MainActivity extends Activity {
 					public void onOk(String result) {
 						Log.i(TAG, "Export database to file: " + result);
 						try {
-							dbAdapter.exportDatabase(result);
+							dbAdapter.backupDatabase(result);
 						} catch (IOException e) {
 							Log.e(TAG, e.getMessage());
 						}
@@ -343,7 +343,7 @@ public class MainActivity extends Activity {
 					public void onOk(String result) {
 						Log.i(TAG, "Import database from file: " + result);
 						try {
-							dbAdapter.importDatabase(result);
+							dbAdapter.restoreDatabase(result);
 							refreshList();
 						} catch (IOException e) {
 							Log.e(TAG, e.getMessage());
