@@ -1,5 +1,7 @@
 package com.kangirigungi.pairs;
 
+import com.kangirigungi.pairs.DbAdapter.DbAdapter;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;

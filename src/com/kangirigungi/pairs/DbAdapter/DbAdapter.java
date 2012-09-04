@@ -14,7 +14,7 @@
  * the License.
  */
 
-package com.kangirigungi.pairs;
+package com.kangirigungi.pairs.DbAdapter;
 
 import java.io.File;
 import java.io.IOException;
@@ -116,7 +116,7 @@ public class DbAdapter {
     }
 
     public String getString(long id) {
-    	Log.d(TAG, "getString("+id+")");
+    	Log.v(TAG, "getString("+id+")");
     	Cursor cursor =
     			database.query(TABLE_STRINGS, 
 	            		new String[] {STRINGS_VALUE}, 
@@ -124,24 +124,24 @@ public class DbAdapter {
 	            		new String[] {Long.valueOf(id).toString()},
 	                    null, null, null, null);
         if (cursor != null && cursor.getCount() > 0) {
-        	Log.d(TAG, "Number of results: " + cursor.getCount());
+        	Log.v(TAG, "Number of results: " + cursor.getCount());
             cursor.moveToFirst();
             return cursor.getString(0);
         }
-        Log.d(TAG, "No result");
+        Log.v(TAG, "No result");
         return null;
     }
     
     public Cursor searchString(String match) throws SQLException {
-    	Log.d(TAG, "searchString("+match+")");
+    	Log.v(TAG, "searchString("+match+")");
         Cursor cursor =
             database.query(TABLE_STRINGS, 
             		new String[] {STRINGS_ID,STRINGS_VALUE}, 
             		STRINGS_VALUE+" like ?", 
             		new String[] {match+"%"},
-                    null, null, null, null);
+                    null, null, STRINGS_VALUE, null);
         if (cursor != null) {
-        	Log.d(TAG, "Number of results: " + cursor.getCount());
+        	Log.v(TAG, "Number of results: " + cursor.getCount());
             cursor.moveToFirst();
         }
         return cursor;
@@ -149,7 +149,7 @@ public class DbAdapter {
     }
 
     public long addString(String name) throws SQLException {
-    	Log.d(TAG, "addString("+name+")");
+    	Log.v(TAG, "addString("+name+")");
     	Cursor cursor =
                 database.query(TABLE_STRINGS, 
                 		new String[] {STRINGS_ID}, 
@@ -157,24 +157,24 @@ public class DbAdapter {
                 		new String[] {name},
                         null, null, null, null);
     	if (cursor != null && cursor.getCount() > 0) {
-    		Log.d(TAG, "Found in database.");
+    		Log.v(TAG, "Found in database.");
     		cursor.moveToFirst();
     		return cursor.getLong(0);
     	}
-    	Log.d(TAG, "Not found in database.");
+    	Log.v(TAG, "Not found in database.");
         ContentValues args = new ContentValues();
         args.put(STRINGS_VALUE, name);
         return database.insertOrThrow(TABLE_STRINGS, null, args);
     }
     
     public void deleteString(long id) {
-    	Log.d(TAG, "deleteString("+id+")");
+    	Log.v(TAG, "deleteString("+id+")");
         database.delete(TABLE_STRINGS, STRINGS_ID+"=?", 
         		new String[] {Long.toString(id)});
     }
     
     public void changeString(long id, String value) {
-    	Log.d(TAG, "changeString("+id+", "+value+")");
+    	Log.v(TAG, "changeString("+id+", "+value+")");
     	ContentValues args = new ContentValues();
     	args.put(STRINGS_VALUE, value);
         database.update(TABLE_STRINGS, args, 
@@ -200,17 +200,27 @@ public class DbAdapter {
     private String assocQueryString(String filter) {
     	return "select assoc."+ASSOC_ID+" "+ASSOC_ID+", "+
     			"strings1."+STRINGS_VALUE+" value1, "+
-    			" strings2."+STRINGS_VALUE+" value2 "+
-    			" from "+TABLE_ASSOC+" assoc, "+
-        		TABLE_STRINGS+" strings1, "+
-    			TABLE_STRINGS+" strings2 " +
-        		"where ("+filter+") and " +
-        		"strings1."+STRINGS_ID+"=assoc."+ASSOC_ID1+
-        		" and strings2."+STRINGS_ID+"=assoc."+ASSOC_ID2;
+    			" strings2."+STRINGS_VALUE+" value2 from ("+
+    			
+    			"select * from "+TABLE_ASSOC+
+        		" union "+
+				"select "+ASSOC_ID+", "+
+				ASSOC_ID2+" "+ASSOC_ID1+", "+
+				ASSOC_ID1+" "+ASSOC_ID2+" from "+
+				TABLE_ASSOC+
+				") assoc, " +
+				
+				TABLE_STRINGS+" strings1, "+
+				TABLE_STRINGS+" strings2 " +
+				
+				" where ("+filter+") and " +
+				" strings1."+STRINGS_ID+"=assoc."+ASSOC_ID1+
+        		" and strings2."+STRINGS_ID+"=assoc."+ASSOC_ID2+
+        		" order by value1 asc, value2 asc";
     }
     
     private Cursor doSearchAssoc(String filter, String[] filterParams) {
-    	Log.d(TAG, "searchAssoc()");
+    	Log.v(TAG, "searchAssoc()");
     	String query = assocQueryString(filter);
     	Log.v(TAG, query);
         Cursor cursor =
@@ -224,22 +234,19 @@ public class DbAdapter {
     
     public Cursor searchAssoc(long id) throws SQLException {
     	return doSearchAssoc(
-    			"assoc."+ASSOC_ID1+"=?1 or " +
-        		"assoc."+ASSOC_ID2+"=?1",
+        		"assoc."+ASSOC_ID1+"=?1",
         		new String[] {Long.toString(id)});
     }
     
     public Cursor searchAssoc(long id1, long id2) throws SQLException {
     	return doSearchAssoc(
     			"(assoc."+ASSOC_ID1+"=?1 and " +
-				"assoc."+ASSOC_ID2+"=?2) or" +
-				"(assoc."+ASSOC_ID1+"=?2 and " +
-				"assoc."+ASSOC_ID2+"=?1)",
+				"assoc."+ASSOC_ID2+"=?2)",
 				new String[] {Long.toString(id1), Long.toString(id2)});
     }
     
     public Long[] getAssoc(long id) {
-    	Log.d(TAG, "getAssoc("+id+")");
+    	Log.v(TAG, "getAssoc("+id+")");
     	Cursor cursor =
     			database.query(TABLE_ASSOC, 
 	            		new String[] {ASSOC_ID1, ASSOC_ID2}, 
@@ -247,13 +254,13 @@ public class DbAdapter {
 	            		new String[] {Long.valueOf(id).toString()},
 	                    null, null, null, null);
         if (cursor != null && cursor.getCount() > 0) {
-        	Log.d(TAG, "Number of results: " + cursor.getCount());
+        	Log.v(TAG, "Number of results: " + cursor.getCount());
             cursor.moveToFirst();
             return new Long[] {
             		Long.valueOf(cursor.getLong(0)),
             		Long.valueOf(cursor.getLong(1))};
         }
-        Log.d(TAG, "No result");
+        Log.v(TAG, "No result");
         return null;
     }
 

@@ -2,6 +2,8 @@ package com.kangirigungi.pairs;
 
 import java.io.IOException;
 
+import com.kangirigungi.pairs.DbAdapter.DbAdapter;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
@@ -214,8 +216,8 @@ public class MainActivity extends Activity {
 		final Button textView = (Button)findViewById(textId);
 		InputQuery alert = new InputQuery(this);
 		
-		alert.run("Change string",
-				"change the value of the string", textView.getText(),
+		alert.run(getString(R.string.change_title),
+				getString(R.string.change_value), textView.getText(),
 				new InputQueryResultListener() {
 					@Override
 					public void onOk(String result) {
@@ -411,8 +413,8 @@ public class MainActivity extends Activity {
     		return;
     	}
     	InputQuery alert = new InputQuery(this);
-    	alert.run("Export database",
-				"File name of the database dump", "backup.db",
+    	alert.run(getString(R.string.export_title),
+    			getString(R.string.export_value), "backup.db",
 				new InputQueryResultListener() {
 					@Override
 					public void onOk(String result) {
@@ -436,8 +438,8 @@ public class MainActivity extends Activity {
     		return;
     	}
     	InputQuery alert = new InputQuery(this);
-    	alert.run("Import database",
-				"File name of the database dump", "backup.db",
+    	alert.run(getString(R.string.import_title),
+    			getString(R.string.import_value), "backup.db",
 				new InputQueryResultListener() {
 					@Override
 					public void onOk(String result) {
