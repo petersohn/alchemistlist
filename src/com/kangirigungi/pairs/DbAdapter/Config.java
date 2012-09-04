@@ -1,4 +1,5 @@
-package com.kangirigungi.pairs;
+package com.kangirigungi.pairs.DbAdapter;
+
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -64,7 +65,7 @@ public class Config {
         dbManager = new DbManager();
     }
 
-    public Config open(String dbName) throws SQLException {
+    public Config open() throws SQLException {
     	dbManager.open(new DatabaseHelper());
     	database = dbManager.getDatabase();
         return this;
@@ -75,12 +76,14 @@ public class Config {
         database = null;
     }
     
-    public Cursor getDatabases() {
+    public Cursor searchDatabases(String match) {
     	Log.v(TAG, "getDatabases()");
         Cursor cursor =
             database.query(TABLE_DATABASES, 
-            		new String[] {DATABASES_NAME}, 
-            		null, null, null, null, null, null);
+            		new String[] {DATABASES_ID, DATABASES_NAME}, 
+            		DATABASES_NAME + " like ?", 
+            		new String[] {match + "%"}, 
+            		null, null, null, null);
         if (cursor != null) {
         	Log.v(TAG, "Number of results: " + cursor.getCount());
             cursor.moveToFirst();

@@ -19,19 +19,20 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
-public class TextChooser extends Activity {
+public abstract class TextChooserBase extends Activity {
 
-	private static final String TAG = "MainActivity";
+	private static final String TAG = "TextChooserBase";
 	
-	int textId;
-	private DbAdapter dbAdapter;
+	protected abstract void fillList(String value, ListView listView);
+	protected void prepareResult(Intent resultIntent) {}
+	protected abstract String getValueFromId(long id);
+	protected abstract long getIdFromValue(String value);
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_text_chooser);
-        Bundle extras = getIntent().getExtras();
-        textId = extras.getInt("textId");
+        
 //        EditText valueField = (EditText)findViewById(R.id.textValue);
 //        valueField.setText(extras.getCharSequence("value"));
         
@@ -42,10 +43,10 @@ public class TextChooser extends Activity {
 				Log.d(TAG, "OK button clicked.");
 				EditText valueField = (EditText)findViewById(R.id.textValue);
             	Intent resultIntent = new Intent();
+            	prepareResult(resultIntent);
             	String value = valueField.getText().toString();
             	resultIntent.putExtra("result", value);
-            	resultIntent.putExtra("textId", textId);
-            	resultIntent.putExtra("id", dbAdapter.addString(value));
+            	resultIntent.putExtra("id", getIdFromValue(value));
             	setResult(RESULT_OK, resultIntent);
             	finish();
 
@@ -71,54 +72,21 @@ public class TextChooser extends Activity {
 			public void onItemClick(AdapterView<?> parent, View view, 
 					int position, long id) {
 				Log.d(TAG, "List item clicked.");
-				String value = dbAdapter.getString(id);
-				if (value == null) {
-					Log.e(TAG, "Value not found: " + id);
-					return;
-				}
 				Intent resultIntent = new Intent();
-            	resultIntent.putExtra("result", value);
-            	resultIntent.putExtra("textId", textId);
+				prepareResult(resultIntent);
+            	resultIntent.putExtra("result", getValueFromId(id));
             	resultIntent.putExtra("id", id);
             	setResult(RESULT_OK, resultIntent);
             	finish();
 			}
 		});
-        dbAdapter = new DbAdapter(this);
-        dbAdapter.open();
     }
-   
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.activity_text_chooser, menu);
-        return true;
-    }
-    
-    @Override
-   	protected void onDestroy() {
-       	dbAdapter.close();
-   		super.onDestroy();
-   	}
-    
+  
     private void refreshList() {
     	Log.d(TAG, "refreshList()");
     	EditText valueField = (EditText)findViewById(R.id.textValue);
     	String value = valueField.getText().toString();
-    	ListView list = (ListView)findViewById(R.id.searchList);
-    	if (value.length() == 0) {
-    		Log.d(TAG, "Empty string.");
-    		list.setAdapter(null);
-    		return;
-    	}
-		Cursor cursor = dbAdapter.searchString(value);
-    	if (cursor == null) {
-    		Log.d(TAG, "No result.");
-    		list.setAdapter(null);
-    	} else {
-	    	list.setAdapter(new SimpleCursorAdapter(
-	    			this, android.R.layout.simple_list_item_1, 
-	    			cursor, new String[] {DbAdapter.STRINGS_VALUE}, 
-	    			new int[] {android.R.id.text1}));
-    	}
+    	ListView listView = (ListView)findViewById(R.id.searchList);
+    	fillList(value, listView);
     }
 }

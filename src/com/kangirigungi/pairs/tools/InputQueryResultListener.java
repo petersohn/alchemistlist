@@ -1,4 +1,4 @@
-package com.kangirigungi.pairs;
+package com.kangirigungi.pairs.tools;
 
 public interface InputQueryResultListener {
 	public void onOk(String result);

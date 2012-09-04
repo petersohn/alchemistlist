@@ -22,7 +22,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".TextChooser"
+            android:name=".TextChooserBase"
             android:label="@string/title_activity_text_chooser" >
             
         </activity>

@@ -132,12 +132,15 @@ public class DbAdapter {
         return null;
     }
     
-    public Cursor searchString(String match) throws SQLException {
-    	Log.v(TAG, "searchString("+match+")");
+    public Cursor searchString(String match, boolean exact) throws SQLException {
+    	Log.v(TAG, "searchString("+match+", "+exact+")");
+    	if (!exact) {
+    		match += "%";
+    	}
         Cursor cursor =
             database.query(TABLE_STRINGS, 
             		new String[] {STRINGS_ID,STRINGS_VALUE}, 
-            		STRINGS_VALUE+" like ?", 
+            		STRINGS_VALUE+(exact ? " = ?" : " like ?"), 
             		new String[] {match+"%"},
                     null, null, STRINGS_VALUE, null);
         if (cursor != null) {

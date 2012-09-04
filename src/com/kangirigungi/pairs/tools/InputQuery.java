@@ -1,4 +1,4 @@
-package com.kangirigungi.pairs;
+package com.kangirigungi.pairs.tools;
 
 import android.app.AlertDialog;
 import android.content.Context;

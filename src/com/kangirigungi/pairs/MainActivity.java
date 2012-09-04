@@ -3,6 +3,8 @@ package com.kangirigungi.pairs;
 import java.io.IOException;
 
 import com.kangirigungi.pairs.DbAdapter.DbAdapter;
+import com.kangirigungi.pairs.tools.InputQuery;
+import com.kangirigungi.pairs.tools.InputQueryResultListener;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -184,7 +186,7 @@ public class MainActivity extends Activity {
     }
     
     private void onChooseClick(View v, int textId) {
-    	Intent i = new Intent(this, TextChooser.class);
+    	Intent i = new Intent(this, TextChooserBase.class);
     	i.putExtra("textId", textId);
     	Button textView = (Button)findViewById(textId);
     	i.putExtra("value", textView.getText());
