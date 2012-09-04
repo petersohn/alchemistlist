@@ -11,6 +11,8 @@
     <string name="delString">Delete string</string>
     <string name="menu_backup">Backup</string>
     <string name="menu_restore">Restore</string>
+    <string name="selectDB">Select database</string>
+    <string name="deleteDB">Delete database</string>
     
 
 </resources>

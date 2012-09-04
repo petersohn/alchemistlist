@@ -26,6 +26,7 @@ public class MainActivity extends Activity {
 	
 	private SparseArray<Long> textIds;
 	private DbAdapter dbAdapter;
+	private String dbName;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -112,7 +113,6 @@ public class MainActivity extends Activity {
 		});
         textIds = new SparseArray<Long>();
         dbAdapter = new DbAdapter(this);
-        dbAdapter.open();
         if (savedInstanceState != null) {
         	Long value = (Long)savedInstanceState.getSerializable("item1");
         	if (value != null) {
@@ -122,6 +122,10 @@ public class MainActivity extends Activity {
         	if (value != null) {
         		setTextId(R.id.item2Text, value.longValue());
         	}
+        	dbName = (String)savedInstanceState.getSerializable("dbName");
+        	if (dbName != null) {
+        		dbAdapter.open(dbName);
+        	}
         }
     }
     
@@ -130,6 +134,9 @@ public class MainActivity extends Activity {
         super.onSaveInstanceState(outState);
         outState.putSerializable("item1", textIds.get(R.id.item1Text));
         outState.putSerializable("item2", textIds.get(R.id.item2Text));
+        if (dbName != null) {
+        	outState.putSerializable("dbName", dbName);
+        }
     }
    
     @Override
@@ -155,6 +162,10 @@ public class MainActivity extends Activity {
     @Override
    	protected void onStart() {
        	Log.v(TAG, "onStart()");
+       	if (dbName == null) {
+       		Log.i("No database selected. Selecting one.");
+       		selectDatabase();
+       	}
    		super.onStart();
     }
     
@@ -191,6 +202,10 @@ public class MainActivity extends Activity {
     
     private void onChangeClick(View v, int textId) {
     	Log.d(TAG, "onChangeClick()");
+    	if (dbName == null) {
+    		Log.w(TAG, "No database selected.");
+    		return;
+    	}
     	final Long id = textIds.get(textId);
 		if (id == null) {
 			Log.d(TAG, "No value");
@@ -219,6 +234,10 @@ public class MainActivity extends Activity {
     
     private void onAddAssocClick(View v) {
     	Log.d(TAG, "onAddAssocClick()");
+    	if (dbName == null) {
+    		Log.w(TAG, "No database selected.");
+    		return;
+    	}
     	Long id1 = textIds.get(R.id.item1Text);
     	Long id2 = textIds.get(R.id.item2Text);
     	if (id1 != null && id2 != null) {
@@ -233,6 +252,10 @@ public class MainActivity extends Activity {
     
     private void onDelAssocClick(View v) {
     	Log.d(TAG, "onDelAssocClick()");
+    	if (dbName == null) {
+    		Log.w(TAG, "No database selected.");
+    		return;
+    	}
     	Long id1 = textIds.get(R.id.item1Text);
     	Long id2 = textIds.get(R.id.item2Text);
     	if (id1 != null && id2 != null) {
@@ -247,6 +270,10 @@ public class MainActivity extends Activity {
     
     private void onDelStringClick(View v) {
     	Log.d(TAG, "onDelStringClick()");
+    	if (dbName == null) {
+    		Log.w(TAG, "No database selected.");
+    		return;
+    	}
     	Long id1 = textIds.get(R.id.item1Text);
     	Long id2 = textIds.get(R.id.item2Text);
     	if (id1 != null) {
@@ -266,6 +293,10 @@ public class MainActivity extends Activity {
     
     private void refreshList() {
     	Log.d(TAG, "refreshList()");
+    	if (dbName == null) {
+    		Log.w(TAG, "No database selected.");
+    		return;
+    	}
     	Long id1 = textIds.get(R.id.item1Text);
     	Long id2 = textIds.get(R.id.item2Text);
     	Cursor cursor = null;
@@ -336,10 +367,49 @@ public class MainActivity extends Activity {
 				return false;
 			}
 		});
+        
+        menu.findItem(R.id.menu_selectDB).setOnMenuItemClickListener(new OnMenuItemClickListener() {
+			
+			@Override
+			public boolean onMenuItemClick(MenuItem item) {
+				selectDatabase();
+				return false;
+			}
+		});
+        
+        menu.findItem(R.id.menu_deleteDB).setOnMenuItemClickListener(new OnMenuItemClickListener() {
+			
+			@Override
+			public boolean onMenuItemClick(MenuItem item) {
+				deleteDatabase();
+				return false;
+			}
+		});
         return true;
     }
     
+    private void selectDatabase() {
+    	Log.v(TAG, "selectDatabase()");
+    }
+    
+    private void deleteDatabase() {
+    	Log.v(TAG, "deleteDatabase()");
+    	if (dbName == null) {
+    		Log.w(TAG, "No database selected.");
+    		return;
+    	}
+    	if (!dbAdapter.deleteDatabase()) {
+    		return;
+    	}
+    	dbName = null;
+    	selectDatabase();
+    }
+    
     private void exportDatabase() {
+    	if (dbName == null) {
+    		Log.w(TAG, "No database selected.");
+    		return;
+    	}
     	InputQuery alert = new InputQuery(this);
     	alert.run("Export database",
 				"File name of the database dump", "backup.db",
@@ -361,6 +431,10 @@ public class MainActivity extends Activity {
     }
     
     private void importDatabase() {
+    	if (dbName == null) {
+    		Log.w(TAG, "No database selected.");
+    		return;
+    	}
     	InputQuery alert = new InputQuery(this);
     	alert.run("Import database",
 				"File name of the database dump", "backup.db",

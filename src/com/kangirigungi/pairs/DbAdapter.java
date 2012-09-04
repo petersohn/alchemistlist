@@ -16,6 +16,7 @@
 
 package com.kangirigungi.pairs;
 
+import java.io.File;
 import java.io.IOException;
 
 import android.content.ContentValues;
@@ -41,14 +42,14 @@ public class DbAdapter {
     
     private Context context;
     
-    DbManager dbManager;
-    SQLiteDatabase database;
+    private DbManager dbManager;
+    private SQLiteDatabase database;
     
     /**
      * Database creation sql statement
      */
 
-    private static final String DATABASE_NAME_BASE = "data";
+    private static final String DATABASE_NAME_BASE = "data_";
     
     private static final String TABLE_STRINGS = "strings";
     public static final String STRINGS_ID = "_id";
@@ -103,8 +104,8 @@ public class DbAdapter {
         dbManager = new DbManager();
     }
 
-    public DbAdapter open() throws SQLException {
-    	dbManager.open(new DatabaseHelper(""));
+    public DbAdapter open(String dbName) throws SQLException {
+    	dbManager.open(new DatabaseHelper(dbName));
     	database = dbManager.getDatabase();
         return this;
     }
@@ -265,6 +266,20 @@ public class DbAdapter {
 	
 	public void restoreDatabase(String filename) throws IOException {
 		dbManager.restoreDatabase(filename);
+	}
+	
+	public boolean deleteDatabase() {
+		Log.d(TAG, "Deleting database");
+		String path = database.getPath();
+		close();
+		File file = new File(path);
+		if (file.delete()) {
+			Log.i(TAG, "Database deleted");
+			return true;
+		} else {
+			Log.w(TAG, "Failed to delete database");
+			return false;
+		}
 	}
 	
 }
