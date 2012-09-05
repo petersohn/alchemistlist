@@ -192,6 +192,9 @@ public class MainActivity extends Activity {
     	i.putExtra("textId", textId);
     	Button textView = (Button)findViewById(textId);
     	i.putExtra("value", textView.getText());
+    	if (dbName != null) {
+    		i.putExtra("dbName", dbName);
+    	}
         startActivityForResult(i, ACTIVITY_CHOOSE_STRING);
     }
     

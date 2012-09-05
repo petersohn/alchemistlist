@@ -76,6 +76,12 @@ public abstract class TextChooserBase extends Activity {
 			}
 		});
     }
+    
+    @Override
+   	protected void onStart() {
+   		super.onStart();
+   		refreshList();
+    }
   
     private void refreshList() {
     	Log.d(TAG, "refreshList()");

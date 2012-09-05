@@ -23,7 +23,12 @@ public class StringTextChooser extends TextChooserBase {
         textId = extras.getInt("textId");
         
         dbAdapter = new DbAdapter(this);
-        dbAdapter.open(extras.getString("dbName"));
+        String dbName = extras.getString("dbName");
+        if (dbName != null) {
+        	dbAdapter.open(extras.getString("dbName"));
+        } else {
+        	Log.e(TAG, "No database.");
+        }
 	}
 	
 	@Override

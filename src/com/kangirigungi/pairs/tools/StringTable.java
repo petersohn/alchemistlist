@@ -22,6 +22,12 @@ public class StringTable {
 		this.columnIdName = columnIdName;
 		this.columnValueName = columnValueName;
 		this.columnNames = new String[] {columnIdName, columnValueName};
+		
+		Log.v(TAG, "StringTable created.");
+		Log.v(TAG, "databaseName = " + database.getPath());
+    	Log.v(TAG, "tableName = " + tableName);
+    	Log.v(TAG, "columnIdName = " + columnIdName);
+    	Log.v(TAG, "columnValueName = " + columnValueName);
 	}
 	
 	public String getString(long id) {
