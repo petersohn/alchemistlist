@@ -1,6 +1,6 @@
 package com.kangirigungi.pairs;
 
-import com.kangirigungi.pairs.DbAdapter.DbAdapter;
+import com.kangirigungi.pairs.Database.DbAdapter;
 
 import android.content.Intent;
 import android.database.Cursor;
@@ -40,7 +40,7 @@ public class StringTextChooser extends TextChooserBase {
     		listView.setAdapter(null);
     		return;
     	}
-		Cursor cursor = dbAdapter.searchString(value, false);
+		Cursor cursor = dbAdapter.getStringsWrapper().searchString(value, false);
     	if (cursor == null) {
     		Log.d(TAG, "No result.");
     		listView.setAdapter(null);
@@ -59,7 +59,7 @@ public class StringTextChooser extends TextChooserBase {
 
 	@Override
 	protected String getValueFromId(long id) {
-		String value = dbAdapter.getString(id);
+		String value = dbAdapter.getStringsWrapper().getString(id);
 		if (value == null) {
 			Log.e(TAG, "Value not found: " + id);
 		}
@@ -68,11 +68,7 @@ public class StringTextChooser extends TextChooserBase {
 
 	@Override
 	protected long getIdFromValue(String value) {
-		Cursor findResult = dbAdapter.searchString(value, true);
-		if (findResult != null && findResult.getCount() > 0) {
-			return findResult.getLong(0);
-		}
-		return dbAdapter.addString(value);
+		return dbAdapter.getStringsWrapper().addString(value);
 	}
 
 }

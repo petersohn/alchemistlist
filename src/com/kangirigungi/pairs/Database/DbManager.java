@@ -1,4 +1,4 @@
-package com.kangirigungi.pairs.DbAdapter;
+package com.kangirigungi.pairs.Database;
 
 import java.io.File;
 import java.io.FileInputStream;

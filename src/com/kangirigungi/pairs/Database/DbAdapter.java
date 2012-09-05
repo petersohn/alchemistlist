@@ -14,7 +14,7 @@
  * the License.
  */
 
-package com.kangirigungi.pairs.DbAdapter;
+package com.kangirigungi.pairs.Database;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,6 +26,8 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+
+import com.kangirigungi.pairs.tools.StringTable;
 
 /**
  * Simple notes database access helper class. Defines the basic CRUD operations
@@ -44,6 +46,7 @@ public class DbAdapter {
     
     private DbManager dbManager;
     private SQLiteDatabase database;
+    private StringTable stringsWrapper;
     
     /**
      * Database creation sql statement
@@ -107,69 +110,21 @@ public class DbAdapter {
     public DbAdapter open(String dbName) throws SQLException {
     	dbManager.open(new DatabaseHelper(dbName));
     	database = dbManager.getDatabase();
+    	stringsWrapper = new StringTable(
+    			database, TABLE_STRINGS, STRINGS_ID, STRINGS_VALUE);
         return this;
     }
 
     public void close() {
         dbManager.close();
         database = null;
+        stringsWrapper = null;
     }
 
-    public String getString(long id) {
-    	Log.v(TAG, "getString("+id+")");
-    	Cursor cursor =
-    			database.query(TABLE_STRINGS, 
-	            		new String[] {STRINGS_VALUE}, 
-	            		STRINGS_ID+" = ?", 
-	            		new String[] {Long.valueOf(id).toString()},
-	                    null, null, null, null);
-        if (cursor != null && cursor.getCount() > 0) {
-        	Log.v(TAG, "Number of results: " + cursor.getCount());
-            cursor.moveToFirst();
-            return cursor.getString(0);
-        }
-        Log.v(TAG, "No result");
-        return null;
+    public StringTable getStringsWrapper() {
+    	return stringsWrapper;
     }
-    
-    public Cursor searchString(String match, boolean exact) throws SQLException {
-    	Log.v(TAG, "searchString("+match+", "+exact+")");
-    	if (!exact) {
-    		match += "%";
-    	}
-        Cursor cursor =
-            database.query(TABLE_STRINGS, 
-            		new String[] {STRINGS_ID,STRINGS_VALUE}, 
-            		STRINGS_VALUE+(exact ? " = ?" : " like ?"), 
-            		new String[] {match+"%"},
-                    null, null, STRINGS_VALUE, null);
-        if (cursor != null) {
-        	Log.v(TAG, "Number of results: " + cursor.getCount());
-            cursor.moveToFirst();
-        }
-        return cursor;
-
-    }
-
-    public long addString(String name) throws SQLException {
-    	Log.v(TAG, "addString("+name+")");
-    	Cursor cursor =
-                database.query(TABLE_STRINGS, 
-                		new String[] {STRINGS_ID}, 
-                		STRINGS_VALUE+" = ?", 
-                		new String[] {name},
-                        null, null, null, null);
-    	if (cursor != null && cursor.getCount() > 0) {
-    		Log.v(TAG, "Found in database.");
-    		cursor.moveToFirst();
-    		return cursor.getLong(0);
-    	}
-    	Log.v(TAG, "Not found in database.");
-        ContentValues args = new ContentValues();
-        args.put(STRINGS_VALUE, name);
-        return database.insertOrThrow(TABLE_STRINGS, null, args);
-    }
-    
+      
     public void deleteString(long id) {
     	Log.v(TAG, "deleteString("+id+")");
         database.delete(TABLE_STRINGS, STRINGS_ID+"=?", 

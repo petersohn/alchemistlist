@@ -2,9 +2,10 @@ package com.kangirigungi.pairs;
 
 import java.io.IOException;
 
-import com.kangirigungi.pairs.DbAdapter.DbAdapter;
+import com.kangirigungi.pairs.Database.DbAdapter;
 import com.kangirigungi.pairs.tools.InputQuery;
 import com.kangirigungi.pairs.tools.InputQueryResultListener;
+import com.kangirigungi.pairs.tools.Utils;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -25,7 +26,8 @@ import android.widget.SimpleCursorAdapter;
 
 public class MainActivity extends Activity {
 
-	private static final int ACTIVITY_CHOOSE = 0;
+	private static final int ACTIVITY_CHOOSE_STRING = 0;
+	private static final int ACTIVITY_CHOOSE_DATABASE = 1;
 	private static final String TAG = "MainActivity";
 	
 	private SparseArray<Long> textIds;
@@ -167,7 +169,7 @@ public class MainActivity extends Activity {
    	protected void onStart() {
        	Log.v(TAG, "onStart()");
        	if (dbName == null) {
-       		Log.i("No database selected. Selecting one.");
+       		Log.i(TAG, "No database selected. Selecting one.");
        		selectDatabase();
        	}
    		super.onStart();
@@ -181,16 +183,16 @@ public class MainActivity extends Activity {
     
     private void setTextId(int textId, long id) {
     	Button textView = (Button)findViewById(textId);
-		textView.setText(dbAdapter.getString(id));
+		textView.setText(dbAdapter.getStringsWrapper().getString(id));
 		textIds.put(textId, id);
     }
     
     private void onChooseClick(View v, int textId) {
-    	Intent i = new Intent(this, TextChooserBase.class);
+    	Intent i = new Intent(this, StringTextChooser.class);
     	i.putExtra("textId", textId);
     	Button textView = (Button)findViewById(textId);
     	i.putExtra("value", textView.getText());
-        startActivityForResult(i, ACTIVITY_CHOOSE);
+        startActivityForResult(i, ACTIVITY_CHOOSE_STRING);
     }
     
     private void clearText(int textId) {
@@ -329,18 +331,23 @@ public class MainActivity extends Activity {
     
     @Override 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-    	Log.d(TAG, "Activity returned with code: " + resultCode);
+    	switch (requestCode) {
+    	case ACTIVITY_CHOOSE_STRING:
+    		onStringChooserResult(resultCode, data);
+    		break;
+    	case ACTIVITY_CHOOSE_DATABASE:
+    		onDatabaseChooserResult(resultCode, data);
+    		break;
+    	}
+    	
+    }
+    
+    private void onStringChooserResult(int resultCode, Intent data) {
+    	Log.d(TAG, "StringTextChooser activity returned with code: " + resultCode);
     	if (resultCode == RESULT_OK) {
     		Log.d(TAG, "Got OK result from activity.");
     		Bundle extras = data.getExtras();
-    		for (String key: extras.keySet()) {
-    			Object obj = extras.get(key);
-    			if (obj == null) {
-    				Log.d(TAG, key + " is null");
-    			} else {
-    				Log.d(TAG, key + " = " + obj.toString());
-    			}
-    		}
+    		Utils.printBundle(TAG, extras);
     		int textId = extras.getInt("textId");
     		Button Button = (Button)findViewById(textId);
     		String value = extras.getString("result");
@@ -349,6 +356,23 @@ public class MainActivity extends Activity {
     			textIds.put(textId, Long.valueOf(extras.getLong("id")));
     		}
     		refreshList();
+    	}
+    }
+    
+    private void onDatabaseChooserResult(int resultCode, Intent data) {
+    	Log.d(TAG, "DbTextChooser activity returned with code: " + resultCode);
+    	if (resultCode == RESULT_OK) {
+    		Log.d(TAG, "Got OK result from activity.");
+    		Bundle extras = data.getExtras();
+    		Utils.printBundle(TAG, extras);
+    		String value = extras.getString("result");
+    		if (value != null && value.length() > 0) {
+    			dbName = value;
+    			dbAdapter.open(value);
+    			refreshList();
+    		} else {
+    			Log.w(TAG, "Value is null or empty.");
+    		}
     	}
     }
 
@@ -394,6 +418,11 @@ public class MainActivity extends Activity {
     
     private void selectDatabase() {
     	Log.v(TAG, "selectDatabase()");
+    	Intent i = new Intent(this, DbTextChooser.class);
+    	if (dbName != null) {
+    		i.putExtra("value", dbName);
+    	}
+        startActivityForResult(i, ACTIVITY_CHOOSE_DATABASE);
     }
     
     private void deleteDatabase() {

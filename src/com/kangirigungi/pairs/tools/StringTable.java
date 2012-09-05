@@ -1,5 +1,6 @@
 package com.kangirigungi.pairs.tools;
 
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
@@ -10,15 +11,17 @@ public class StringTable {
 	
 	private SQLiteDatabase database;
 	private String tableName;
+	private String columnIdName;
+	private String columnValueName;
 	private String[] columnNames;
 	
 	public StringTable(SQLiteDatabase database, String tableName, 
 			String columnIdName, String columnValueName) {
 		this.database = database;
 		this.tableName = tableName;
-		this.columnNames = new String[2];
-		columnNames[0] = columnIdName;
-		columnNames[1] = columnValueName;
+		this.columnIdName = columnIdName;
+		this.columnValueName = columnValueName;
+		this.columnNames = new String[] {columnIdName, columnValueName};
 	}
 	
 	public String getString(long id) {
@@ -26,7 +29,7 @@ public class StringTable {
     	Cursor cursor =
     			database.query(tableName, 
 	            		columnNames, 
-	            		columnNames[0]+" = ?", 
+	            		columnIdName+" = ?", 
 	            		new String[] {Long.valueOf(id).toString()},
 	                    null, null, null, null);
         if (cursor != null && cursor.getCount() > 0) {
@@ -46,14 +49,28 @@ public class StringTable {
         Cursor cursor =
             database.query(tableName, 
             		columnNames, 
-            		columnNames[1]+(exact ? " = ?" : " like ?"), 
+            		columnValueName+(exact ? " = ?" : " like ?"), 
             		new String[] {match},
-                    null, null, columnNames[1], null);
+                    null, null, columnValueName, null);
         if (cursor != null) {
         	Log.v(TAG, "Number of results: " + cursor.getCount());
             cursor.moveToFirst();
         }
         return cursor;
     }
+	
+	 public long addString(String value) throws SQLException {
+	    	Log.v(TAG, "addString("+value+")");
+	    	Cursor cursor = searchString(value, true);
+	    	if (cursor != null && cursor.getCount() > 0) {
+	    		Log.v(TAG, "Found in database.");
+	    		cursor.moveToFirst();
+	    		return cursor.getLong(0);
+	    	}
+	    	Log.v(TAG, "Not found in database.");
+	        ContentValues args = new ContentValues();
+	        args.put(columnValueName, value);
+	        return database.insertOrThrow(tableName, null, args);
+	    }
 	
 }

@@ -1,13 +1,13 @@
-package com.kangirigungi.pairs.DbAdapter;
+package com.kangirigungi.pairs.Database;
 
 
-import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+
+import com.kangirigungi.pairs.tools.StringTable;
 
 public class Config {
 	private static final String TAG = "Config";
@@ -16,6 +16,7 @@ public class Config {
     
     private DbManager dbManager;
     private SQLiteDatabase database;
+    private StringTable databasesWrapper;
     
     /**
      * Database creation sql statement
@@ -68,34 +69,19 @@ public class Config {
     public Config open() throws SQLException {
     	dbManager.open(new DatabaseHelper());
     	database = dbManager.getDatabase();
+    	databasesWrapper = new StringTable(database, 
+    			TABLE_DATABASES, DATABASES_ID, DATABASES_NAME);
         return this;
     }
 
     public void close() {
         dbManager.close();
         database = null;
+        databasesWrapper = null;
     }
     
-    public Cursor searchDatabases(String match) {
-    	Log.v(TAG, "getDatabases()");
-        Cursor cursor =
-            database.query(TABLE_DATABASES, 
-            		new String[] {DATABASES_ID, DATABASES_NAME}, 
-            		DATABASES_NAME + " like ?", 
-            		new String[] {match + "%"}, 
-            		null, null, null, null);
-        if (cursor != null) {
-        	Log.v(TAG, "Number of results: " + cursor.getCount());
-            cursor.moveToFirst();
-        }
-        return cursor;
-    }
-    
-    public void addDatabase(String name) {
-    	Log.v(TAG, "addDatabase("+name+")");
-    	ContentValues args = new ContentValues();
-        args.put(DATABASE_NAME, name);
-        database.insertOrThrow(TABLE_DATABASES, null, args);
+    public StringTable getDatabasesWrapper() {
+    	return databasesWrapper;
     }
     
     public void deleteDatabase(String name) {
