@@ -2,11 +2,6 @@ package com.kangirigungi.pairs;
 
 import java.io.IOException;
 
-import com.kangirigungi.pairs.Database.DbAdapter;
-import com.kangirigungi.pairs.tools.InputQuery;
-import com.kangirigungi.pairs.tools.InputQueryResultListener;
-import com.kangirigungi.pairs.tools.Utils;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
@@ -24,6 +19,12 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
+import com.kangirigungi.pairs.Database.Config;
+import com.kangirigungi.pairs.Database.DbAdapter;
+import com.kangirigungi.pairs.tools.InputQuery;
+import com.kangirigungi.pairs.tools.InputQueryResultListener;
+import com.kangirigungi.pairs.tools.Utils;
+
 public class MainActivity extends Activity {
 
 	private static final int ACTIVITY_CHOOSE_STRING = 0;
@@ -32,6 +33,7 @@ public class MainActivity extends Activity {
 	
 	private SparseArray<Long> textIds;
 	private DbAdapter dbAdapter;
+	private Config config;
 	private String dbName;
 	
     @Override
@@ -118,7 +120,14 @@ public class MainActivity extends Activity {
 			}
 		});
         textIds = new SparseArray<Long>();
+        config = new Config(this);
+        config.open();
         dbAdapter = new DbAdapter(this);
+        dbName = config.getLastDatabase();
+    	if (dbName != null) {
+    		dbAdapter.open(dbName);
+    	}
+    	
         if (savedInstanceState != null) {
         	Long value = (Long)savedInstanceState.getSerializable("item1");
         	if (value != null) {
@@ -128,11 +137,8 @@ public class MainActivity extends Activity {
         	if (value != null) {
         		setTextId(R.id.item2Text, value.longValue());
         	}
-        	dbName = (String)savedInstanceState.getSerializable("dbName");
-        	if (dbName != null) {
-        		dbAdapter.open(dbName);
-        	}
         }
+        refreshList();
     }
     
     @Override
@@ -140,9 +146,6 @@ public class MainActivity extends Activity {
         super.onSaveInstanceState(outState);
         outState.putSerializable("item1", textIds.get(R.id.item1Text));
         outState.putSerializable("item2", textIds.get(R.id.item2Text));
-        if (dbName != null) {
-        	outState.putSerializable("dbName", dbName);
-        }
     }
    
     @Override
@@ -162,6 +165,10 @@ public class MainActivity extends Activity {
 	protected void onDestroy() {
     	Log.v(TAG, "onDestroy()");
     	dbAdapter.close();
+    	if (dbName != null) {
+    		config.saveLastDatabase(dbName);
+    	}
+    	config.close();
 		super.onDestroy();
 	}
     

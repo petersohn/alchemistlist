@@ -1,7 +1,9 @@
 package com.kangirigungi.pairs.Database;
 
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -28,7 +30,11 @@ public class Config {
     public static final String DATABASES_ID = "_id";
     public static final String DATABASES_NAME = "name";
     
-    private static final int DATABASE_VERSION = 1;
+    private static final String TABLE_LAST_DATABASE = "last_database";
+    public static final String LAST_DATABASE_ID = "_id";
+    public static final String LAST_DATABASE_NAME = "name";
+    
+    private static final int DATABASE_VERSION = 2;
 
     private class DatabaseHelper extends SQLiteOpenHelper {
 
@@ -44,14 +50,24 @@ public class Config {
             db.execSQL("create table "+TABLE_DATABASES+" (" +
             		DATABASES_ID+" integer primary key," +
             		DATABASES_NAME+" text not null);");
+            db.execSQL("create table "+TABLE_LAST_DATABASE+" (" +
+            		LAST_DATABASE_ID+" integer primary key," +
+            		LAST_DATABASE_NAME+" text not null);");
         }
 
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            Log.w(TAG, "Upgrading database from version " + oldVersion + " to "
-                    + newVersion + ", which will destroy all old data");
-            db.execSQL("DROP TABLE IF EXISTS "+TABLE_DATABASES);
-            onCreate(db);
+            Log.i(TAG, "Upgrading database from version " + oldVersion + " to "
+                    + newVersion);
+            if (oldVersion < 2) {
+            	upgradeFrom1To2(db);
+            }
+        }
+        
+        private void upgradeFrom1To2(SQLiteDatabase db) {
+        	db.execSQL("create table "+TABLE_LAST_DATABASE+" (" +
+            		LAST_DATABASE_ID+" integer primary key," +
+            		LAST_DATABASE_NAME+" text not null);");
         }
     } // DatabaseHelper
 
@@ -88,5 +104,32 @@ public class Config {
     	Log.v(TAG, "deleteDatabase("+name+")");
         database.delete(TABLE_DATABASES, DATABASES_NAME+"=?", 
         		new String[] {name});
+    }
+    
+    public String getLastDatabase() {
+    	Log.v(TAG, "getLastDatabase()");
+        Cursor cursor =
+            database.query(TABLE_LAST_DATABASE, 
+            		new String[] {LAST_DATABASE_NAME}, 
+            		null, null, null, null, null, null);
+        if (cursor != null && cursor.getCount() > 0) {
+        	cursor.moveToFirst();
+        	String result = cursor.getString(0);
+        	Log.d(TAG, "Found last database: " + result);
+            return result;
+        }
+        Log.d(TAG, "Last database not found");
+        return null;
+    }
+    
+    public void saveLastDatabase(String dbName) {
+    	Log.d(TAG, "saveLastDatabase("+dbName+")");
+    	ContentValues args = new ContentValues();
+        args.put(LAST_DATABASE_NAME, dbName);
+        if (getLastDatabase() == null) {
+        	database.insert(TABLE_LAST_DATABASE, null, args);
+        } else {
+        	database.update(TABLE_LAST_DATABASE, args, null, null);
+        }
     }
 }
