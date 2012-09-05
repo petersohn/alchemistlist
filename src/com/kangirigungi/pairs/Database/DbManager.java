@@ -48,6 +48,9 @@ public class DbManager {
 
     public void close() {
     	Log.v(TAG, "close()");
+    	if (!isOpen) {
+    		return;
+    	}
         dbHelper.close();
         database = null;
         isOpen = false;

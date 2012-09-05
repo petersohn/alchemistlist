@@ -18,6 +18,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
+import android.widget.TextView;
 
 import com.kangirigungi.pairs.Database.Config;
 import com.kangirigungi.pairs.Database.DbAdapter;
@@ -123,10 +124,7 @@ public class MainActivity extends Activity {
         config = new Config(this);
         config.open();
         dbAdapter = new DbAdapter(this);
-        dbName = config.getLastDatabase();
-    	if (dbName != null) {
-    		dbAdapter.open(dbName);
-    	}
+        setDbName(config.getLastDatabase());
     	
         if (savedInstanceState != null) {
         	Long value = (Long)savedInstanceState.getSerializable("item1");
@@ -187,6 +185,18 @@ public class MainActivity extends Activity {
        	Log.v(TAG, "onResume()");
    		super.onResume();
    	}
+    
+    private void setDbName(String value) {
+    	dbAdapter.close();
+    	dbName = value;
+    	if (dbName != null) {
+    		dbAdapter.open(dbName);
+    	}
+    	TextView indicator = (TextView)findViewById(R.id.dbNameIndicator);
+    	indicator.setText(value);
+    	clearAll();
+		refreshList();
+    }
     
     private void setTextId(int textId, long id) {
     	Button textView = (Button)findViewById(textId);
@@ -383,10 +393,7 @@ public class MainActivity extends Activity {
     		Utils.printBundle(TAG, extras);
     		String value = extras.getString("result");
     		if (value != null && value.length() > 0) {
-    			dbName = value;
-    			dbAdapter.open(value);
-    			clearAll();
-    			refreshList();
+    			setDbName(value);
     		} else {
     			Log.w(TAG, "Value is null or empty.");
     		}
