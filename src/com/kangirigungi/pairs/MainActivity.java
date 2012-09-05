@@ -198,6 +198,12 @@ public class MainActivity extends Activity {
         startActivityForResult(i, ACTIVITY_CHOOSE_STRING);
     }
     
+    private void clearAll() {
+    	clearText(R.id.item1Text);
+    	clearText(R.id.item2Text);
+    	refreshList();
+    }
+    
     private void clearText(int textId) {
     	Button textView = (Button)findViewById(textId);
     	textView.setText("");
@@ -372,6 +378,7 @@ public class MainActivity extends Activity {
     		if (value != null && value.length() > 0) {
     			dbName = value;
     			dbAdapter.open(value);
+    			clearAll();
     			refreshList();
     		} else {
     			Log.w(TAG, "Value is null or empty.");
@@ -434,6 +441,7 @@ public class MainActivity extends Activity {
     		Log.w(TAG, "No database selected.");
     		return;
     	}
+    	clearAll();
     	if (!dbAdapter.deleteDatabase()) {
     		return;
     	}
