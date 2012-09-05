@@ -104,6 +104,12 @@ public class Config {
     	Log.v(TAG, "deleteDatabase("+name+")");
         database.delete(TABLE_DATABASES, DATABASES_NAME+"=?", 
         		new String[] {name});
+    	database.delete(TABLE_LAST_DATABASE, LAST_DATABASE_NAME+"=?", 
+         		new String[] {name});
+    }
+    
+    public void deleteLastDatabase() {
+    	database.delete(TABLE_LAST_DATABASE, null, null); 
     }
     
     public String getLastDatabase() {

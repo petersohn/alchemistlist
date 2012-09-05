@@ -163,7 +163,9 @@ public class MainActivity extends Activity {
 	protected void onDestroy() {
     	Log.v(TAG, "onDestroy()");
     	dbAdapter.close();
-    	if (dbName != null) {
+    	if (dbName == null) {
+    		config.deleteLastDatabase();
+    	} else {
     		config.saveLastDatabase(dbName);
     	}
     	config.close();
@@ -397,6 +399,13 @@ public class MainActivity extends Activity {
     		} else {
     			Log.w(TAG, "Value is null or empty.");
     		}
+    	} else {
+    		Log.v(TAG, "DbTextChooser cancelled.");
+    	}
+    	if (dbName == null) {
+    		Log.i(TAG, "No database selected. Exiting.");
+    		setResult(RESULT_CANCELED, null);
+    		finish();
     	}
     }
 
@@ -457,8 +466,10 @@ public class MainActivity extends Activity {
     	}
     	clearAll();
     	if (!dbAdapter.deleteDatabase()) {
+    		Log.w(TAG, "Could not delete database.");
     		return;
     	}
+    	config.deleteDatabase(dbName);
     	dbName = null;
     	selectDatabase();
     }
