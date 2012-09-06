@@ -19,6 +19,7 @@
     <string name="export_value">File name of the database dump</string>
     <string name="import_title">Import database</string>
     <string name="import_value">File name of the database dump</string>
+    <string name="add">Add</string>
     
     
 

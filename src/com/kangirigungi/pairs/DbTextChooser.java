@@ -1,10 +1,6 @@
 package com.kangirigungi.pairs;
 
-import android.database.Cursor;
 import android.os.Bundle;
-import android.util.Log;
-import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
 
 import com.kangirigungi.pairs.Database.ConfigDbAdapter;
 import com.kangirigungi.pairs.Database.StringContainer;

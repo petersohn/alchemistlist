@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2008 Google Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package com.kangirigungi.pairs.Database;
 
 import java.io.File;
@@ -28,16 +12,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 
-/**
- * Simple notes database access helper class. Defines the basic CRUD operations
- * for the notepad example, and gives the ability to list all notes as well as
- * retrieve or modify a specific note.
- * 
- * This has been improved from the first version of this tutorial through the
- * addition of better error handling and also using returning a Cursor instead
- * of using a collection of inner classes (which is less scalable and not
- * recommended).
- */
 public class DbAdapter {
     private static final String TAG = "DbAdapter";
     
@@ -53,7 +27,7 @@ public class DbAdapter {
 
     private static final String DATABASE_NAME_BASE = "data_";
     
-    private static final String TABLE_STRINGS = "strings";
+    private static final String TABLE_STRINGS = "ingredients";
     public static final String STRINGS_ID = "_id";
     public static final String STRINGS_VALUE = "value";
     
@@ -62,7 +36,7 @@ public class DbAdapter {
     public static final String ASSOC_ID1 = "id1";
     public static final String ASSOC_ID2 = "id2";
     
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
 
     private class DatabaseHelper extends SQLiteOpenHelper {
 
@@ -85,13 +59,30 @@ public class DbAdapter {
             		");");
         }
 
-        @Override
-        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            Log.w(TAG, "Upgrading database from version " + oldVersion + " to "
-                    + newVersion + ", which will destroy all old data");
-            db.execSQL("DROP TABLE IF EXISTS "+TABLE_STRINGS);
+        private void recreateDatabase(SQLiteDatabase db) {
+        	Log.w(TAG, "Recreating database. All old data will be destroyed.");
+        	db.execSQL("DROP TABLE IF EXISTS "+TABLE_STRINGS);
             db.execSQL("DROP TABLE IF EXISTS "+TABLE_ASSOC);
             onCreate(db);
+        }
+        
+        
+        
+        @Override
+        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+            Log.i(TAG, "Upgrading database from version " + oldVersion + " to "
+                    + newVersion);
+            if (oldVersion < 2) {
+            	recreateDatabase(db);
+            	return;
+            }
+            if (oldVersion < 3) {
+            	upgradeFrom2To3(db);
+            }
+        }
+        
+        private void upgradeFrom2To3(SQLiteDatabase db) {
+        	db.execSQL("alter table strings rename to " + TABLE_STRINGS);
         }
     } // DatabaseHelper
 

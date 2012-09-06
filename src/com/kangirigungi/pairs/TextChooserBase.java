@@ -16,7 +16,6 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
-import com.kangirigungi.pairs.Database.ConfigDbAdapter;
 import com.kangirigungi.pairs.Database.StringContainer;
 
 public abstract class TextChooserBase extends Activity {
@@ -34,7 +33,7 @@ public abstract class TextChooserBase extends Activity {
 //        EditText valueField = (EditText)findViewById(R.id.textValue);
 //        valueField.setText(extras.getCharSequence("value"));
         
-        Button btn = (Button)findViewById(R.id.buttonOk);
+        Button btn = (Button)findViewById(R.id.textChooser_buttonOk);
         btn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {

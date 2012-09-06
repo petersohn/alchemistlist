@@ -4,11 +4,8 @@ import com.kangirigungi.pairs.Database.DbAdapter;
 import com.kangirigungi.pairs.Database.StringContainer;
 
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
 
 public class StringTextChooser extends TextChooserBase {
 	private static final String TAG = "StringTextChooser";
