@@ -26,11 +26,11 @@ import com.kangirigungi.pairs.tools.InputQuery;
 import com.kangirigungi.pairs.tools.InputQueryResultListener;
 import com.kangirigungi.pairs.tools.Utils;
 
-public class MainActivity extends Activity {
+public class ExperimentActivity extends Activity {
 
 	private static final int ACTIVITY_CHOOSE_STRING = 0;
 	private static final int ACTIVITY_CHOOSE_DATABASE = 1;
-	private static final String TAG = "MainActivity";
+	private static final String TAG = "ExperimentActivity";
 	
 	private SparseArray<Long> textIds;
 	private DbAdapter dbAdapter;
@@ -40,7 +40,7 @@ public class MainActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_experiment);
         
         Button btn = (Button)findViewById(R.id.item1Button);
         btn.setOnClickListener(new OnClickListener() {
@@ -411,7 +411,7 @@ public class MainActivity extends Activity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.activity_main, menu);
+        getMenuInflater().inflate(R.menu.activity_experiment, menu);
         menu.findItem(R.id.menu_backup).setOnMenuItemClickListener(new OnMenuItemClickListener() {
 			
 			@Override
