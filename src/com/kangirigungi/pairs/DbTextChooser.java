@@ -6,17 +6,17 @@ import android.util.Log;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
-import com.kangirigungi.pairs.Database.Config;
+import com.kangirigungi.pairs.Database.ConfigDbAdapter;
 
 public class DbTextChooser extends TextChooserBase {
 	private static final String TAG = "DbTextChooser";
-	private Config config;
+	private ConfigDbAdapter config;
 	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        config = new Config(this);
+        config = new ConfigDbAdapter(this);
         config.open();
 	}
 	
@@ -35,7 +35,7 @@ public class DbTextChooser extends TextChooserBase {
     	} else {
 	    	listView.setAdapter(new SimpleCursorAdapter(
 	    			this, android.R.layout.simple_list_item_1, 
-	    			cursor, new String[] {Config.DATABASES_NAME}, 
+	    			cursor, new String[] {ConfigDbAdapter.DATABASES_NAME}, 
 	    			new int[] {android.R.id.text1}));
     	}
 	}

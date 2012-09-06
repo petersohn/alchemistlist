@@ -20,7 +20,7 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
-import com.kangirigungi.pairs.Database.Config;
+import com.kangirigungi.pairs.Database.ConfigDbAdapter;
 import com.kangirigungi.pairs.Database.DbAdapter;
 import com.kangirigungi.pairs.tools.InputQuery;
 import com.kangirigungi.pairs.tools.InputQueryResultListener;
@@ -34,7 +34,7 @@ public class MainActivity extends Activity {
 	
 	private SparseArray<Long> textIds;
 	private DbAdapter dbAdapter;
-	private Config config;
+	private ConfigDbAdapter config;
 	private String dbName;
 	
     @Override
@@ -121,7 +121,7 @@ public class MainActivity extends Activity {
 			}
 		});
         textIds = new SparseArray<Long>();
-        config = new Config(this);
+        config = new ConfigDbAdapter(this);
         config.open();
         dbAdapter = new DbAdapter(this);
         setDbName(config.getLastDatabase());

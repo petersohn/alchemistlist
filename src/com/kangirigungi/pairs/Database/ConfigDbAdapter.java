@@ -11,8 +11,8 @@ import android.util.Log;
 
 import com.kangirigungi.pairs.tools.StringTable;
 
-public class Config {
-	private static final String TAG = "Config";
+public class ConfigDbAdapter {
+	private static final String TAG = "ConfigDbAdapter";
     
     private Context context;
     
@@ -38,7 +38,7 @@ public class Config {
 
     private class DatabaseHelper extends SQLiteOpenHelper {
 
-    	private static final String TAG = "Config.DatabaseHelper";
+    	private static final String TAG = "ConfigDbAdapter.DatabaseHelper";
     	
         DatabaseHelper() {
             super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -77,12 +77,12 @@ public class Config {
      * 
      * @param ctx the Context within which to work
      */
-    public Config(Context ctx) {
+    public ConfigDbAdapter(Context ctx) {
         this.context = ctx;
         dbManager = new DbManager();
     }
 
-    public Config open() throws SQLException {
+    public ConfigDbAdapter open() throws SQLException {
     	dbManager.open(new DatabaseHelper());
     	database = dbManager.getDatabase();
     	databasesWrapper = new StringTable(database, 
