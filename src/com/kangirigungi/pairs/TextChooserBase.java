@@ -30,7 +30,7 @@ public abstract class TextChooserBase extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_text_chooser);
         
-//        EditText valueField = (EditText)findViewById(R.id.textValue);
+//        EditText valueField = (EditText)findViewById(R.id.textChooser_textValue);
 //        valueField.setText(extras.getCharSequence("value"));
         
         Button btn = (Button)findViewById(R.id.textChooser_buttonOk);
@@ -38,7 +38,7 @@ public abstract class TextChooserBase extends Activity {
 			@Override
 			public void onClick(View v) {
 				Log.d(TAG, "OK button clicked.");
-				EditText valueField = (EditText)findViewById(R.id.textValue);
+				EditText valueField = (EditText)findViewById(R.id.textChooser_textValue);
             	Intent resultIntent = new Intent();
             	prepareResult(resultIntent);
             	String value = valueField.getText().toString();
@@ -49,7 +49,7 @@ public abstract class TextChooserBase extends Activity {
 
 			}
 		});
-        EditText valueField = (EditText)findViewById(R.id.textValue);
+        EditText valueField = (EditText)findViewById(R.id.textChooser_textValue);
         valueField.addTextChangedListener(new TextWatcher() {
 			@Override
 			public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -87,7 +87,7 @@ public abstract class TextChooserBase extends Activity {
   
     public void refreshList() {
     	Log.d(TAG, "refreshList()");
-    	EditText valueField = (EditText)findViewById(R.id.textValue);
+    	EditText valueField = (EditText)findViewById(R.id.textChooser_textValue);
     	String value = valueField.getText().toString();
     	ListView listView = (ListView)findViewById(R.id.searchList);
     	fillList(value, listView);

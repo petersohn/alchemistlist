@@ -23,7 +23,7 @@
         android:text="@string/add" />
     
     <EditText
-        android:id="@+id/textValue"
+        android:id="@+id/textChooser_textValue"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
