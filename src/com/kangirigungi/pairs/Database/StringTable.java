@@ -1,4 +1,4 @@
-package com.kangirigungi.pairs.tools;
+package com.kangirigungi.pairs.Database;
 
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -6,7 +6,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
-public class StringTable {
+public class StringTable implements StringContainer {
 	private static final String TAG = "StringTable";
 	
 	private SQLiteDatabase database;

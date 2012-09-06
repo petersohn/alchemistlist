@@ -27,7 +27,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import com.kangirigungi.pairs.tools.StringTable;
 
 /**
  * Simple notes database access helper class. Defines the basic CRUD operations

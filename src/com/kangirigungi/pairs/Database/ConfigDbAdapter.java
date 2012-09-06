@@ -9,7 +9,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import com.kangirigungi.pairs.tools.StringTable;
 
 public class ConfigDbAdapter {
 	private static final String TAG = "ConfigDbAdapter";

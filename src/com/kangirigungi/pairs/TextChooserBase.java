@@ -2,6 +2,7 @@ package com.kangirigungi.pairs;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -13,15 +14,17 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.SimpleCursorAdapter;
+
+import com.kangirigungi.pairs.Database.ConfigDbAdapter;
+import com.kangirigungi.pairs.Database.StringContainer;
 
 public abstract class TextChooserBase extends Activity {
 
 	private static final String TAG = "TextChooserBase";
-	
-	protected abstract void fillList(String value, ListView listView);
+
+	protected abstract StringContainer getStringContainer();
 	protected void prepareResult(Intent resultIntent) {}
-	protected abstract String getValueFromId(long id);
-	protected abstract long getIdFromValue(String value);
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -83,11 +86,36 @@ public abstract class TextChooserBase extends Activity {
    		refreshList();
     }
   
-    private void refreshList() {
+    public void refreshList() {
     	Log.d(TAG, "refreshList()");
     	EditText valueField = (EditText)findViewById(R.id.textValue);
     	String value = valueField.getText().toString();
     	ListView listView = (ListView)findViewById(R.id.searchList);
     	fillList(value, listView);
     }
+    
+    private void fillList(String value, ListView listView) {
+		Cursor cursor = getStringContainer().searchString(value, false);
+    	if (cursor == null) {
+    		Log.d(TAG, "No result.");
+    		listView.setAdapter(null);
+    	} else {
+	    	listView.setAdapter(new SimpleCursorAdapter(
+	    			this, android.R.layout.simple_list_item_1, 
+	    			cursor, new String[] {cursor.getColumnName(1)}, 
+	    			new int[] {android.R.id.text1}));
+    	}
+	}
+    
+    private String getValueFromId(long id) {
+    	String value = getStringContainer().getString(id);
+		if (value == null) {
+			Log.e(TAG, "Value not found: " + id);
+		}
+		return value;
+    }
+    
+	private long getIdFromValue(String value) {
+		return getStringContainer().addString(value);
+	}
 }

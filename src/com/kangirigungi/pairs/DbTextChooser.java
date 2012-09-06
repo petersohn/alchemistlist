@@ -7,6 +7,7 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
 import com.kangirigungi.pairs.Database.ConfigDbAdapter;
+import com.kangirigungi.pairs.Database.StringContainer;
 
 public class DbTextChooser extends TextChooserBase {
 	private static final String TAG = "DbTextChooser";
@@ -25,33 +26,9 @@ public class DbTextChooser extends TextChooserBase {
        	config.close();
    		super.onDestroy();
    	}
-	
-	@Override
-	protected void fillList(String value, ListView listView) {
-		Cursor cursor = config.getDatabasesWrapper().searchString(value, false);
-    	if (cursor == null) {
-    		Log.d(TAG, "No result.");
-    		listView.setAdapter(null);
-    	} else {
-	    	listView.setAdapter(new SimpleCursorAdapter(
-	    			this, android.R.layout.simple_list_item_1, 
-	    			cursor, new String[] {ConfigDbAdapter.DATABASES_NAME}, 
-	    			new int[] {android.R.id.text1}));
-    	}
-	}
 
 	@Override
-	protected String getValueFromId(long id) {
-		String value = config.getDatabasesWrapper().getString(id);
-		if (value == null) {
-			Log.e(TAG, "Value not found: " + id);
-		}
-		return value;
+	protected StringContainer getStringContainer() {
+		return config.getDatabasesWrapper();
 	}
-
-	@Override
-	protected long getIdFromValue(String value) {
-		return config.getDatabasesWrapper().addString(value);
-	}
-
 }

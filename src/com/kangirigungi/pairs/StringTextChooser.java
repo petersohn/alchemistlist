@@ -1,6 +1,7 @@
 package com.kangirigungi.pairs;
 
 import com.kangirigungi.pairs.Database.DbAdapter;
+import com.kangirigungi.pairs.Database.StringContainer;
 
 import android.content.Intent;
 import android.database.Cursor;
@@ -37,43 +38,16 @@ public class StringTextChooser extends TextChooserBase {
    		super.onDestroy();
    	}
 	    
-	
-	@Override
-	protected void fillList(String value, ListView listView) {
-		if (value.length() == 0) {
-    		Log.d(TAG, "Empty string.");
-    		listView.setAdapter(null);
-    		return;
-    	}
-		Cursor cursor = dbAdapter.getStringsWrapper().searchString(value, false);
-    	if (cursor == null) {
-    		Log.d(TAG, "No result.");
-    		listView.setAdapter(null);
-    	} else {
-	    	listView.setAdapter(new SimpleCursorAdapter(
-	    			this, android.R.layout.simple_list_item_1, 
-	    			cursor, new String[] {DbAdapter.STRINGS_VALUE}, 
-	    			new int[] {android.R.id.text1}));
-    	}
-	}
-	
 	@Override
 	protected void prepareResult(Intent resultIntent) {
     	resultIntent.putExtra("textId", textId);
 	}
 
 	@Override
-	protected String getValueFromId(long id) {
-		String value = dbAdapter.getStringsWrapper().getString(id);
-		if (value == null) {
-			Log.e(TAG, "Value not found: " + id);
-		}
-		return value;
+	protected StringContainer getStringContainer() {
+		return dbAdapter.getStringsWrapper();
 	}
 
-	@Override
-	protected long getIdFromValue(String value) {
-		return dbAdapter.getStringsWrapper().addString(value);
-	}
+	
 
 }
