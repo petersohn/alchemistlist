@@ -63,7 +63,7 @@ public abstract class TextChooserBase extends Activity {
 			public void afterTextChanged(Editable s) {
 			}
 		});
-        ListView list = (ListView)findViewById(R.id.searchList);
+        ListView list = (ListView)findViewById(R.id.textChooser_searchList);
         list.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, 
@@ -89,7 +89,7 @@ public abstract class TextChooserBase extends Activity {
     	Log.d(TAG, "refreshList()");
     	EditText valueField = (EditText)findViewById(R.id.textChooser_textValue);
     	String value = valueField.getText().toString();
-    	ListView listView = (ListView)findViewById(R.id.searchList);
+    	ListView listView = (ListView)findViewById(R.id.textChooser_searchList);
     	fillList(value, listView);
     }
     
