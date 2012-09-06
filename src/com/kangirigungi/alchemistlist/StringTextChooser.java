@@ -1,7 +1,7 @@
-package com.kangirigungi.pairs;
+package com.kangirigungi.alchemistlist;
 
-import com.kangirigungi.pairs.Database.DbAdapter;
-import com.kangirigungi.pairs.Database.StringContainer;
+import com.kangirigungi.alchemistlist.Database.DbAdapter;
+import com.kangirigungi.alchemistlist.Database.StringContainer;
 
 import android.content.Intent;
 import android.os.Bundle;

@@ -1,6 +1,4 @@
-package com.kangirigungi.pairs;
-
-import java.io.IOException;
+package com.kangirigungi.alchemistlist;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -9,8 +7,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.Menu;
-import android.view.MenuItem;
-import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -20,16 +16,15 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
-import com.kangirigungi.pairs.Database.ConfigDbAdapter;
-import com.kangirigungi.pairs.Database.DbAdapter;
-import com.kangirigungi.pairs.tools.InputQuery;
-import com.kangirigungi.pairs.tools.InputQueryResultListener;
-import com.kangirigungi.pairs.tools.Utils;
+import com.kangirigungi.alchemistlist.Database.ConfigDbAdapter;
+import com.kangirigungi.alchemistlist.Database.DbAdapter;
+import com.kangirigungi.alchemistlist.tools.InputQuery;
+import com.kangirigungi.alchemistlist.tools.InputQueryResultListener;
+import com.kangirigungi.alchemistlist.tools.Utils;
 
 public class ExperimentActivity extends Activity {
 
 	private static final int ACTIVITY_CHOOSE_STRING = 0;
-	private static final int ACTIVITY_CHOOSE_DATABASE = 1;
 	private static final String TAG = "ExperimentActivity";
 	
 	private SparseArray<Long> textIds;
@@ -120,12 +115,17 @@ public class ExperimentActivity extends Activity {
 				refreshList();
 			}
 		});
+        
+        Bundle extras = getIntent().getExtras();
+        dbName = extras.getString("dbName");
+        
         textIds = new SparseArray<Long>();
         config = new ConfigDbAdapter(this);
         config.open();
         dbAdapter = new DbAdapter(this);
-        setDbName(config.getLastDatabase());
-    	
+        dbAdapter.open(dbName);
+        TextView indicator = (TextView)findViewById(R.id.experiment_dbNameIndicator);
+    	indicator.setText(dbName);
         if (savedInstanceState != null) {
         	Long value = (Long)savedInstanceState.getSerializable("item1");
         	if (value != null) {
@@ -147,58 +147,12 @@ public class ExperimentActivity extends Activity {
     }
    
     @Override
-   	protected void onPause() {
-       	Log.v(TAG, "onPause()");
-   		super.onPause();
-   	}
-    
-    @Override
-	protected void onStop() {
-    	Log.v(TAG, "onStop()");
-    	dbAdapter.cleanup();
-		super.onStop();
-	}
-    
-    @Override
 	protected void onDestroy() {
     	Log.v(TAG, "onDestroy()");
     	dbAdapter.close();
-    	if (dbName == null) {
-    		config.deleteLastDatabase();
-    	} else {
-    		config.saveLastDatabase(dbName);
-    	}
     	config.close();
 		super.onDestroy();
 	}
-    
-    @Override
-   	protected void onStart() {
-       	Log.v(TAG, "onStart()");
-       	if (dbName == null) {
-       		Log.i(TAG, "No database selected. Selecting one.");
-       		selectDatabase();
-       	}
-   		super.onStart();
-    }
-    
-    @Override
-   	protected void onResume() {
-       	Log.v(TAG, "onResume()");
-   		super.onResume();
-   	}
-    
-    private void setDbName(String value) {
-    	dbAdapter.close();
-    	dbName = value;
-    	if (dbName != null) {
-    		dbAdapter.open(dbName);
-    	}
-    	TextView indicator = (TextView)findViewById(R.id.experiment_dbNameIndicator);
-    	indicator.setText(value);
-    	clearAll();
-		refreshList();
-    }
     
     private void setTextId(int textId, long id) {
     	Button textView = (Button)findViewById(textId);
@@ -217,11 +171,11 @@ public class ExperimentActivity extends Activity {
         startActivityForResult(i, ACTIVITY_CHOOSE_STRING);
     }
     
-    private void clearAll() {
-    	clearText(R.id.experiment_item1Text);
-    	clearText(R.id.experiment_item2Text);
-    	refreshList();
-    }
+//    private void clearAll() {
+//    	clearText(R.id.experiment_item1Text);
+//    	clearText(R.id.experiment_item2Text);
+//    	refreshList();
+//    }
     
     private void clearText(int textId) {
     	Button textView = (Button)findViewById(textId);
@@ -363,9 +317,6 @@ public class ExperimentActivity extends Activity {
     	case ACTIVITY_CHOOSE_STRING:
     		onStringChooserResult(resultCode, data);
     		break;
-    	case ACTIVITY_CHOOSE_DATABASE:
-    		onDatabaseChooserResult(resultCode, data);
-    		break;
     	}
     	
     }
@@ -387,141 +338,11 @@ public class ExperimentActivity extends Activity {
     	}
     }
     
-    private void onDatabaseChooserResult(int resultCode, Intent data) {
-    	Log.d(TAG, "DbTextChooser activity returned with code: " + resultCode);
-    	if (resultCode == RESULT_OK) {
-    		Log.d(TAG, "Got OK result from activity.");
-    		Bundle extras = data.getExtras();
-    		Utils.printBundle(TAG, extras);
-    		String value = extras.getString("result");
-    		if (value != null && value.length() > 0) {
-    			setDbName(value);
-    		} else {
-    			Log.w(TAG, "Value is null or empty.");
-    		}
-    	} else {
-    		Log.v(TAG, "DbTextChooser cancelled.");
-    	}
-    	if (dbName == null) {
-    		Log.i(TAG, "No database selected. Exiting.");
-    		setResult(RESULT_CANCELED, null);
-    		finish();
-    	}
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_experiment, menu);
-        menu.findItem(R.id.menu_backup).setOnMenuItemClickListener(new OnMenuItemClickListener() {
-			
-			@Override
-			public boolean onMenuItemClick(MenuItem item) {
-				exportDatabase();
-				return false;
-			}
-		});
-        menu.findItem(R.id.menu_restore).setOnMenuItemClickListener(new OnMenuItemClickListener() {
-			
-			@Override
-			public boolean onMenuItemClick(MenuItem item) {
-				importDatabase();
-				return false;
-			}
-		});
-        
-        menu.findItem(R.id.menu_selectDB).setOnMenuItemClickListener(new OnMenuItemClickListener() {
-			
-			@Override
-			public boolean onMenuItemClick(MenuItem item) {
-				selectDatabase();
-				return false;
-			}
-		});
-        
-        menu.findItem(R.id.menu_deleteDB).setOnMenuItemClickListener(new OnMenuItemClickListener() {
-			
-			@Override
-			public boolean onMenuItemClick(MenuItem item) {
-				deleteDatabase();
-				return false;
-			}
-		});
         return true;
     }
     
-    private void selectDatabase() {
-    	Log.v(TAG, "selectDatabase()");
-    	Intent i = new Intent(this, DbTextChooser.class);
-    	if (dbName != null) {
-    		i.putExtra("value", dbName);
-    	}
-        startActivityForResult(i, ACTIVITY_CHOOSE_DATABASE);
-    }
-    
-    private void deleteDatabase() {
-    	Log.v(TAG, "deleteDatabase()");
-    	if (dbName == null) {
-    		Log.w(TAG, "No database selected.");
-    		return;
-    	}
-    	clearAll();
-    	if (!dbAdapter.deleteDatabase()) {
-    		Log.w(TAG, "Could not delete database.");
-    		return;
-    	}
-    	config.deleteDatabase(dbName);
-    	dbName = null;
-    	selectDatabase();
-    }
-    
-    private void exportDatabase() {
-    	if (dbName == null) {
-    		Log.w(TAG, "No database selected.");
-    		return;
-    	}
-    	InputQuery alert = new InputQuery(this);
-    	alert.run(getString(R.string.export_title),
-    			getString(R.string.export_value), "backup.db",
-				new InputQueryResultListener() {
-					@Override
-					public void onOk(String result) {
-						Log.i(TAG, "Export database to file: " + result);
-						try {
-							dbAdapter.backupDatabase(result);
-						} catch (IOException e) {
-							Log.e(TAG, e.getMessage());
-						}
-					}
-					@Override
-					public void onCancel() {
-						Log.d(TAG, "Export cancelled.");			
-					}
-				});
-    }
-    
-    private void importDatabase() {
-    	if (dbName == null) {
-    		Log.w(TAG, "No database selected.");
-    		return;
-    	}
-    	InputQuery alert = new InputQuery(this);
-    	alert.run(getString(R.string.import_title),
-    			getString(R.string.import_value), "backup.db",
-				new InputQueryResultListener() {
-					@Override
-					public void onOk(String result) {
-						Log.i(TAG, "Import database from file: " + result);
-						try {
-							dbAdapter.restoreDatabase(result);
-							refreshList();
-						} catch (IOException e) {
-							Log.e(TAG, e.getMessage());
-						}
-					}
-					@Override
-					public void onCancel() {
-						Log.d(TAG, "Import cancelled.");			
-					}
-				});
-    }
+
 }

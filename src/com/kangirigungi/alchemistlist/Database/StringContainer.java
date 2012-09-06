@@ -1,4 +1,4 @@
-package com.kangirigungi.pairs.Database;
+package com.kangirigungi.alchemistlist.Database;
 
 import android.database.Cursor;
 import android.database.SQLException;

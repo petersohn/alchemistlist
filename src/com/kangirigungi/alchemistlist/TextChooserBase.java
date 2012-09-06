@@ -1,4 +1,4 @@
-package com.kangirigungi.pairs;
+package com.kangirigungi.alchemistlist;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -16,7 +16,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
-import com.kangirigungi.pairs.Database.StringContainer;
+import com.kangirigungi.alchemistlist.Database.StringContainer;
 
 public abstract class TextChooserBase extends Activity {
 

@@ -1,4 +1,4 @@
-package com.kangirigungi.pairs.Database;
+package com.kangirigungi.alchemistlist.Database;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -49,8 +49,10 @@ public class DbManager {
     public void close() {
     	Log.v(TAG, "close()");
     	if (!isOpen) {
+    		Log.v(TAG, "Database already closed.");
     		return;
     	}
+    	Log.d(TAG, "Closing database: " + database.getPath());
         dbHelper.close();
         database = null;
         isOpen = false;

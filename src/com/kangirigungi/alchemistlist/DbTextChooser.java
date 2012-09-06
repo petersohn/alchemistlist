@@ -1,12 +1,12 @@
-package com.kangirigungi.pairs;
+package com.kangirigungi.alchemistlist;
 
 import android.os.Bundle;
 
-import com.kangirigungi.pairs.Database.ConfigDbAdapter;
-import com.kangirigungi.pairs.Database.StringContainer;
+import com.kangirigungi.alchemistlist.Database.ConfigDbAdapter;
+import com.kangirigungi.alchemistlist.Database.StringContainer;
 
 public class DbTextChooser extends TextChooserBase {
-	private static final String TAG = "DbTextChooser";
+//	private static final String TAG = "DbTextChooser";
 	private ConfigDbAdapter config;
 	
 	@Override

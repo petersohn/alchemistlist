@@ -1,4 +1,4 @@
-package com.kangirigungi.pairs.tools;
+package com.kangirigungi.alchemistlist.tools;
 
 import android.app.AlertDialog;
 import android.content.Context;
