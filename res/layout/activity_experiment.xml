@@ -8,7 +8,7 @@
     android:orientation="vertical" >
 
     <TextView
-        android:id="@+id/dbNameIndicator"
+        android:id="@+id/experiment_dbNameIndicator"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall" />
@@ -18,7 +18,7 @@
         android:layout_height="wrap_content" >
 
         <Button
-            android:id="@+id/item1Clear"
+            android:id="@+id/experiment_item1Clear"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
@@ -26,19 +26,19 @@
             android:text="@string/clear" />
 
         <Button
-            android:id="@+id/item1Button"
+            android:id="@+id/experiment_item1Button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:layout_toLeftOf="@+id/item1Clear"
+            android:layout_toLeftOf="@+id/experiment_item1Clear"
             android:text="@string/choose" />
 
         <Button
-            android:id="@+id/item1Text"
+            android:id="@+id/experiment_item1Text"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:layout_toLeftOf="@+id/item1Button"
+            android:layout_toLeftOf="@+id/experiment_item1Button"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
     </RelativeLayout>
@@ -48,7 +48,7 @@
         android:layout_height="wrap_content" >
 
         <Button
-            android:id="@+id/item2Clear"
+            android:id="@+id/experiment_item2Clear"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
@@ -56,20 +56,20 @@
             android:text="@string/clear" />
 
         <Button
-            android:id="@+id/item2Button"
+            android:id="@+id/experiment_item2Button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:layout_toLeftOf="@id/item2Clear"
+            android:layout_toLeftOf="@id/experiment_item2Clear"
             android:ellipsize="none"
             android:text="@string/choose" />
 
         <Button
-            android:id="@+id/item2Text"
+            android:id="@+id/experiment_item2Text"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:layout_toLeftOf="@+id/item2Button"
+            android:layout_toLeftOf="@+id/experiment_item2Button"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
     </RelativeLayout>
@@ -79,7 +79,7 @@
         android:layout_height="wrap_content" >
 
         <Button
-            android:id="@+id/btnDelString"
+            android:id="@+id/experiment_btnDelString"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
@@ -87,25 +87,25 @@
             android:text="@string/delString" />
 
         <Button
-            android:id="@+id/btnDelAssoc"
+            android:id="@+id/experiment_btnDelAssoc"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:layout_toLeftOf="@+id/btnDelString"
+            android:layout_toLeftOf="@+id/experiment_btnDelString"
             android:text="@string/delAssoc" />
 
         <Button
-            android:id="@+id/btnAddAssoc"
+            android:id="@+id/experiment_btnAddAssoc"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:layout_toLeftOf="@+id/btnDelAssoc"
+            android:layout_toLeftOf="@+id/experiment_btnDelAssoc"
             android:text="@string/addAssoc" />
 
     </RelativeLayout>
 
     <ListView
-        android:id="@+id/listView1"
+        android:id="@+id/experiment_displayList"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
     </ListView>
