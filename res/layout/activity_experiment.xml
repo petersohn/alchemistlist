@@ -26,19 +26,19 @@
             android:text="@string/clear" />
 
         <Button
-            android:id="@+id/experiment_item1Button"
+            android:id="@+id/experiment_item1Manage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_toLeftOf="@+id/experiment_item1Clear"
-            android:text="@string/choose" />
+            android:text="@string/manage" />
 
         <Button
-            android:id="@+id/experiment_item1Text"
+            android:id="@+id/experiment_item1Display"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:layout_toLeftOf="@+id/experiment_item1Button"
+            android:layout_toLeftOf="@+id/experiment_item1Manage"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
     </RelativeLayout>
@@ -56,20 +56,20 @@
             android:text="@string/clear" />
 
         <Button
-            android:id="@+id/experiment_item2Button"
+            android:id="@+id/experiment_item2Manage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_toLeftOf="@id/experiment_item2Clear"
             android:ellipsize="none"
-            android:text="@string/choose" />
+            android:text="@string/manage" />
 
         <Button
-            android:id="@+id/experiment_item2Text"
+            android:id="@+id/experiment_item2Display"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:layout_toLeftOf="@+id/experiment_item2Button"
+            android:layout_toLeftOf="@+id/experiment_item2Manage"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
     </RelativeLayout>
@@ -79,29 +79,21 @@
         android:layout_height="wrap_content" >
 
         <Button
-            android:id="@+id/experiment_btnDelString"
+            android:id="@+id/experiment_btnDelAssoc"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
-            android:text="@string/delString" />
-
-        <Button
-            android:id="@+id/experiment_btnDelAssoc"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_toLeftOf="@+id/experiment_btnDelString"
             android:text="@string/delAssoc" />
-
+        
         <Button
             android:id="@+id/experiment_btnAddAssoc"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:layout_toLeftOf="@+id/experiment_btnDelAssoc"
+            android:layout_toLeftOf="@id/experiment_btnDelAssoc"
             android:text="@string/addAssoc" />
-
+        
     </RelativeLayout>
 
     <ListView

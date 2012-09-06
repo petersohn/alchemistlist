@@ -18,13 +18,12 @@ import android.widget.TextView;
 
 import com.kangirigungi.alchemistlist.Database.ConfigDbAdapter;
 import com.kangirigungi.alchemistlist.Database.DbAdapter;
-import com.kangirigungi.alchemistlist.tools.InputQuery;
-import com.kangirigungi.alchemistlist.tools.InputQueryResultListener;
 import com.kangirigungi.alchemistlist.tools.Utils;
 
 public class ExperimentActivity extends Activity {
 
-	private static final int ACTIVITY_CHOOSE_STRING = 0;
+	private static final int ACTIVITY_CHOOSE_INGREDIENT = 0;
+	private static final int ACTIVITY_MANAGE_INGREDIENT = 1;
 	private static final String TAG = "ExperimentActivity";
 	
 	private SparseArray<Long> textIds;
@@ -37,46 +36,46 @@ public class ExperimentActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_experiment);
         
-        Button btn = (Button)findViewById(R.id.experiment_item1Button);
+        Button btn = (Button)findViewById(R.id.experiment_item1Manage);
         btn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				onChangeClick(v, R.id.experiment_item1Text);
+				onManageClick(v, R.id.experiment_item1Display);
 			}
 		});
         btn = (Button)findViewById(R.id.experiment_item1Clear);
         btn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				onClearClick(v, R.id.experiment_item1Text);
+				onClearClick(v, R.id.experiment_item1Display);
 			}
 		});
-        btn = (Button)findViewById(R.id.experiment_item1Text);
+        btn = (Button)findViewById(R.id.experiment_item1Display);
         btn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				onChooseClick(v, R.id.experiment_item1Text);
+				onChooseClick(v, R.id.experiment_item1Display);
 			}
 		});
-        btn = (Button)findViewById(R.id.experiment_item2Button);
+        btn = (Button)findViewById(R.id.experiment_item2Manage);
         btn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				onChangeClick(v, R.id.experiment_item2Text);
+				onManageClick(v, R.id.experiment_item2Display);
 			}
 		});
         btn = (Button)findViewById(R.id.experiment_item2Clear);
         btn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				onClearClick(v, R.id.experiment_item2Text);
+				onClearClick(v, R.id.experiment_item2Display);
 			}
 		});
-        btn = (Button)findViewById(R.id.experiment_item2Text);
+        btn = (Button)findViewById(R.id.experiment_item2Display);
         btn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				onChooseClick(v, R.id.experiment_item2Text);
+				onChooseClick(v, R.id.experiment_item2Display);
 			}
 		});
         btn = (Button)findViewById(R.id.experiment_btnAddAssoc);
@@ -93,13 +92,6 @@ public class ExperimentActivity extends Activity {
 				onDelAssocClick(v);
 			}
 		});
-        btn = (Button)findViewById(R.id.experiment_btnDelString);
-        btn.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				onDelStringClick(v);
-			}
-		});
         ListView list = (ListView)findViewById(R.id.experiment_displayList);
         list.setOnItemClickListener(new OnItemClickListener() {
 			@Override
@@ -110,8 +102,8 @@ public class ExperimentActivity extends Activity {
 					Log.e(TAG, "Value not found: " + id);
 					return;
 				}
-				setTextId(R.id.experiment_item1Text, assoc[0]);
-				setTextId(R.id.experiment_item2Text, assoc[1]);
+				setTextId(R.id.experiment_item1Display, assoc[0]);
+				setTextId(R.id.experiment_item2Display, assoc[1]);
 				refreshList();
 			}
 		});
@@ -129,11 +121,11 @@ public class ExperimentActivity extends Activity {
         if (savedInstanceState != null) {
         	Long value = (Long)savedInstanceState.getSerializable("item1");
         	if (value != null) {
-        		setTextId(R.id.experiment_item1Text, value.longValue());
+        		setTextId(R.id.experiment_item1Display, value.longValue());
         	}
         	value = (Long)savedInstanceState.getSerializable("item2");
         	if (value != null) {
-        		setTextId(R.id.experiment_item2Text, value.longValue());
+        		setTextId(R.id.experiment_item2Display, value.longValue());
         	}
         }
         refreshList();
@@ -142,8 +134,8 @@ public class ExperimentActivity extends Activity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putSerializable("item1", textIds.get(R.id.experiment_item1Text));
-        outState.putSerializable("item2", textIds.get(R.id.experiment_item2Text));
+        outState.putSerializable("item1", textIds.get(R.id.experiment_item1Display));
+        outState.putSerializable("item2", textIds.get(R.id.experiment_item2Display));
     }
    
     @Override
@@ -168,14 +160,14 @@ public class ExperimentActivity extends Activity {
     	if (dbName != null) {
     		i.putExtra("dbName", dbName);
     	}
-        startActivityForResult(i, ACTIVITY_CHOOSE_STRING);
+        startActivityForResult(i, ACTIVITY_CHOOSE_INGREDIENT);
     }
     
-//    private void clearAll() {
-//    	clearText(R.id.experiment_item1Text);
-//    	clearText(R.id.experiment_item2Text);
-//    	refreshList();
-//    }
+    private void clearAll() {
+    	clearText(R.id.experiment_item1Display);
+    	clearText(R.id.experiment_item2Display);
+    	refreshList();
+    }
     
     private void clearText(int textId) {
     	Button textView = (Button)findViewById(textId);
@@ -188,36 +180,20 @@ public class ExperimentActivity extends Activity {
 		refreshList();
     }
     
-    private void onChangeClick(View v, int textId) {
-    	Log.d(TAG, "onChangeClick()");
+    private void onManageClick(View v, int textId) {
+    	Log.d(TAG, "onManageClick()");
     	if (dbName == null) {
     		Log.w(TAG, "No database selected.");
     		return;
     	}
-    	final Long id = textIds.get(textId);
-		if (id == null) {
-			Log.d(TAG, "No value");
-			return;
-		}
-		final Button textView = (Button)findViewById(textId);
-		InputQuery alert = new InputQuery(this);
-		
-		alert.run(getString(R.string.change_title),
-				getString(R.string.change_value), textView.getText(),
-				new InputQueryResultListener() {
-					@Override
-					public void onOk(String result) {
-						Log.i(TAG, "Value changed to " + result);
-						dbAdapter.changeString(id.longValue(), result);
-						textView.setText(result);
-						refreshList();
-						
-					}
-					@Override
-					public void onCancel() {
-						Log.d(TAG, "Change cancelled.");			
-					}
-				});
+    	if (textIds.get(textId) == null) {
+    		Log.d(TAG, "Text field empty.");
+    		return;
+    	}
+    	Intent i = new Intent(this, ManageIngredient.class);
+    	i.putExtra("id", textIds.get(textId));
+    	i.putExtra("dbName", dbName);
+    	startActivityForResult(i, ACTIVITY_MANAGE_INGREDIENT);
 	}
     
     private void onAddAssocClick(View v) {
@@ -226,13 +202,13 @@ public class ExperimentActivity extends Activity {
     		Log.w(TAG, "No database selected.");
     		return;
     	}
-    	Long id1 = textIds.get(R.id.experiment_item1Text);
-    	Long id2 = textIds.get(R.id.experiment_item2Text);
+    	Long id1 = textIds.get(R.id.experiment_item1Display);
+    	Long id2 = textIds.get(R.id.experiment_item2Display);
     	if (id1 != null && id2 != null) {
     		Log.i(TAG, "Adding association: " + 
-    				id1 + " ("+((Button)findViewById(R.id.experiment_item1Text)).getText() + ")" +
+    				id1 + " ("+((Button)findViewById(R.id.experiment_item1Display)).getText() + ")" +
     				" <--> "+
-    				id2 + " ("+((Button)findViewById(R.id.experiment_item2Text)).getText() + ")");
+    				id2 + " ("+((Button)findViewById(R.id.experiment_item2Display)).getText() + ")");
     		dbAdapter.addAssoc(id1.longValue(), id2.longValue());
     		refreshList();
     	}
@@ -244,39 +220,16 @@ public class ExperimentActivity extends Activity {
     		Log.w(TAG, "No database selected.");
     		return;
     	}
-    	Long id1 = textIds.get(R.id.experiment_item1Text);
-    	Long id2 = textIds.get(R.id.experiment_item2Text);
+    	Long id1 = textIds.get(R.id.experiment_item1Display);
+    	Long id2 = textIds.get(R.id.experiment_item2Display);
     	if (id1 != null && id2 != null) {
     		Log.i(TAG, "Deleting association: " + 
-    				id1 + " ("+((Button)findViewById(R.id.experiment_item1Text)).getText() + ")" +
+    				id1 + " ("+((Button)findViewById(R.id.experiment_item1Display)).getText() + ")" +
     				" <--> "+
-    				id2 + " ("+((Button)findViewById(R.id.experiment_item2Text)).getText() + ")");
+    				id2 + " ("+((Button)findViewById(R.id.experiment_item2Display)).getText() + ")");
     		dbAdapter.deleteAssoc(id1.longValue(), id2.longValue());
     		refreshList();
     	}
-    }
-    
-    private void onDelStringClick(View v) {
-    	Log.d(TAG, "onDelStringClick()");
-    	if (dbName == null) {
-    		Log.w(TAG, "No database selected.");
-    		return;
-    	}
-    	Long id1 = textIds.get(R.id.experiment_item1Text);
-    	Long id2 = textIds.get(R.id.experiment_item2Text);
-    	if (id1 != null) {
-    		Log.i(TAG, "Deleting string from database: "+
-    				((Button)findViewById(R.id.experiment_item1Text)).getText());
-    		dbAdapter.deleteString(id1.longValue());
-    		clearText(R.id.experiment_item1Text);
-    	}
-    	if (id2 != null) {
-    		Log.i(TAG, "Deleting string from database: "+
-    				((Button)findViewById(R.id.experiment_item2Text)).getText());
-    		dbAdapter.deleteString(id2.longValue());
-    		clearText(R.id.experiment_item2Text);
-    	}
-    	refreshList();
     }
     
     private void refreshList() {
@@ -285,8 +238,8 @@ public class ExperimentActivity extends Activity {
     		Log.w(TAG, "No database selected.");
     		return;
     	}
-    	Long id1 = textIds.get(R.id.experiment_item1Text);
-    	Long id2 = textIds.get(R.id.experiment_item2Text);
+    	Long id1 = textIds.get(R.id.experiment_item1Display);
+    	Long id2 = textIds.get(R.id.experiment_item2Display);
     	Cursor cursor = null;
     	if (id1 != null && id2 != null) {
     		Log.d(TAG, "Query with two strings.");
@@ -314,13 +267,40 @@ public class ExperimentActivity extends Activity {
     @Override 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
     	switch (requestCode) {
-    	case ACTIVITY_CHOOSE_STRING:
+    	case ACTIVITY_CHOOSE_INGREDIENT:
     		onStringChooserResult(resultCode, data);
     		break;
+    	case ACTIVITY_MANAGE_INGREDIENT:
+    		onManageIngredientResult(resultCode, data);
+    		break;
     	}
-    	
+	}
+
+    private void refreshText(int textId) {
+    	Button textView = (Button)findViewById(textId);
+    	if (textIds.get(textId) == null) {
+    		textView.setText("");
+    	} else {
+    		textView.setText(dbAdapter.getStringsWrapper().getString(textIds.get(textId)));
+    	}
     }
     
+    private void onManageIngredientResult(int resultCode, Intent data) {
+    	Log.d(TAG, "ManageIngredient activity returned with code: " + resultCode);
+    	if (resultCode == RESULT_OK) {
+    		Log.d(TAG, "Got OK result from activity.");
+    		Bundle extras = data.getExtras();
+    		if (extras.getBoolean("deleted")) {
+    			Log.d(TAG, "Ingredient deleted. Clearing contents.");
+    			clearAll();
+    		} else {
+    			refreshText(R.id.experiment_item1Display);
+    			refreshText(R.id.experiment_item2Display);
+    		}
+    		refreshList();
+    	}
+    }
+
     private void onStringChooserResult(int resultCode, Intent data) {
     	Log.d(TAG, "StringTextChooser activity returned with code: " + resultCode);
     	if (resultCode == RESULT_OK) {
