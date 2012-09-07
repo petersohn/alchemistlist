@@ -23,7 +23,9 @@ import com.kangirigungi.alchemistlist.tools.Utils;
 public class MainActivity extends Activity {
 
 	private static final int ACTIVITY_CHOOSE_DATABASE = 0;
-	private static final int ACTIVITY_EXPERIMENT = 0;
+	private static final int ACTIVITY_EXPERIMENT = 10;
+	private static final int ACTIVITY_CHOOSE_INGREDIENT = 20;
+	private static final int ACTIVITY_MANAGE_INGREDIENT = 21;
 	
 	private static final String TAG = "MainActivity";
 	private String dbName;
@@ -35,11 +37,18 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         
-        Button experimentButton = (Button)findViewById(R.id.main_btnExperiment);
-        experimentButton.setOnClickListener(new OnClickListener() {
+        Button button = (Button)findViewById(R.id.main_btnExperiment);
+        button.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				launchExperimentActivity();
+			}
+		});
+        button = (Button)findViewById(R.id.main_btnManageIngredients);
+        button.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				launchIngredientChooser();
 			}
 		});
         
@@ -94,8 +103,16 @@ public class MainActivity extends Activity {
     	case ACTIVITY_CHOOSE_DATABASE:
     		onDatabaseChooserResult(resultCode, data);
     		break;
+    	case ACTIVITY_EXPERIMENT:
+    		Log.d(TAG, "Experiment activity finished.");
+    		break;
+    	case ACTIVITY_CHOOSE_INGREDIENT:
+    		onIngredientChooserResult(resultCode, data);
+    		break;
+    	case ACTIVITY_MANAGE_INGREDIENT:
+    		Log.d(TAG, "Manage ingredient activity finished.");
+    		break;
     	}
-    	
     }
     
     @Override
@@ -227,11 +244,35 @@ public class MainActivity extends Activity {
     	}
     }
     
+    private void onIngredientChooserResult(int resultCode, Intent data) {
+    	Log.d(TAG, "IngredientTextChooser activity returned with code: " + resultCode);
+    	if (resultCode == RESULT_OK) {
+    		Log.v(TAG, "Got OK result from activity.");
+    		Bundle extras = data.getExtras();
+    		Utils.printBundle(TAG, extras);
+    		long id = extras.getLong("id");
+    		Log.d(TAG, "Launching ingredient manager for id " + id);
+    		Intent manageIngredientsIntent = new Intent(this, ManageIngredient.class);
+    		manageIngredientsIntent.putExtra("id", id);
+    		manageIngredientsIntent.putExtra("dbName", dbName);
+    		startActivityForResult(manageIngredientsIntent, ACTIVITY_MANAGE_INGREDIENT);
+    	} else {
+    		Log.v(TAG, "DbTextChooser cancelled.");
+    	}
+    }
+    
     private void launchExperimentActivity() {
     	Log.v(TAG, "launchExperimentActivity()");
     	Intent i = new Intent(this, ExperimentActivity.class);
    		i.putExtra("dbName", dbName);
         startActivityForResult(i, ACTIVITY_EXPERIMENT);
+    }
+    
+    private void launchIngredientChooser() {
+    	Log.v(TAG, "launchIngredientChooser()");
+    	Intent i = new Intent(this, IngredientTextChooser.class);
+   		i.putExtra("dbName", dbName);
+        startActivityForResult(i, ACTIVITY_CHOOSE_INGREDIENT);
     }
 
 }

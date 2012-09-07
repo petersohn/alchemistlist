@@ -28,5 +28,7 @@
     <string name="name">Name</string>
     <string name="save">Save</string>
     <string name="deleteIngredient">Delete</string>
+    <string name="addEffect">Add effect</string>
+    <string name="manageIngredients">Manage ingredients</string>
 
 </resources>

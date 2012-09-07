@@ -33,6 +33,12 @@
             android:layout_height="wrap_content"
             android:text="@string/title_activity_experiment" />
 
+        <Button
+            android:id="@+id/main_btnManageIngredients"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/manageIngredients" />
+
     </LinearLayout>
 
 </RelativeLayout>

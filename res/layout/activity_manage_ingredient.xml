@@ -12,10 +12,10 @@
         android:hint="@string/name" />
 
     <LinearLayout
+        android:id="@+id/ingredient_buttonRow"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="18dp" >
+        android:layout_alignParentBottom="true" >
 
         <Button
             android:id="@+id/ingredient_cancel"
@@ -36,8 +36,25 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="2"
-            android:text="@string/save" />
+            android:text="@string/save"
+            android:textStyle="bold" />
 
     </LinearLayout>
+    
+    <Button
+        android:id="@+id/ingredient_addEffect"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ingredient_name"
+        android:text="@string/addEffect" />
+    
+    <ListView
+        android:id="@+id/listView1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/ingredient_buttonRow"
+        android:layout_below="@id/ingredient_addEffect" >
+
+    </ListView>
 
 </RelativeLayout>
