@@ -148,7 +148,7 @@ public class ExperimentActivity extends Activity {
     
     private void setTextId(int textId, long id) {
     	Button textView = (Button)findViewById(textId);
-		textView.setText(dbAdapter.getStringsWrapper().getString(id));
+		textView.setText(dbAdapter.getIngredientsWrapper().getString(id));
 		textIds.put(textId, id);
     }
     
@@ -281,7 +281,7 @@ public class ExperimentActivity extends Activity {
     	if (textIds.get(textId) == null) {
     		textView.setText("");
     	} else {
-    		textView.setText(dbAdapter.getStringsWrapper().getString(textIds.get(textId)));
+    		textView.setText(dbAdapter.getIngredientsWrapper().getString(textIds.get(textId)));
     	}
     }
     

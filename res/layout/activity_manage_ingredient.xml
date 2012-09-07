@@ -23,19 +23,12 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@android:string/cancel" />
-
-        <Button
-            android:id="@+id/ingredient_delete"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/deleteIngredient" />
         
         <Button
             android:id="@+id/ingredient_save"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="2"
+            android:layout_weight="1"
             android:text="@string/save"
             android:textStyle="bold" />
 
@@ -49,7 +42,7 @@
         android:text="@string/addEffect" />
     
     <ListView
-        android:id="@+id/listView1"
+        android:id="@+id/ingredient_effectList"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@id/ingredient_buttonRow"

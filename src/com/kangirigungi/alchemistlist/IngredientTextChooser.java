@@ -42,7 +42,7 @@ public class IngredientTextChooser extends TextChooserBase {
 
 	@Override
 	protected StringContainer getStringContainer() {
-		return dbAdapter.getStringsWrapper();
+		return dbAdapter.getIngredientsWrapper();
 	}
 
 	

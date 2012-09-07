@@ -5,12 +5,15 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 
 import com.kangirigungi.alchemistlist.Database.DbAdapter;
+import com.kangirigungi.alchemistlist.Database.StringContainer;
 
 public class ManageIngredient extends Activity {
 	private static final String TAG = "ManageIngredient";
@@ -39,13 +42,6 @@ public class ManageIngredient extends Activity {
 				save();
 			}
 		});
-        button = (Button)findViewById(R.id.ingredient_delete);
-        button.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				delete();
-			}
-		});
         
         Bundle extras = getIntent().getExtras();
         dbName = extras.getString("dbName");
@@ -59,13 +55,22 @@ public class ManageIngredient extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_manage_ingredient, menu);
+        menu.findItem(R.id.menu_deleteIngredient).
+        		setOnMenuItemClickListener(new OnMenuItemClickListener() {
+			
+			@Override
+			public boolean onMenuItemClick(MenuItem item) {
+				delete();
+				return false;
+			}
+		});
         return true;
     }
     
     private void refresh() {
     	Log.d(TAG, "refresh()");
     	EditText nameField = (EditText)findViewById(R.id.ingredient_name);
-    	String value = dbAdapter.getStringsWrapper().getString(id);
+    	String value = dbAdapter.getIngredientsWrapper().getString(id);
     	Log.v(TAG, "Ingredient name = " + value);
     	nameField.setText(value);
     }
@@ -84,12 +89,12 @@ public class ManageIngredient extends Activity {
     
     private void save() {
     	EditText nameField = (EditText)findViewById(R.id.ingredient_name);
-    	dbAdapter.changeString(id, nameField.getText().toString());
+    	dbAdapter.getIngredientsWrapper().changeString(id, nameField.getText().toString());
     	finishOk(false);
     }
     
     private void delete() {
-    	dbAdapter.deleteString(id);
+    	dbAdapter.getIngredientsWrapper().deleteString(id);
     	finishOk(true);
     }
 }

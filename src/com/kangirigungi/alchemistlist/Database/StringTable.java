@@ -78,5 +78,20 @@ public class StringTable implements StringContainer {
 	        args.put(columnValueName, value);
 	        return database.insertOrThrow(tableName, null, args);
 	    }
+	 
+	 public void deleteString(long id) {
+    	Log.v(TAG, "deleteString("+id+")");
+        database.delete(tableName, columnIdName+"=?", 
+        		new String[] {Long.toString(id)});
+    }
+	    
+    public void changeString(long id, String value) {
+    	Log.v(TAG, "changeString("+id+", "+value+")");
+    	ContentValues args = new ContentValues();
+    	args.put(columnValueName, value);
+        database.update(tableName, args, 
+        		columnIdName+"=?",
+        		new String[] {Long.toString(id)});
+    }
 	
 }

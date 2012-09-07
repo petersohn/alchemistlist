@@ -19,7 +19,8 @@ public class DbAdapter {
     
     private DbManager dbManager;
     private SQLiteDatabase database;
-    private StringTable stringsWrapper;
+    private StringTable ingredientsWrapper;
+//    private StringTable effectsWrapper;
     
     /**
      * Database creation sql statement
@@ -27,10 +28,14 @@ public class DbAdapter {
 
     private static final String DATABASE_NAME_BASE = "data_";
     
-    private static final String TABLE_STRINGS = "ingredients";
-    public static final String STRINGS_ID = "_id";
-    public static final String STRINGS_VALUE = "value";
+    private static final String TABLE_INGREDIENTS = "ingredients";
+    public static final String INGREDIENTS_ID = "_id";
+    public static final String INGREDIENTS_VALUE = "value";
     
+//    private static final String TABLE_EFFECTS = "effects";
+//    public static final String EFFECTS_ID = "_id";
+//    public static final String EFFECTS_VALUE = "value";
+//    
     private static final String TABLE_ASSOC = "assoc";
     public static final String ASSOC_ID = "_id";
     public static final String ASSOC_ID1 = "id1";
@@ -49,19 +54,22 @@ public class DbAdapter {
         @Override
         public void onCreate(SQLiteDatabase db) {
         	Log.i(TAG, "Creating database.");
-            db.execSQL("create table "+TABLE_STRINGS+" (" +
-            		STRINGS_ID+" integer primary key," +
-            		STRINGS_VALUE+" text not null);");
+            db.execSQL("create table "+TABLE_INGREDIENTS+" (" +
+            		INGREDIENTS_ID+" integer primary key," +
+            		INGREDIENTS_VALUE+" text not null);");
+//            db.execSQL("create table "+TABLE_EFFECTS+" (" +
+//            		EFFECTS_ID+" integer primary key," +
+//            		EFFECTS_VALUE+" text not null);");
             db.execSQL("create table "+TABLE_ASSOC+" (" +
             		ASSOC_ID+" integer primary key," +
-            		ASSOC_ID1+" integer not null references "+TABLE_STRINGS+"("+STRINGS_ID+") on delete cascade," +
-            		ASSOC_ID2+" integer not null references "+TABLE_STRINGS+"("+STRINGS_ID+") on delete cascade" +
+            		ASSOC_ID1+" integer not null references "+TABLE_INGREDIENTS+"("+INGREDIENTS_ID+") on delete cascade," +
+            		ASSOC_ID2+" integer not null references "+TABLE_INGREDIENTS+"("+INGREDIENTS_ID+") on delete cascade" +
             		");");
         }
 
         private void recreateDatabase(SQLiteDatabase db) {
         	Log.w(TAG, "Recreating database. All old data will be destroyed.");
-        	db.execSQL("DROP TABLE IF EXISTS "+TABLE_STRINGS);
+        	db.execSQL("DROP TABLE IF EXISTS "+TABLE_INGREDIENTS);
             db.execSQL("DROP TABLE IF EXISTS "+TABLE_ASSOC);
             onCreate(db);
         }
@@ -79,10 +87,19 @@ public class DbAdapter {
             if (oldVersion < 3) {
             	upgradeFrom2To3(db);
             }
+//            if (oldVersion < 4) {
+//            	upgradeFrom3To4(db);
+//            }
         }
         
         private void upgradeFrom2To3(SQLiteDatabase db) {
-        	db.execSQL("alter table strings rename to " + TABLE_STRINGS);
+        	db.execSQL("alter table strings rename to " + TABLE_INGREDIENTS);
+        }
+        
+        private void upgradeFrom3To4(SQLiteDatabase db) {
+//        	db.execSQL("create table "+TABLE_EFFECTS+" (" +
+//            		EFFECTS_ID+" integer primary key," +
+//            		EFFECTS_VALUE+" text not null);");
         }
     } // DatabaseHelper
 
@@ -100,36 +117,28 @@ public class DbAdapter {
     public DbAdapter open(String dbName) throws SQLException {
     	dbManager.open(new DatabaseHelper(dbName));
     	database = dbManager.getDatabase();
-    	stringsWrapper = new StringTable(
-    			database, TABLE_STRINGS, STRINGS_ID, STRINGS_VALUE);
+    	ingredientsWrapper = new StringTable(
+    			database, TABLE_INGREDIENTS, INGREDIENTS_ID, INGREDIENTS_VALUE);
+//    	effectsWrapper = new StringTable(
+//    			database, TABLE_EFFECTS, EFFECTS_ID, EFFECTS_VALUE);
         return this;
     }
 
     public void close() {
         dbManager.close();
         database = null;
-        stringsWrapper = null;
+        ingredientsWrapper = null;
+//        effectsWrapper = null;
     }
 
-    public StringTable getStringsWrapper() {
-    	return stringsWrapper;
+    public StringTable getIngredientsWrapper() {
+    	return ingredientsWrapper;
     }
+    
+//    public StringTable getEffectsWrapper() {
+//    	return effectsWrapper;
+//    }
       
-    public void deleteString(long id) {
-    	Log.v(TAG, "deleteString("+id+")");
-        database.delete(TABLE_STRINGS, STRINGS_ID+"=?", 
-        		new String[] {Long.toString(id)});
-    }
-    
-    public void changeString(long id, String value) {
-    	Log.v(TAG, "changeString("+id+", "+value+")");
-    	ContentValues args = new ContentValues();
-    	args.put(STRINGS_VALUE, value);
-        database.update(TABLE_STRINGS, args, 
-        		STRINGS_ID+"=?",
-        		new String[] {Long.toString(id)});
-    }
-    
     public void addAssoc(long id1, long id2) throws SQLException {
     	ContentValues args = new ContentValues();
         args.put(ASSOC_ID1, id1);
@@ -147,8 +156,8 @@ public class DbAdapter {
    
     private String assocQueryString(String filter) {
     	return "select assoc."+ASSOC_ID+" "+ASSOC_ID+", "+
-    			"strings1."+STRINGS_VALUE+" value1, "+
-    			" strings2."+STRINGS_VALUE+" value2 from ("+
+    			"strings1."+INGREDIENTS_VALUE+" value1, "+
+    			" strings2."+INGREDIENTS_VALUE+" value2 from ("+
     			
     			"select * from "+TABLE_ASSOC+
         		" union "+
@@ -158,12 +167,12 @@ public class DbAdapter {
 				TABLE_ASSOC+
 				") assoc, " +
 				
-				TABLE_STRINGS+" strings1, "+
-				TABLE_STRINGS+" strings2 " +
+				TABLE_INGREDIENTS+" strings1, "+
+				TABLE_INGREDIENTS+" strings2 " +
 				
 				" where ("+filter+") and " +
-				" strings1."+STRINGS_ID+"=assoc."+ASSOC_ID1+
-        		" and strings2."+STRINGS_ID+"=assoc."+ASSOC_ID2+
+				" strings1."+INGREDIENTS_ID+"=assoc."+ASSOC_ID1+
+        		" and strings2."+INGREDIENTS_ID+"=assoc."+ASSOC_ID2+
         		" order by value1 asc, value2 asc";
     }
     
