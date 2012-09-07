@@ -153,7 +153,7 @@ public class ExperimentActivity extends Activity {
     }
     
     private void onChooseClick(View v, int textId) {
-    	Intent i = new Intent(this, StringTextChooser.class);
+    	Intent i = new Intent(this, IngredientTextChooser.class);
     	i.putExtra("textId", textId);
     	Button textView = (Button)findViewById(textId);
     	i.putExtra("value", textView.getText());
@@ -302,7 +302,7 @@ public class ExperimentActivity extends Activity {
     }
 
     private void onStringChooserResult(int resultCode, Intent data) {
-    	Log.d(TAG, "StringTextChooser activity returned with code: " + resultCode);
+    	Log.d(TAG, "IngredientTextChooser activity returned with code: " + resultCode);
     	if (resultCode == RESULT_OK) {
     		Log.d(TAG, "Got OK result from activity.");
     		Bundle extras = data.getExtras();

@@ -7,8 +7,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
-public class StringTextChooser extends TextChooserBase {
-	private static final String TAG = "StringTextChooser";
+public class IngredientTextChooser extends TextChooserBase {
+	private static final String TAG = "IngredientTextChooser";
 	
 	private int textId;
 	private DbAdapter dbAdapter;

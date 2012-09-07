@@ -3,6 +3,9 @@ package com.kangirigungi.alchemistlist;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -12,13 +15,15 @@ import android.widget.EditText;
 import com.kangirigungi.alchemistlist.Database.DbAdapter;
 
 public class ManageIngredient extends Activity {
-
+	private static final String TAG = "ManageIngredient";
+	
 	private DbAdapter dbAdapter;
 	private String dbName;
 	private long id;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
+    	Log.i(TAG, "Creating activity");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_manage_ingredient);
         
@@ -60,8 +65,11 @@ public class ManageIngredient extends Activity {
     }
     
     private void refresh() {
+    	Log.d(TAG, "refresh()");
     	EditText nameField = (EditText)findViewById(R.id.ingredient_name);
-    	nameField.setText(dbAdapter.getStringsWrapper().getString(id));
+    	String value = dbAdapter.getStringsWrapper().getString(id);
+    	Log.v(TAG, "Ingredient name = " + value);
+    	nameField.setText(value);
     }
 
     private void cancel() {
