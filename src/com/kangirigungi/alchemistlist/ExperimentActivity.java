@@ -286,7 +286,7 @@ public class ExperimentActivity extends Activity {
     }
     
     private void onManageIngredientResult(int resultCode, Intent data) {
-    	Log.d(TAG, "ManageIngredient activity returned with code: " + resultCode);
+    	Log.d(TAG, "ManageTextBase activity returned with code: " + resultCode);
     	if (resultCode == RESULT_OK) {
     		Log.d(TAG, "Got OK result from activity.");
     		Bundle extras = data.getExtras();

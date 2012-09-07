@@ -1,100 +1,41 @@
 package com.kangirigungi.alchemistlist;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.MenuItem.OnMenuItemClickListener;
-import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.EditText;
-
 import com.kangirigungi.alchemistlist.Database.DbAdapter;
 import com.kangirigungi.alchemistlist.Database.StringContainer;
 
-public class ManageIngredient extends Activity {
-	private static final String TAG = "ManageIngredient";
+import android.os.Bundle;
+import android.util.Log;
+
+public class ManageIngredient extends ManageTextBase {
+	private static final String TAG = "IngredientTextChooser";
 	
 	private DbAdapter dbAdapter;
-	private String dbName;
-	private long id;
 	
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-    	Log.i(TAG, "Creating activity");
-        super.onCreate(savedInstanceState);
+	@Override
+    public void initManageText(Bundle savedInstanceState) {
         setContentView(R.layout.activity_manage_ingredient);
         
-        Button button = (Button)findViewById(R.id.ingredient_cancel);
-        button.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				cancel();
-			}
-		});
-        button = (Button)findViewById(R.id.ingredient_save);
-        button.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				save();
-			}
-		});
-        
         Bundle extras = getIntent().getExtras();
-        dbName = extras.getString("dbName");
         dbAdapter = new DbAdapter(this);
-        dbAdapter.open(dbName);
-        
-        id = extras.getLong("id");
-        refresh();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.activity_manage_ingredient, menu);
-        menu.findItem(R.id.menu_deleteIngredient).
-        		setOnMenuItemClickListener(new OnMenuItemClickListener() {
-			
-			@Override
-			public boolean onMenuItemClick(MenuItem item) {
-				delete();
-				return false;
-			}
-		});
-        return true;
-    }
-    
-    private void refresh() {
-    	Log.d(TAG, "refresh()");
-    	EditText nameField = (EditText)findViewById(R.id.ingredient_name);
-    	String value = dbAdapter.getIngredientsWrapper().getString(id);
-    	Log.v(TAG, "Ingredient name = " + value);
-    	nameField.setText(value);
-    }
-
-    private void cancel() {
-    	setResult(RESULT_CANCELED);
-    	finish();
+        String dbName = extras.getString("dbName");
+        if (dbName != null) {
+        	dbAdapter.open(extras.getString("dbName"));
+        } else {
+        	Log.e(TAG, "No database.");
+        }
 	}
-    
-    private void finishOk(boolean deleted) {
-    	Intent result = new Intent();
-    	result.putExtra("deleted", deleted);
-    	setResult(RESULT_OK, result);
-    	finish();
+	
+	@Override
+   	protected void onDestroy() {
+       	dbAdapter.close();
+   		super.onDestroy();
+   	}
+	    
+	@Override
+	protected StringContainer getStringContainer() {
+		return dbAdapter.getIngredientsWrapper();
 	}
-    
-    private void save() {
-    	EditText nameField = (EditText)findViewById(R.id.ingredient_name);
-    	dbAdapter.getIngredientsWrapper().changeString(id, nameField.getText().toString());
-    	finishOk(false);
-    }
-    
-    private void delete() {
-    	dbAdapter.getIngredientsWrapper().deleteString(id);
-    	finishOk(true);
-    }
+
+	
+
 }
