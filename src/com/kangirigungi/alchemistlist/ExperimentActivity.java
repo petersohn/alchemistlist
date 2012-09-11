@@ -260,26 +260,9 @@ public class ExperimentActivity extends Activity {
     		Log.d(TAG, "No result.");
     		list.setAdapter(null);
     	} else {
-    		SubClickableListAdapter adapter = new SubClickableListAdapter(new SimpleCursorAdapter(this, android.R.layout.two_line_list_item, 
+    		SimpleCursorAdapter adapter = new SimpleCursorAdapter(this, android.R.layout.two_line_list_item, 
 	    			cursor, new String[] {"value1", "value2"}, 
-	    			new int[] {android.R.id.text1, android.R.id.text2}));
-    		adapter.setOnClickListener(android.R.id.text1, new OnSubItemClickListener() {
-				
-				@Override
-				public void onSubItemClick(View subView, int position) {
-					long id = list.getItemIdAtPosition(position);
-					Log.d(TAG, "text1 clicked. Position: " + position + 
-							". Id: " + id);
-					Long[] assoc = dbAdapter.getAssoc(id);
-					if (assoc == null) {
-						Log.e(TAG, "Value not found: " + id);
-						return;
-					}
-					setTextId(R.id.experiment_item1Display, assoc[0]);
-					setTextId(R.id.experiment_item2Display, assoc[1]);
-					refreshList();
-				}
-			});
+	    			new int[] {android.R.id.text1, android.R.id.text2});
 	    	list.setAdapter(adapter);
     	}
     }
