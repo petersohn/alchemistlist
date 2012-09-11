@@ -16,6 +16,8 @@ import com.kangirigungi.alchemistlist.Database.StringContainer;
 public class ManageEffect extends ManageTextBase {
 	private static final String TAG = "ManageEffect";
 	
+	private static final int ACTIVITY_MANAGE_INGREDIENT = 1;
+	
 	private DbAdapter dbAdapter;
 	
 	@Override
@@ -79,6 +81,16 @@ public class ManageEffect extends ManageTextBase {
 		Intent i = new Intent(this, ManageIngredient.class);
    		i.putExtra("dbName", dbAdapter.getDbName());
    		i.putExtra("id", id);
-        startActivity(i);
+        startActivityForResult(i, ACTIVITY_MANAGE_INGREDIENT);
 	}
+	
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    	switch (requestCode) {
+    	case ACTIVITY_MANAGE_INGREDIENT:
+    		if (resultCode == RESULT_OK) {
+    			refreshList();
+    		}
+    		break;
+    	}
+    }
 }

@@ -22,6 +22,7 @@ public class ManageIngredient extends ManageTextBase {
 	private static final String TAG = "ManageIngredient";
 	
 	private static final int ACTIVITY_CHOOSE_EFFECT = 0;
+	private static final int ACTIVITY_MANAGE_EFFECT = 1;
 	
 	private DbAdapter dbAdapter;
 	
@@ -97,7 +98,7 @@ public class ManageIngredient extends ManageTextBase {
 		Intent i = new Intent(this, ManageEffect.class);
    		i.putExtra("dbName", dbAdapter.getDbName());
    		i.putExtra("id", id);
-        startActivity(i);
+        startActivityForResult(i, ACTIVITY_MANAGE_EFFECT);
 	}
 	
 	private void removeEffect(long id) {
@@ -116,6 +117,11 @@ public class ManageIngredient extends ManageTextBase {
     	switch (requestCode) {
     	case ACTIVITY_CHOOSE_EFFECT:
     		onEffectChooserResult(resultCode, data);
+    		break;
+    	case ACTIVITY_MANAGE_EFFECT:
+    		if (resultCode == RESULT_OK) {
+    			refreshList();
+    		}
     		break;
     	}
     }
