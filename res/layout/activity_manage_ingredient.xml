@@ -42,7 +42,7 @@
         android:text="@string/addEffect" />
     
     <ListView
-        android:id="@+id/ingredient_effectList"
+        android:id="@+id/manage_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@id/manage_buttonRow"

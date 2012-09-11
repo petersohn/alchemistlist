@@ -38,6 +38,10 @@
             android:name=".ManageIngredient"
             android:label="@string/title_activity_manage_ingredient" >
         </activity>
+        <activity
+            android:name=".ManageListItem"
+            android:label="@string/title_activity_manage_list_item" >
+        </activity>
     </application>
 
 </manifest>

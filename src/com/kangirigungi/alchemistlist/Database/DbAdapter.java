@@ -20,7 +20,7 @@ public class DbAdapter {
     private DbManager dbManager;
     private SQLiteDatabase database;
     private StringTable ingredientsWrapper;
-//    private StringTable effectsWrapper;
+    private StringTable effectsWrapper;
     
     /**
      * Database creation sql statement
@@ -32,16 +32,21 @@ public class DbAdapter {
     public static final String INGREDIENTS_ID = "_id";
     public static final String INGREDIENTS_VALUE = "value";
     
-//    private static final String TABLE_EFFECTS = "effects";
-//    public static final String EFFECTS_ID = "_id";
-//    public static final String EFFECTS_VALUE = "value";
-//    
+    private static final String TABLE_EFFECTS = "effects";
+    public static final String EFFECTS_ID = "_id";
+    public static final String EFFECTS_VALUE = "value";
+    
     private static final String TABLE_ASSOC = "assoc";
     public static final String ASSOC_ID = "_id";
     public static final String ASSOC_ID1 = "id1";
     public static final String ASSOC_ID2 = "id2";
     
-    private static final int DATABASE_VERSION = 3;
+    private static final String TABLE_INGREDIENT_EFFECT = "ingredient_effect";
+    public static final String INGREDIENT_EFFECT_ID = "_id";
+    public static final String INGREDIENT_EFFECT_INGREDIENT = "ingredientId";
+    public static final String INGREDIENT_EFFECT_EFFECT = "effectId";
+    
+    private static final int DATABASE_VERSION = 4;
 
     private class DatabaseHelper extends SQLiteOpenHelper {
 
@@ -57,14 +62,13 @@ public class DbAdapter {
             db.execSQL("create table "+TABLE_INGREDIENTS+" (" +
             		INGREDIENTS_ID+" integer primary key," +
             		INGREDIENTS_VALUE+" text not null);");
-//            db.execSQL("create table "+TABLE_EFFECTS+" (" +
-//            		EFFECTS_ID+" integer primary key," +
-//            		EFFECTS_VALUE+" text not null);");
             db.execSQL("create table "+TABLE_ASSOC+" (" +
             		ASSOC_ID+" integer primary key," +
             		ASSOC_ID1+" integer not null references "+TABLE_INGREDIENTS+"("+INGREDIENTS_ID+") on delete cascade," +
             		ASSOC_ID2+" integer not null references "+TABLE_INGREDIENTS+"("+INGREDIENTS_ID+") on delete cascade" +
             		");");
+            createEffectsTable(db);
+            createIngredientEffectTable(db);
         }
 
         private void recreateDatabase(SQLiteDatabase db) {
@@ -87,9 +91,9 @@ public class DbAdapter {
             if (oldVersion < 3) {
             	upgradeFrom2To3(db);
             }
-//            if (oldVersion < 4) {
-//            	upgradeFrom3To4(db);
-//            }
+            if (oldVersion < 4) {
+            	upgradeFrom3To4(db);
+            }
         }
         
         private void upgradeFrom2To3(SQLiteDatabase db) {
@@ -97,9 +101,24 @@ public class DbAdapter {
         }
         
         private void upgradeFrom3To4(SQLiteDatabase db) {
-//        	db.execSQL("create table "+TABLE_EFFECTS+" (" +
-//            		EFFECTS_ID+" integer primary key," +
-//            		EFFECTS_VALUE+" text not null);");
+        	createEffectsTable(db);
+            createIngredientEffectTable(db);
+        }
+        
+        private void createEffectsTable(SQLiteDatabase db) {
+        	db.execSQL("create table "+TABLE_EFFECTS+" (" +
+            		EFFECTS_ID+" integer primary key," +
+            		EFFECTS_VALUE+" text not null);");
+        }
+        
+        private void createIngredientEffectTable(SQLiteDatabase db) {
+        	db.execSQL("create table "+TABLE_INGREDIENT_EFFECT+" (" +
+            		INGREDIENT_EFFECT_ID+" integer primary key," +
+            		INGREDIENT_EFFECT_INGREDIENT+" integer not null references "+
+            		TABLE_INGREDIENTS+"("+INGREDIENTS_ID+") on delete cascade," +
+            		INGREDIENT_EFFECT_EFFECT+" integer not null references "+
+            		TABLE_EFFECTS+"("+EFFECTS_ID+") on delete cascade" +
+            		");");
         }
     } // DatabaseHelper
 
@@ -119,8 +138,8 @@ public class DbAdapter {
     	database = dbManager.getDatabase();
     	ingredientsWrapper = new StringTable(
     			database, TABLE_INGREDIENTS, INGREDIENTS_ID, INGREDIENTS_VALUE);
-//    	effectsWrapper = new StringTable(
-//    			database, TABLE_EFFECTS, EFFECTS_ID, EFFECTS_VALUE);
+    	effectsWrapper = new StringTable(
+    			database, TABLE_EFFECTS, EFFECTS_ID, EFFECTS_VALUE);
         return this;
     }
 
@@ -128,16 +147,16 @@ public class DbAdapter {
         dbManager.close();
         database = null;
         ingredientsWrapper = null;
-//        effectsWrapper = null;
+        effectsWrapper = null;
     }
 
     public StringTable getIngredientsWrapper() {
     	return ingredientsWrapper;
     }
     
-//    public StringTable getEffectsWrapper() {
-//    	return effectsWrapper;
-//    }
+    public StringTable getEffectsWrapper() {
+    	return effectsWrapper;
+    }
       
     public void addAssoc(long id1, long id2) throws SQLException {
     	ContentValues args = new ContentValues();
@@ -154,19 +173,19 @@ public class DbAdapter {
     			new String[] {Long.toString(id2), Long.toString(id1)});
     }
    
+    private static final String assocQueryBase =
+    		"select * from "+TABLE_ASSOC+
+    		" union "+
+			"select "+ASSOC_ID+", "+
+			ASSOC_ID2+" "+ASSOC_ID1+", "+
+			ASSOC_ID1+" "+ASSOC_ID2+" from "+
+			TABLE_ASSOC;
+    
     private String assocQueryString(String filter) {
     	return "select assoc."+ASSOC_ID+" "+ASSOC_ID+", "+
     			"strings1."+INGREDIENTS_VALUE+" value1, "+
-    			" strings2."+INGREDIENTS_VALUE+" value2 from ("+
-    			
-    			"select * from "+TABLE_ASSOC+
-        		" union "+
-				"select "+ASSOC_ID+", "+
-				ASSOC_ID2+" "+ASSOC_ID1+", "+
-				ASSOC_ID1+" "+ASSOC_ID2+" from "+
-				TABLE_ASSOC+
-				") assoc, " +
-				
+    			" strings2."+INGREDIENTS_VALUE+" value2 from " +
+    			"("+assocQueryBase+") assoc, " +
 				TABLE_INGREDIENTS+" strings1, "+
 				TABLE_INGREDIENTS+" strings2 " +
 				
@@ -220,7 +239,58 @@ public class DbAdapter {
         Log.v(TAG, "No result");
         return null;
     }
+    
+    public void addIngredientEffect(long ingredientId, long effectId) throws SQLException {
+    	Log.v(TAG, "addIngredientEffect("+ingredientId+", "+effectId+")");
+    	ContentValues args = new ContentValues();
+        args.put(INGREDIENT_EFFECT_INGREDIENT, ingredientId);
+        args.put(INGREDIENT_EFFECT_EFFECT, effectId);
 
+        database.insertOrThrow(TABLE_INGREDIENT_EFFECT, null, args);
+    }
+    
+    public void deleteIngredientEffect(long ingredientId, long effectId) {
+    	database.delete(
+    			TABLE_INGREDIENT_EFFECT, 
+    			INGREDIENT_EFFECT_INGREDIENT+"=? and "+
+    			INGREDIENT_EFFECT_EFFECT+"=?", 
+    			new String[] {Long.toString(ingredientId), Long.toString(effectId)});
+    }
+    
+    public Cursor getEffectFromIngredient(long ingredientId) {
+    	Log.v(TAG, "getEffectFromIngredient("+ingredientId+")");
+    	String queryString = 
+    			"select "+TABLE_EFFECTS+"."+EFFECTS_ID+" "+EFFECTS_ID+", "+
+    	    	TABLE_EFFECTS+"."+EFFECTS_VALUE+" "+EFFECTS_VALUE+" from "+
+				TABLE_INGREDIENT_EFFECT+", "+TABLE_EFFECTS+" where "+
+				TABLE_INGREDIENT_EFFECT+"."+INGREDIENT_EFFECT_INGREDIENT+"=? and "+
+				TABLE_INGREDIENT_EFFECT+"."+INGREDIENT_EFFECT_EFFECT+
+				"="+TABLE_EFFECTS+"."+EFFECTS_ID;
+    	Log.v(TAG, queryString);
+    	Cursor cursor =
+    			database.rawQuery(
+    					queryString,
+    					new String[] {Long.valueOf(ingredientId).toString()});
+        return cursor;
+    }
+    
+    public Cursor getIngredientFromEffect(long effectId) {
+    	Log.v(TAG, "getIngredientFromEffect("+effectId+")");
+    	String queryString = 
+    			"select "+TABLE_INGREDIENTS+"."+INGREDIENTS_ID+" "+INGREDIENTS_ID+", "+
+    			TABLE_INGREDIENTS+"."+INGREDIENTS_VALUE+" "+INGREDIENTS_VALUE+" from "+
+				TABLE_INGREDIENT_EFFECT+", "+TABLE_INGREDIENTS+" where "+
+				TABLE_INGREDIENT_EFFECT+"."+INGREDIENT_EFFECT_EFFECT+"=? and "+
+				TABLE_INGREDIENT_EFFECT+"."+INGREDIENT_EFFECT_INGREDIENT+
+				"="+TABLE_INGREDIENTS+"."+INGREDIENTS_ID;
+    	Log.v(TAG, queryString);
+    	Cursor cursor =
+    			database.rawQuery(
+    					queryString,
+    					new String[] {Long.valueOf(effectId).toString()});
+        return cursor;
+    }
+    
 	public void cleanup() {
 	}
 	

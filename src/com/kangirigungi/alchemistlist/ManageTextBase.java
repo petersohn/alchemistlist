@@ -72,7 +72,7 @@ public abstract class ManageTextBase extends Activity {
     	Log.d(TAG, "refresh()");
     	EditText nameField = (EditText)findViewById(R.id.manage_name);
     	String value = getStringContainer().getString(id);
-    	Log.v(TAG, "Ingredient name = " + value);
+    	Log.v(TAG, "Name = " + value);
     	nameField.setText(value);
     }
 
