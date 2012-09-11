@@ -1,14 +1,18 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/menu_backup"
+        android:icon="@android:drawable/ic_menu_save"
         android:title="@string/menu_backup"
         android:orderInCategory="100" />
     <item android:id="@+id/menu_restore" 
         android:title="@string/menu_restore"
+        android:icon="@android:drawable/ic_menu_revert"
         android:orderInCategory="200"></item>
     <item android:id="@+id/menu_selectDB" 
         android:title="@string/selectDB"
+        android:icon="@android:drawable/ic_menu_set_as"
         android:orderInCategory="300"></item>
     <item android:id="@+id/menu_deleteDB" 
         android:title="@string/deleteDB"
+        android:icon="@android:drawable/ic_menu_delete"
         android:orderInCategory="400"></item>
 </menu>

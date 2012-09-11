@@ -14,8 +14,8 @@
     <string name="addAssoc">Add</string>
     <string name="delAssoc">Delete</string>
     <string name="delString">Delete string</string>
-    <string name="menu_backup">Backup</string>
-    <string name="menu_restore">Restore</string>
+    <string name="menu_backup">Create backup</string>
+    <string name="menu_restore">Restore backup</string>
     <string name="change_title">Change string</string>
     <string name="change_value">Change the value of the string to</string>
     <string name="selectDB">Select database</string>
