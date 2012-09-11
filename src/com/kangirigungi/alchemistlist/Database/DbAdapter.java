@@ -283,7 +283,8 @@ public class DbAdapter {
 				TABLE_INGREDIENT_EFFECT+", "+TABLE_EFFECTS+" where "+
 				TABLE_INGREDIENT_EFFECT+"."+INGREDIENT_EFFECT_INGREDIENT+"=? and "+
 				TABLE_INGREDIENT_EFFECT+"."+INGREDIENT_EFFECT_EFFECT+
-				"="+TABLE_EFFECTS+"."+EFFECTS_ID;
+				"="+TABLE_EFFECTS+"."+EFFECTS_ID+
+				" order by "+EFFECTS_VALUE;
     	Log.v(TAG, queryString);
     	Cursor cursor =
     			database.rawQuery(
@@ -300,7 +301,8 @@ public class DbAdapter {
 				TABLE_INGREDIENT_EFFECT+", "+TABLE_INGREDIENTS+" where "+
 				TABLE_INGREDIENT_EFFECT+"."+INGREDIENT_EFFECT_EFFECT+"=? and "+
 				TABLE_INGREDIENT_EFFECT+"."+INGREDIENT_EFFECT_INGREDIENT+
-				"="+TABLE_INGREDIENTS+"."+INGREDIENTS_ID;
+				"="+TABLE_INGREDIENTS+"."+INGREDIENTS_ID+
+				" order by "+INGREDIENTS_VALUE;
     	Log.v(TAG, queryString);
     	Cursor cursor =
     			database.rawQuery(
