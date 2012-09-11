@@ -21,6 +21,7 @@
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <LinearLayout
+        android:id="@+id/linearLayout1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
@@ -38,6 +39,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/manageIngredients" />
+
+        <Button
+            android:id="@+id/main_btnManageEffects"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/manageEffects" />
 
     </LinearLayout>
 

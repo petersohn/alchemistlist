@@ -5,8 +5,11 @@
     <string name="menu_settings">Settings</string>
     <string name="title_activity_main">Alchemist list</string>
     <string name="title_activity_experiment">Experiment</string>
-    <string name="title_activity_string_chooser">Choose string</string>
+    <string name="title_activity_ingredient_chooser">Choose ingredient</string>
+    <string name="title_activity_effect_chooser">Choose effect</string>
     <string name="title_activity_db_chooser">Choose database</string>
+    <string name="title_activity_manage_ingredient">Manage ingredient</string>
+    <string name="title_activity_manage_effect">Manage effect</string>
     <string name="clear">clear</string>
     <string name="addAssoc">Add</string>
     <string name="delAssoc">Delete</string>
@@ -24,13 +27,14 @@
     <string name="add">Add</string>
     <string name="currentDatabase">Current database: </string>
     <string name="manage">Manage</string>
-    <string name="title_activity_manage_ingredient">Manage ingredient</string>
     <string name="name">Name</string>
     <string name="save">Save</string>
     <string name="deleteIngredient">Delete</string>
     <string name="addEffect">Add effect</string>
     <string name="manageIngredients">Manage ingredients</string>
-    <string name="title_activity_manage_list_item">ManageListItem</string>
+    <string name="manageEffects">Manage effects</string>
     <string name="remove">Remove</string>
+    <string name="effectsHeader">Effects:</string>
+    <string name="ingredientsHeader">Ingredients:</string>
 
 </resources>

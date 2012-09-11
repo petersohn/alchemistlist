@@ -34,20 +34,13 @@
 
     </LinearLayout>
     
-    <Button
-        android:id="@+id/ingredient_addEffect"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/manage_name"
-        android:text="@string/addEffect" />
-    
     <TextView
-        android:id="@+id/ingredient_effectsHeader"
+        android:id="@+id/effect_ingredientsHeader"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_below="@+id/ingredient_addEffect"
-        android:text="@string/effectsHeader"
+        android:layout_below="@id/manage_name"
+        android:text="@string/ingredientsHeader"
         android:textAppearance="?android:attr/textAppearanceMedium" />
     
     <ListView
@@ -55,7 +48,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@id/manage_buttonRow"
-        android:layout_below="@id/ingredient_effectsHeader" >
+        android:layout_below="@id/effect_ingredientsHeader" >
 
     </ListView>
 

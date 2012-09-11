@@ -18,9 +18,12 @@ public class DbAdapter {
     private Context context;
     
     private DbManager dbManager;
+    private String dbName;
     private SQLiteDatabase database;
+    
     private StringTable ingredientsWrapper;
     private StringTable effectsWrapper;
+    
     
     /**
      * Database creation sql statement
@@ -119,6 +122,10 @@ public class DbAdapter {
             		INGREDIENT_EFFECT_EFFECT+" integer not null references "+
             		TABLE_EFFECTS+"("+EFFECTS_ID+") on delete cascade" +
             		");");
+        	db.execSQL("create index ie_ingredient on "+TABLE_INGREDIENT_EFFECT+
+        			" ("+INGREDIENT_EFFECT_INGREDIENT+")");
+        	db.execSQL("create index ie_effect on "+TABLE_INGREDIENT_EFFECT+
+        			" ("+INGREDIENT_EFFECT_EFFECT+")");
         }
     } // DatabaseHelper
 
@@ -132,14 +139,24 @@ public class DbAdapter {
         this.context = ctx;
         dbManager = new DbManager();
     }
+    
+    public String getDbName() {
+    	return dbName;
+    }
 
     public DbAdapter open(String dbName) throws SQLException {
-    	dbManager.open(new DatabaseHelper(dbName));
-    	database = dbManager.getDatabase();
-    	ingredientsWrapper = new StringTable(
-    			database, TABLE_INGREDIENTS, INGREDIENTS_ID, INGREDIENTS_VALUE);
-    	effectsWrapper = new StringTable(
-    			database, TABLE_EFFECTS, EFFECTS_ID, EFFECTS_VALUE);
+    	try {
+	    	dbManager.open(new DatabaseHelper(dbName));
+	    	database = dbManager.getDatabase();
+	    	ingredientsWrapper = new StringTable(
+	    			database, TABLE_INGREDIENTS, INGREDIENTS_ID, INGREDIENTS_VALUE);
+	    	effectsWrapper = new StringTable(
+	    			database, TABLE_EFFECTS, EFFECTS_ID, EFFECTS_VALUE);
+	    	this.dbName = dbName;
+    	} catch (SQLException e) {
+    		close();
+    		throw e;
+    	}
         return this;
     }
 
@@ -148,6 +165,7 @@ public class DbAdapter {
         database = null;
         ingredientsWrapper = null;
         effectsWrapper = null;
+        dbName = null;
     }
 
     public StringTable getIngredientsWrapper() {
@@ -257,7 +275,7 @@ public class DbAdapter {
     			new String[] {Long.toString(ingredientId), Long.toString(effectId)});
     }
     
-    public Cursor getEffectFromIngredient(long ingredientId) {
+    public Cursor getEffectsFromIngredient(long ingredientId) {
     	Log.v(TAG, "getEffectFromIngredient("+ingredientId+")");
     	String queryString = 
     			"select "+TABLE_EFFECTS+"."+EFFECTS_ID+" "+EFFECTS_ID+", "+
@@ -274,7 +292,7 @@ public class DbAdapter {
         return cursor;
     }
     
-    public Cursor getIngredientFromEffect(long effectId) {
+    public Cursor getIngredientsFromEffect(long effectId) {
     	Log.v(TAG, "getIngredientFromEffect("+effectId+")");
     	String queryString = 
     			"select "+TABLE_INGREDIENTS+"."+INGREDIENTS_ID+" "+INGREDIENTS_ID+", "+

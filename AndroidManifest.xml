@@ -19,7 +19,11 @@
         </activity>
         <activity
             android:name=".IngredientTextChooser"
-            android:label="@string/title_activity_string_chooser" >
+            android:label="@string/title_activity_ingredient_chooser" >
+        </activity>
+        <activity
+            android:name=".EffectTextChooser"
+            android:label="@string/title_activity_effect_chooser" >
         </activity>
         <activity
             android:name=".DbTextChooser"
@@ -39,8 +43,8 @@
             android:label="@string/title_activity_manage_ingredient" >
         </activity>
         <activity
-            android:name=".ManageListItem"
-            android:label="@string/title_activity_manage_list_item" >
+            android:name=".ManageEffect"
+            android:label="@string/title_activity_manage_effect" >
         </activity>
     </application>
 
