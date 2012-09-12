@@ -68,11 +68,9 @@ public class ManageIngredient extends ManageTextBase {
 		return dbAdapter.getIngredientsWrapper();
 	}
 	
-	private void refreshList() {
-		Log.d(TAG, "refreshList()");
-    	Cursor cursor = dbAdapter.getEffectsFromIngredient(getId());
+	private void addEffectsAdapter(Vector<ListAdapter> adapters) {
+		Cursor cursor = dbAdapter.getEffectsFromIngredient(getId());
     	final ListView list = (ListView)findViewById(R.id.manage_list);
-    	Vector<ListAdapter> adapters = new Vector<ListAdapter>();
     	if (cursor == null) {
     		Log.d(TAG, "No normal result.");
     	} else {
@@ -94,8 +92,10 @@ public class ManageIngredient extends ManageTextBase {
 			});
 			adapters.add(itemAdapter);
     	}
-    	
-    	Cursor excludedCursor = dbAdapter.getExcludedEffects(getId());
+	}
+	
+	private void addExcludedEffectsAdapter(Vector<ListAdapter> adapters) {
+		Cursor excludedCursor = dbAdapter.getExcludedEffects(getId());
     	if (excludedCursor == null) {
     		Log.d(TAG, "No excluded result.");
     	} else {
@@ -105,6 +105,14 @@ public class ManageIngredient extends ManageTextBase {
 	    			new int[] {R.id.text1});
 	    	adapters.add(excludedAdapter);
     	}
+	}
+	
+	private void refreshList() {
+		Log.d(TAG, "refreshList()");
+		Vector<ListAdapter> adapters = new Vector<ListAdapter>();
+		addEffectsAdapter(adapters);
+		addExcludedEffectsAdapter(adapters);
+		ListView list = (ListView)findViewById(R.id.manage_list);
     	list.setAdapter(new MultiListAdapter(adapters));
 	}
 
