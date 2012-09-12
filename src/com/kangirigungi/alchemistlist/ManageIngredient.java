@@ -1,19 +1,21 @@
 package com.kangirigungi.alchemistlist;
 
+import java.util.Vector;
+
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
 import com.kangirigungi.alchemistlist.Database.DbAdapter;
 import com.kangirigungi.alchemistlist.Database.StringContainer;
+import com.kangirigungi.alchemistlist.tools.MultiListAdapter;
 import com.kangirigungi.alchemistlist.tools.SubClickableAdapter.OnSubItemClickListener;
 import com.kangirigungi.alchemistlist.tools.SubClickableListAdapter;
 import com.kangirigungi.alchemistlist.tools.Utils;
@@ -70,28 +72,40 @@ public class ManageIngredient extends ManageTextBase {
 		Log.d(TAG, "refreshList()");
     	Cursor cursor = dbAdapter.getEffectsFromIngredient(getId());
     	final ListView list = (ListView)findViewById(R.id.manage_list);
+    	Vector<ListAdapter> adapters = new Vector<ListAdapter>();
     	if (cursor == null) {
-    		Log.d(TAG, "No result.");
-    		list.setAdapter(null);
+    		Log.d(TAG, "No normal result.");
     	} else {
-    		SubClickableListAdapter adapter = new SubClickableListAdapter(
-    				new SimpleCursorAdapter(this, R.layout.activity_manage_list_item, 
+			SubClickableListAdapter itemAdapter = new SubClickableListAdapter(
+					new SimpleCursorAdapter(this, R.layout.activity_manage_list_item, 
 	    			cursor, new String[] {DbAdapter.EFFECTS_VALUE}, 
 	    			new int[] {R.id.text1}));
-    		adapter.setOnClickListener(R.id.text1, new OnSubItemClickListener() {
+			itemAdapter.setOnClickListener(R.id.text1, new OnSubItemClickListener() {
 				@Override
 				public void onSubItemClick(View subView, int position) {
 					manageEffect(list.getItemIdAtPosition(position));
 				}
 			});
-    		adapter.setOnClickListener(R.id.btnRemove, new OnSubItemClickListener() {
+			itemAdapter.setOnClickListener(R.id.btnRemove, new OnSubItemClickListener() {
 				@Override
 				public void onSubItemClick(View subView, int position) {
 					removeEffect(list.getItemIdAtPosition(position));
 				}
 			});
-	    	list.setAdapter(adapter);
+			adapters.add(itemAdapter);
     	}
+    	
+    	Cursor excludedCursor = dbAdapter.getExcludedEffects(getId());
+    	if (excludedCursor == null) {
+    		Log.d(TAG, "No excluded result.");
+    	} else {
+	    	SimpleCursorAdapter excludedAdapter = 
+	    			new SimpleCursorAdapter(this, R.layout.activity_manage_list_item_excluded, 
+	    			excludedCursor, new String[] {DbAdapter.EFFECTS_VALUE}, 
+	    			new int[] {R.id.text1});
+	    	adapters.add(excludedAdapter);
+    	}
+    	list.setAdapter(new MultiListAdapter(adapters));
 	}
 
 	private void manageEffect(long id) {
