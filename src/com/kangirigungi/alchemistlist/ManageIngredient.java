@@ -8,8 +8,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -42,15 +40,6 @@ public class ManageIngredient extends ManageTextBase {
 			}
 		});
         
-        ListView list = (ListView)findViewById(R.id.manage_list);
-        list.setOnItemClickListener(new OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view, 
-					int position, long id) {
-				Log.d(TAG, "Click on item. Position: "+position+". Id: "+
-						dbAdapter.getEffectsWrapper().getString(id));
-			}
-		});
         Bundle extras = getIntent().getExtras();
         dbAdapter = new DbAdapter(this);
         String dbName = extras.getString("dbName");
@@ -79,25 +68,34 @@ public class ManageIngredient extends ManageTextBase {
 		return dbAdapter.getIngredientsWrapper();
 	}
 	
+	private class IngredientClicked implements OnSubItemClickListener {
+		private ListView list;
+		
+		IngredientClicked() {
+			list = (ListView)findViewById(R.id.manage_list);
+		}
+		
+		public void onSubItemClick(View subView, int position) {
+			long id = list.getItemIdAtPosition(position);
+			Log.v(TAG, "Click on item. Position: "+position+". Id: "+
+					dbAdapter.getEffectsWrapper().getString(id));
+			manageEffect(id);
+		}
+	}
+	
 	private void addEffectsAdapter(Vector<ListAdapter> adapters) {
 		Cursor cursor = dbAdapter.getEffectsFromIngredient(getId());
     	final ListView list = (ListView)findViewById(R.id.manage_list);
     	if (cursor == null) {
     		Log.d(TAG, "No normal result.");
     	} else {
+    		Button btnAddEffect = (Button)findViewById(R.id.ingredient_addEffect);
+    		btnAddEffect.setEnabled(cursor.getCount() < 4);
 			SubClickableListAdapter itemAdapter = new SubClickableListAdapter(
 					new SimpleCursorAdapter(this, R.layout.activity_manage_list_item, 
 	    			cursor, new String[] {DbAdapter.EFFECTS_VALUE}, 
 	    			new int[] {R.id.text1}));
-			itemAdapter.setOnClickListener(R.id.text1, new OnSubItemClickListener() {
-				@Override
-				public void onSubItemClick(View subView, int position) {
-					Log.d(TAG, "Click on item (text). Position: "+position+". Id: "+
-							dbAdapter.getEffectsWrapper().getString(
-									list.getItemIdAtPosition(position)));
-//					manageEffect(list.getItemIdAtPosition(position));
-				}
-			});
+			itemAdapter.setOnClickListener(R.id.text1, new IngredientClicked());
 			itemAdapter.setOnClickListener(R.id.btnRemove, new OnSubItemClickListener() {
 				@Override
 				public void onSubItemClick(View subView, int position) {
@@ -110,23 +108,16 @@ public class ManageIngredient extends ManageTextBase {
 	
 	private void addExcludedEffectsAdapter(Vector<ListAdapter> adapters) {
 		Cursor excludedCursor = dbAdapter.getExcludedEffects(getId());
-		final ListView list = (ListView)findViewById(R.id.manage_list);
     	if (excludedCursor == null) {
     		Log.d(TAG, "No excluded result.");
     	} else {
     		SubClickableListAdapter excludedAdapter = new SubClickableListAdapter(
-	    			new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1, 
+	    			new SimpleCursorAdapter(this, R.layout.activity_manage_list_item_excluded, 
 	    			excludedCursor, new String[] {DbAdapter.EFFECTS_VALUE}, 
-	    			new int[] {android.R.id.text1}));
-    		excludedAdapter.setOnClickListener(android.R.id.text1, 
-    				new OnSubItemClickListener() {
-				@Override
-				public void onSubItemClick(View subView, int position) {
-					Log.d(TAG, "Click on red item (text). Position: "+position+". Id: "+
-							dbAdapter.getEffectsWrapper().getString(
-									list.getItemIdAtPosition(position)));
-				}
-			});
+	    			new int[] {R.id.text1}));
+    		excludedAdapter.setOnClickListener(
+    				R.id.text1, 
+    				new IngredientClicked());
 	    	adapters.add(excludedAdapter);
     	}
 	}

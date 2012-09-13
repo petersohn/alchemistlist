@@ -18,8 +18,6 @@ import android.widget.TextView;
 
 import com.kangirigungi.alchemistlist.Database.ConfigDbAdapter;
 import com.kangirigungi.alchemistlist.Database.DbAdapter;
-import com.kangirigungi.alchemistlist.tools.SubClickableAdapter.OnSubItemClickListener;
-import com.kangirigungi.alchemistlist.tools.SubClickableListAdapter;
 import com.kangirigungi.alchemistlist.tools.Utils;
 
 public class ExperimentActivity extends Activity {
