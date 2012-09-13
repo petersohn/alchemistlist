@@ -3,15 +3,12 @@ package com.kangirigungi.alchemistlist.tools;
 import java.util.List;
 
 import android.database.DataSetObserver;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListAdapter;
 
 public class MultiListAdapter implements ListAdapter {
 
-	private final static String TAG = "MultiListAdapter";
-	
 	private List<ListAdapter> adapters;
 	
 	private static class PositionResult {
@@ -31,7 +28,6 @@ public class MultiListAdapter implements ListAdapter {
 		for (ListAdapter adapter: adapters) {
 			int count = adapter.getCount();
 			if (result < count) {
-				Log.v(TAG, "getInternalPosition("+position+") = "+i+":"+result);
 				return new PositionResult(adapter, i, result);
 			}
 			result -= count;
@@ -47,26 +43,21 @@ public class MultiListAdapter implements ListAdapter {
 	@Override
 	public int getCount() {
 		int result = 0;
-		int i = 0;
 		for (ListAdapter adapter: adapters) {
 			int c = adapter.getCount();
-			Log.v(TAG, "getCount(): "+ i++ +" = "+c);
 			result += c;
 		}
-		Log.v(TAG, "getCount(): result = "+result);
 		return result;
 	}
 
 	@Override
 	public Object getItem(int position) {
-		Log.d(TAG, "getItem("+position+")");
 		PositionResult p = getInternalPosition(position);
 		return p.adapter.getItem(p.position);
 	}
 
 	@Override
 	public long getItemId(int position) {
-		Log.d(TAG, "getItemId("+position+")");
 		PositionResult p = getInternalPosition(position);
 		return p.adapter.getItemId(p.position);
 	}
@@ -81,14 +72,12 @@ public class MultiListAdapter implements ListAdapter {
 	
 	@Override
 	public int getItemViewType(int position) {
-		Log.d(TAG, "getItemViewType("+position+")");
 		PositionResult p = getInternalPosition(position);
 		return p.adapterId*getMaxViewType() + p.adapter.getItemViewType(p.position);
 	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		Log.d(TAG, "getView("+position+")");
 		PositionResult p = getInternalPosition(position);
 		return p.adapter.getView(p.position, convertView, parent);
 	}
