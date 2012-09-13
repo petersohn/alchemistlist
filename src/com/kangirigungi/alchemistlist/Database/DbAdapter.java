@@ -313,7 +313,8 @@ public class DbAdapter {
     
     public Cursor getExcludedEffects(long ingredientId) {
     	Log.v(TAG, "getExcludedEffects("+ingredientId+")");
-    	String queryString = "select "+TABLE_EFFECTS+"."+EFFECTS_ID+" "+EFFECTS_ID+", "+
+    	String queryString = 
+    			"select distinct "+TABLE_EFFECTS+"."+EFFECTS_ID+" "+EFFECTS_ID+", "+
     	    	TABLE_EFFECTS+"."+EFFECTS_VALUE+" "+EFFECTS_VALUE+" from "+
 				TABLE_INGREDIENT_EFFECT+", "+TABLE_EFFECTS+
 				", ("+assocQueryBase+") assoc where "+
