@@ -30,9 +30,11 @@ public class ExperimentActivity extends Activity {
 	private DbAdapter dbAdapter;
 	private ConfigDbAdapter config;
 	private String dbName;
+	private boolean isMatchList;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
+    	isMatchList = false;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_experiment);
         
@@ -97,6 +99,10 @@ public class ExperimentActivity extends Activity {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, 
 					int position, long id) {
+				if (isMatchList) {
+					Log.d(TAG, "We are match list. Ignoring click.");
+					return;
+				}
 				Long[] assoc = dbAdapter.getAssoc(id);
 				if (assoc == null) {
 					Log.e(TAG, "Value not found: " + id);
@@ -244,6 +250,11 @@ public class ExperimentActivity extends Activity {
     	if (id1 != null && id2 != null) {
     		Log.d(TAG, "Query with two strings.");
     		cursor = dbAdapter.searchAssoc(id1.longValue(), id2.longValue());
+    		if (cursor.getCount() == 0) {
+    			fillMatchList();
+    			isMatchList = true;
+    			return;
+    		}
     	} else
     	if (id1 != null) {
     		Log.d(TAG, "Query with first string.");
@@ -264,8 +275,13 @@ public class ExperimentActivity extends Activity {
 	    			new int[] {android.R.id.text1, android.R.id.text2});
 	    	list.setAdapter(adapter);
     	}
+    	isMatchList = false;
     }
     
+//    private void fillMatchList() {
+//    	Cursor effectList1 = dbAdapter.getEffectsFromIngredient(textIds.get(R.id.))
+//    }
+//    
     @Override 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
     	switch (requestCode) {
