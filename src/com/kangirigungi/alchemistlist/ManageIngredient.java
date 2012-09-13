@@ -68,10 +68,10 @@ public class ManageIngredient extends ManageTextBase {
 		return dbAdapter.getIngredientsWrapper();
 	}
 	
-	private class IngredientClicked implements OnSubItemClickListener {
+	private class EffectClicked implements OnSubItemClickListener {
 		private ListView list;
 		
-		IngredientClicked() {
+		EffectClicked() {
 			list = (ListView)findViewById(R.id.manage_list);
 		}
 		
@@ -95,7 +95,7 @@ public class ManageIngredient extends ManageTextBase {
 					new SimpleCursorAdapter(this, R.layout.activity_manage_list_item, 
 	    			cursor, new String[] {DbAdapter.EFFECTS_VALUE}, 
 	    			new int[] {R.id.text1}));
-			itemAdapter.setOnClickListener(R.id.text1, new IngredientClicked());
+			itemAdapter.setOnClickListener(R.id.text1, new EffectClicked());
 			itemAdapter.setOnClickListener(R.id.btnRemove, new OnSubItemClickListener() {
 				@Override
 				public void onSubItemClick(View subView, int position) {
@@ -117,7 +117,7 @@ public class ManageIngredient extends ManageTextBase {
 	    			new int[] {R.id.text1}));
     		excludedAdapter.setOnClickListener(
     				R.id.text1, 
-    				new IngredientClicked());
+    				new EffectClicked());
 	    	adapters.add(excludedAdapter);
     	}
 	}

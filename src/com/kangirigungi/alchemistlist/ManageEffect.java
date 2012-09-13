@@ -9,7 +9,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
@@ -84,7 +83,7 @@ public class ManageEffect extends ManageTextBase {
 	}
 	
 	private void addEffectsAdapter(Vector<ListAdapter> adapters) {
-		Cursor cursor = dbAdapter.getEffectsFromIngredient(getId());
+		Cursor cursor = dbAdapter.getIngredientsFromEffect(getId());
     	if (cursor == null) {
     		Log.d(TAG, "No normal result.");
     	} else {

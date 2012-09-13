@@ -1,7 +1,6 @@
 package com.kangirigungi.alchemistlist.tools;
 
 import android.database.DataSetObserver;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -35,7 +34,6 @@ public class SubClickableAdapter implements Adapter {
 	
 	@Override
 	public View getView(final int position, View convertView, final ViewGroup parent) {
-		Log.d(TAG, "getView("+position+")");
 		final View view = other.getView(position, convertView, parent);
 		for(int i = 0; i < onClickListeners.size(); i++) {
 			View subView = view.findViewById(onClickListeners.keyAt(i));
