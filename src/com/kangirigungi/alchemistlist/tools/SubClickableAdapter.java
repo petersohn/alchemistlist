@@ -34,9 +34,9 @@ public class SubClickableAdapter implements Adapter {
 	}
 	
 	@Override
-	public View getView(final int position, View convertView, ViewGroup parent) {
+	public View getView(final int position, View convertView, final ViewGroup parent) {
 		Log.d(TAG, "getView("+position+")");
-		View view = other.getView(position, convertView, parent);
+		final View view = other.getView(position, convertView, parent);
 		for(int i = 0; i < onClickListeners.size(); i++) {
 			View subView = view.findViewById(onClickListeners.keyAt(i));
 			if (subView != null) {
@@ -45,7 +45,7 @@ public class SubClickableAdapter implements Adapter {
 					subView.setOnClickListener(new OnClickListener() {
 						@Override
 						public void onClick(View v) {
-							listener.onSubItemClick(v, position);
+							listener.onSubItemClick(v, parent.indexOfChild(view));
 						}
 					});
 				}
