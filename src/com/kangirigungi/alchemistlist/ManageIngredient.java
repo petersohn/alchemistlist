@@ -177,4 +177,14 @@ public class ManageIngredient extends ManageTextBase {
     		Log.v(TAG, "DbTextChooser cancelled.");
     	}
 	}
+
+	@Override
+	protected CharSequence getRenameTitle() {
+		return "Rename ingredient";
+	}
+
+	@Override
+	protected CharSequence getRenameMessage() {
+		return "Choose new name for the ingredient";
+	}
 }

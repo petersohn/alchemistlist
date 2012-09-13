@@ -3,42 +3,28 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <EditText
-        android:id="@+id/manage_name"
-        android:layout_width="match_parent"
+    <Button
+        android:id="@+id/manage_btnRename"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:ems="10"
-        android:hint="@string/name" />
+        android:text="@string/rename" />
 
-    <LinearLayout
-        android:id="@+id/manage_buttonRow"
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/manage_name"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true" >
+        android:layout_toLeftOf="@id/manage_btnRename"
+        android:layout_alignBaseline="@id/manage_btnRename"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
-        <Button
-            android:id="@+id/manage_cancel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@android:string/cancel" />
-        
-        <Button
-            android:id="@+id/manage_save"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/save"
-            android:textStyle="bold" />
-
-    </LinearLayout>
-    
     <Button
         android:id="@+id/ingredient_addEffect"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/manage_name"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/manage_btnRename"
         android:text="@string/addEffect" />
     
     <TextView
@@ -46,17 +32,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_below="@+id/ingredient_addEffect"
+        android:layout_below="@id/ingredient_addEffect"
         android:text="@string/effectsHeader"
         android:textAppearance="?android:attr/textAppearanceMedium" />
-    
+
     <ListView
         android:id="@+id/manage_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@id/manage_buttonRow"
         android:layout_below="@id/ingredient_effectsHeader" >
-
     </ListView>
 
 </RelativeLayout>

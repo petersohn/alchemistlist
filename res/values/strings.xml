@@ -36,5 +36,6 @@
     <string name="remove">Remove</string>
     <string name="effectsHeader">Effects:</string>
     <string name="ingredientsHeader">Ingredients:</string>
+    <string name="rename">Rename</string>
 
 </resources>

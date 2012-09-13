@@ -9,8 +9,6 @@ import android.widget.Adapter;
 
 public class SubClickableAdapter implements Adapter {
 	
-	private final static String TAG = "SubClickableAdapter";
-	
 	public static interface OnSubItemClickListener {
 		public void onSubItemClick(View subView, int position);
 	}

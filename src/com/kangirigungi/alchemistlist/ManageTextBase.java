@@ -6,13 +6,15 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.MenuItem.OnMenuItemClickListener;
+import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.EditText;
+import android.widget.TextView;
 
 import com.kangirigungi.alchemistlist.Database.StringContainer;
+import com.kangirigungi.alchemistlist.tools.InputQuery;
+import com.kangirigungi.alchemistlist.tools.InputQueryResultListener;
 
 public abstract class ManageTextBase extends Activity {
 	private static final String TAG = "ManageTextBase";
@@ -22,6 +24,8 @@ public abstract class ManageTextBase extends Activity {
 	protected abstract StringContainer getStringContainer();
 	protected abstract void initManageText(Bundle savedInstanceState);
 	protected void prepareResult(Intent resultIntent) {}
+	protected abstract CharSequence getRenameTitle();
+	protected abstract CharSequence getRenameMessage();
 	
 	public long getId() {
 		return id;
@@ -33,18 +37,11 @@ public abstract class ManageTextBase extends Activity {
         super.onCreate(savedInstanceState);
         initManageText(savedInstanceState);
         
-        Button button = (Button)findViewById(R.id.manage_cancel);
+        Button button = (Button)findViewById(R.id.manage_btnRename);
         button.setOnClickListener(new OnClickListener() {
 			@Override
-			public void onClick(View v) {
-				cancel();
-			}
-		});
-        button = (Button)findViewById(R.id.manage_save);
-        button.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				save();
+			public void onClick(View arg0) {
+				rename();
 			}
 		});
         
@@ -68,19 +65,34 @@ public abstract class ManageTextBase extends Activity {
         return true;
     }
     
+    private void rename() {
+    	final TextView nameField = (TextView)findViewById(R.id.manage_name);
+    	InputQuery q = new InputQuery(this);
+    	q.run(getRenameTitle(), getRenameMessage(), nameField.getText(), 
+    			new InputQueryResultListener() {
+					
+					@Override
+					public void onOk(String result) {
+						Log.i(TAG, "Renameing to "+result);
+				    	getStringContainer().changeString(id, result);
+				    	refresh();
+					}
+					
+					@Override
+					public void onCancel() {
+						Log.d(TAG, "Rename cancelled.");
+					}
+				});
+    }
+    
     private void refresh() {
     	Log.d(TAG, "refresh()");
-    	EditText nameField = (EditText)findViewById(R.id.manage_name);
+    	TextView nameField = (TextView)findViewById(R.id.manage_name);
     	String value = getStringContainer().getString(id);
     	Log.v(TAG, "Name = " + value);
     	nameField.setText(value);
     }
 
-    private void cancel() {
-    	setResult(RESULT_CANCELED);
-    	finish();
-	}
-    
     private void finishOk(boolean deleted) {
     	Intent result = new Intent();
     	prepareResult(result);
@@ -88,12 +100,6 @@ public abstract class ManageTextBase extends Activity {
     	setResult(RESULT_OK, result);
     	finish();
 	}
-    
-    private void save() {
-    	EditText nameField = (EditText)findViewById(R.id.manage_name);
-    	getStringContainer().changeString(id, nameField.getText().toString());
-    	finishOk(false);
-    }
     
     private void delete() {
     	getStringContainer().deleteString(id);

@@ -137,4 +137,15 @@ public class ManageEffect extends ManageTextBase {
     		break;
     	}
     }
+	
+	@Override
+	protected CharSequence getRenameTitle() {
+		return "Rename effect";
+	}
+
+	@Override
+	protected CharSequence getRenameMessage() {
+		return "Choose new name for the effect";
+	}
+
 }
