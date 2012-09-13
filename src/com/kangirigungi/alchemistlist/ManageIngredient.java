@@ -107,13 +107,13 @@ public class ManageIngredient extends ManageTextBase {
 	}
 	
 	private void addExcludedEffectsAdapter(Vector<ListAdapter> adapters) {
-		Cursor excludedCursor = dbAdapter.getExcludedEffects(getId());
-    	if (excludedCursor == null) {
+		Cursor cursor = dbAdapter.getExcludedEffects(getId());
+    	if (cursor == null) {
     		Log.d(TAG, "No excluded result.");
     	} else {
     		SubClickableListAdapter excludedAdapter = new SubClickableListAdapter(
 	    			new SimpleCursorAdapter(this, R.layout.activity_manage_list_item_excluded, 
-	    			excludedCursor, new String[] {DbAdapter.EFFECTS_VALUE}, 
+	    			cursor, new String[] {DbAdapter.EFFECTS_VALUE}, 
 	    			new int[] {R.id.text1}));
     		excludedAdapter.setOnClickListener(
     				R.id.text1, 

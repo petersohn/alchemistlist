@@ -18,6 +18,6 @@
         android:layout_centerVertical="true"
         android:layout_toLeftOf="@id/btnRemove"
         android:clickable="true"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
 </RelativeLayout>

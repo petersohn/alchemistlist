@@ -333,6 +333,28 @@ public class DbAdapter {
         return cursor;
     }
     
+    public Cursor getExcludedIngredients(long effectId) {
+    	Log.v(TAG, "getExcludedIngredients("+effectId+")");
+    	String queryString = 
+    			"select distinct "+TABLE_INGREDIENTS+"."+INGREDIENTS_ID+" "+INGREDIENTS_ID+", "+
+    			TABLE_INGREDIENTS+"."+INGREDIENTS_VALUE+" "+INGREDIENTS_VALUE+" from "+
+				TABLE_INGREDIENT_EFFECT+", "+
+				TABLE_INGREDIENTS+", ("+assocQueryBase+") assoc where "+
+				TABLE_INGREDIENT_EFFECT+"."+INGREDIENT_EFFECT_EFFECT+"=? and "+
+				"assoc."+ASSOC_ID1+"="+
+				TABLE_INGREDIENT_EFFECT+"."+INGREDIENT_EFFECT_INGREDIENT+" and "+
+				TABLE_INGREDIENTS+"."+INGREDIENTS_ID+
+				"=assoc."+ASSOC_ID2+
+				" order by "+EFFECTS_VALUE;
+    			
+    	Log.v(TAG, queryString);
+    	Cursor cursor =
+    			database.rawQuery(
+    					queryString,
+    					new String[] {Long.valueOf(effectId).toString()});
+        return cursor;
+    }
+    
 	public void cleanup() {
 	}
 	
