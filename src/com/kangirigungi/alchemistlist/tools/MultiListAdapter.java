@@ -3,30 +3,39 @@ package com.kangirigungi.alchemistlist.tools;
 import java.util.List;
 
 import android.database.DataSetObserver;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListAdapter;
 
 public class MultiListAdapter implements ListAdapter {
 
+	private final static String TAG = "MultiListAdapter";
+	
 	private List<ListAdapter> adapters;
 	
 	private static class PositionResult {
 		ListAdapter adapter;
+		int adapterId;
 		int position;
-		PositionResult(ListAdapter adapter, int position) {
+		PositionResult(ListAdapter adapter, int adapterId, int position) {
 			this.adapter = adapter;
+			this.adapterId = adapterId;
 			this.position = position;
 		}
 	}
 	
 	private PositionResult getInternalPosition(int position) {
+		int i = 0;
+		int result = position;
 		for (ListAdapter adapter: adapters) {
 			int count = adapter.getCount();
-			if (position < count) {
-				return new PositionResult(adapter, position);
+			if (result < count) {
+				Log.v(TAG, "getInternalPosition("+position+") = "+i+":"+result);
+				return new PositionResult(adapter, i, result);
 			}
-			position -= count;
+			result -= count;
+			++i;
 		}
 		return null;
 	}
@@ -38,32 +47,48 @@ public class MultiListAdapter implements ListAdapter {
 	@Override
 	public int getCount() {
 		int result = 0;
+		int i = 0;
 		for (ListAdapter adapter: adapters) {
-			result += adapter.getCount();
+			int c = adapter.getCount();
+			Log.v(TAG, "getCount(): "+ i++ +" = "+c);
+			result += c;
 		}
+		Log.v(TAG, "getCount(): result = "+result);
 		return result;
 	}
 
 	@Override
 	public Object getItem(int position) {
+		Log.d(TAG, "getItem("+position+")");
 		PositionResult p = getInternalPosition(position);
 		return p.adapter.getItem(p.position);
 	}
 
 	@Override
 	public long getItemId(int position) {
+		Log.d(TAG, "getItemId("+position+")");
 		PositionResult p = getInternalPosition(position);
 		return p.adapter.getItemId(p.position);
 	}
 
+	private int getMaxViewType() {
+		int result = 1;
+		for (ListAdapter adapter: adapters) {
+			result = Math.max(result, adapter.getViewTypeCount());
+		}
+		return result;
+	}
+	
 	@Override
 	public int getItemViewType(int position) {
+		Log.d(TAG, "getItemViewType("+position+")");
 		PositionResult p = getInternalPosition(position);
-		return p.adapter.getItemViewType(p.position);
+		return p.adapterId*getMaxViewType() + p.adapter.getItemViewType(p.position);
 	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
+		Log.d(TAG, "getView("+position+")");
 		PositionResult p = getInternalPosition(position);
 		return p.adapter.getView(p.position, convertView, parent);
 	}
