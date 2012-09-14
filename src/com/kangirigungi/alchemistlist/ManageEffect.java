@@ -24,13 +24,28 @@ public class ManageEffect extends ManageTextBase {
 	
 	private static final int ACTIVITY_MANAGE_INGREDIENT = 1;
 	
+	private class IngredientClicked implements OnSubItemClickListener {
+		@Override
+		public void onSubItemClick(View subView, int position) {
+			long id = list.getItemIdAtPosition(position);
+			Log.v(TAG, "Click on item. Position: "+position+". Id: "+
+					dbAdapter.getEffectsWrapper().getString(id));
+			manageIngredient(id);
+		}
+	}
+	
 	private DbAdapter dbAdapter;
+	
+	private ListView list;
+	private IngredientClicked ingredientClicked;
+	
 	
 	@Override
     public void initManageText(Bundle savedInstanceState) {
         setContentView(R.layout.activity_manage_effect);
 
-        ListView list = (ListView)findViewById(R.id.manage_list);
+        ingredientClicked = new IngredientClicked();
+        list = (ListView)findViewById(R.id.manage_list);
         list.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, 
@@ -67,21 +82,6 @@ public class ManageEffect extends ManageTextBase {
 		return dbAdapter.getEffectsWrapper();
 	}
 	
-	private class IngredientClicked implements OnSubItemClickListener {
-		private ListView list;
-		
-		IngredientClicked() {
-			list = (ListView)findViewById(R.id.manage_list);
-		}
-		
-		public void onSubItemClick(View subView, int position) {
-			long id = list.getItemIdAtPosition(position);
-			Log.v(TAG, "Click on item. Position: "+position+". Id: "+
-					dbAdapter.getEffectsWrapper().getString(id));
-			manageIngredient(id);
-		}
-	}
-	
 	private void addEffectsAdapter(Vector<ListAdapter> adapters) {
 		Cursor cursor = dbAdapter.getIngredientsFromEffect(getId());
     	if (cursor == null) {
@@ -91,7 +91,7 @@ public class ManageEffect extends ManageTextBase {
 					new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1, 
 	    			cursor, new String[] {DbAdapter.EFFECTS_VALUE}, 
 	    			new int[] {android.R.id.text1}));
-			itemAdapter.setOnClickListener(android.R.id.text1, new IngredientClicked());
+			itemAdapter.setOnClickListener(android.R.id.text1, ingredientClicked);
 			adapters.add(itemAdapter);
     	}
 	}
@@ -107,7 +107,7 @@ public class ManageEffect extends ManageTextBase {
 	    			new int[] {R.id.text1}));
     		excludedAdapter.setOnClickListener(
     				R.id.text1, 
-    				new IngredientClicked());
+    				ingredientClicked);
 	    	adapters.add(excludedAdapter);
     	}
 	}
@@ -117,7 +117,6 @@ public class ManageEffect extends ManageTextBase {
 		Vector<ListAdapter> adapters = new Vector<ListAdapter>();
 		addEffectsAdapter(adapters);
 		addExcludedIngredientsAdapter(adapters);
-		ListView list = (ListView)findViewById(R.id.manage_list);
     	list.setAdapter(new MultiListAdapter(adapters));
 	}
 

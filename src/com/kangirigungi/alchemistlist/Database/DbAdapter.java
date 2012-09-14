@@ -39,17 +39,17 @@ public class DbAdapter {
     public static final String EFFECTS_ID = "_id";
     public static final String EFFECTS_VALUE = "value";
     
-    private static final String TABLE_ASSOC = "assoc";
-    public static final String ASSOC_ID = "_id";
-    public static final String ASSOC_ID1 = "id1";
-    public static final String ASSOC_ID2 = "id2";
+    private static final String TABLE_EXPERIMENTS = "experiments";
+    public static final String EXPERIMENTS_ID = "_id";
+    public static final String EXPERIMENTS_ID1 = "id1";
+    public static final String EXPERIMENTS_ID2 = "id2";
     
     private static final String TABLE_INGREDIENT_EFFECT = "ingredient_effect";
     public static final String INGREDIENT_EFFECT_ID = "_id";
     public static final String INGREDIENT_EFFECT_INGREDIENT = "ingredientId";
     public static final String INGREDIENT_EFFECT_EFFECT = "effectId";
     
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 6;
 
     private class DatabaseHelper extends SQLiteOpenHelper {
 
@@ -63,11 +63,35 @@ public class DbAdapter {
         public void onOpen(SQLiteDatabase db) {
             super.onOpen(db);
             if (!db.isReadOnly()) {
-                // Enable foreign key constraints
-                db.execSQL("PRAGMA foreign_keys=ON;");
+                Log.i(TAG, "Opening database.");
+                try {
+                	db.execSQL("PRAGMA foreign_keys=ON;");
+                	Cursor errors = db.rawQuery("PRAGMA integrity_check", null);
+                	Log.v(TAG, "Number of messages found: "+errors.getCount());
+                	for (errors.moveToFirst(); !errors.isAfterLast(); errors.moveToNext()) {
+                		String s = errors.getString(0);
+                		if (s.equals("ok")) {
+                			Log.d(TAG, s);
+                		} else {
+                			Log.w(TAG, s);
+                		}
+                	}
+                	errors.close();
+                } catch (SQLException e) {
+                	Log.e(TAG, e.getMessage());
+                }
             }
         }
 
+        void createExperimentsTable(SQLiteDatabase db) {
+        	 db.execSQL("create table "+TABLE_EXPERIMENTS+" (" +
+             		EXPERIMENTS_ID+" integer primary key," +
+             		EXPERIMENTS_ID1+" integer not null references "+
+             		TABLE_INGREDIENTS+"("+INGREDIENTS_ID+") on delete cascade," +
+             		EXPERIMENTS_ID2+" integer not null references "+
+             		TABLE_INGREDIENTS+"("+INGREDIENTS_ID+") on delete cascade" +
+             		");");
+        }
         
         @Override
         public void onCreate(SQLiteDatabase db) {
@@ -75,19 +99,16 @@ public class DbAdapter {
             db.execSQL("create table "+TABLE_INGREDIENTS+" (" +
             		INGREDIENTS_ID+" integer primary key," +
             		INGREDIENTS_VALUE+" text not null);");
-            db.execSQL("create table "+TABLE_ASSOC+" (" +
-            		ASSOC_ID+" integer primary key," +
-            		ASSOC_ID1+" integer not null references "+TABLE_INGREDIENTS+"("+INGREDIENTS_ID+") on delete cascade," +
-            		ASSOC_ID2+" integer not null references "+TABLE_INGREDIENTS+"("+INGREDIENTS_ID+") on delete cascade" +
-            		");");
+            createExperimentsTable(db);
             createEffectsTable(db);
             createIngredientEffectTable(db);
+            db.execSQL("PRAGMA foreign_keys=ON;");
         }
 
         private void recreateDatabase(SQLiteDatabase db) {
         	Log.w(TAG, "Recreating database. All old data will be destroyed.");
         	db.execSQL("DROP TABLE IF EXISTS "+TABLE_INGREDIENTS);
-            db.execSQL("DROP TABLE IF EXISTS "+TABLE_ASSOC);
+            db.execSQL("DROP TABLE IF EXISTS "+TABLE_EXPERIMENTS);
             onCreate(db);
         }
         
@@ -107,6 +128,9 @@ public class DbAdapter {
             if (oldVersion < 4) {
             	upgradeFrom3To4(db);
             }
+            if (oldVersion < 6) {
+            	upgradeFrom4To6(db);
+            }
         }
         
         private void upgradeFrom2To3(SQLiteDatabase db) {
@@ -116,6 +140,13 @@ public class DbAdapter {
         private void upgradeFrom3To4(SQLiteDatabase db) {
         	createEffectsTable(db);
             createIngredientEffectTable(db);
+        }
+        
+        private void upgradeFrom4To6(SQLiteDatabase db) {
+        	createExperimentsTable(db);
+            db.execSQL("insert into "+TABLE_EXPERIMENTS+
+            		" select * from assoc");
+            db.execSQL("drop table assoc");
         }
         
         private void createEffectsTable(SQLiteDatabase db) {
@@ -188,29 +219,29 @@ public class DbAdapter {
       
     public void addAssoc(long id1, long id2) throws SQLException {
     	ContentValues args = new ContentValues();
-        args.put(ASSOC_ID1, id1);
-        args.put(ASSOC_ID2, id2);
+        args.put(EXPERIMENTS_ID1, id1);
+        args.put(EXPERIMENTS_ID2, id2);
 
-        database.insertOrThrow(TABLE_ASSOC, null, args);
+        database.insertOrThrow(TABLE_EXPERIMENTS, null, args);
     }
     
     public void deleteAssoc(long id1, long id2) {
-    	database.delete(TABLE_ASSOC, ASSOC_ID1+"=? and "+ASSOC_ID2+"=?", 
+    	database.delete(TABLE_EXPERIMENTS, EXPERIMENTS_ID1+"=? and "+EXPERIMENTS_ID2+"=?", 
     			new String[] {Long.toString(id1), Long.toString(id2)});
-    	database.delete(TABLE_ASSOC, ASSOC_ID1+"=? and "+ASSOC_ID2+"=?", 
+    	database.delete(TABLE_EXPERIMENTS, EXPERIMENTS_ID1+"=? and "+EXPERIMENTS_ID2+"=?", 
     			new String[] {Long.toString(id2), Long.toString(id1)});
     }
    
     private static final String assocQueryBase =
-    		"select * from "+TABLE_ASSOC+
+    		"select * from "+TABLE_EXPERIMENTS+
     		" union "+
-			"select "+ASSOC_ID+", "+
-			ASSOC_ID2+" "+ASSOC_ID1+", "+
-			ASSOC_ID1+" "+ASSOC_ID2+" from "+
-			TABLE_ASSOC;
+			"select "+EXPERIMENTS_ID+", "+
+			EXPERIMENTS_ID2+" "+EXPERIMENTS_ID1+", "+
+			EXPERIMENTS_ID1+" "+EXPERIMENTS_ID2+" from "+
+			TABLE_EXPERIMENTS;
     
     private String assocQueryString(String filter) {
-    	return "select assoc."+ASSOC_ID+" "+ASSOC_ID+", "+
+    	return "select assoc."+EXPERIMENTS_ID+" "+EXPERIMENTS_ID+", "+
     			"strings1."+INGREDIENTS_VALUE+" value1, "+
     			" strings2."+INGREDIENTS_VALUE+" value2 from " +
     			"("+assocQueryBase+") assoc, " +
@@ -218,8 +249,8 @@ public class DbAdapter {
 				TABLE_INGREDIENTS+" strings2 " +
 				
 				" where ("+filter+") and " +
-				" strings1."+INGREDIENTS_ID+"=assoc."+ASSOC_ID1+
-        		" and strings2."+INGREDIENTS_ID+"=assoc."+ASSOC_ID2+
+				" strings1."+INGREDIENTS_ID+"=assoc."+EXPERIMENTS_ID1+
+        		" and strings2."+INGREDIENTS_ID+"=assoc."+EXPERIMENTS_ID2+
         		" order by value1 asc, value2 asc";
     }
     
@@ -233,39 +264,47 @@ public class DbAdapter {
         	Log.d(TAG, "Number of results: " + cursor.getCount());
             cursor.moveToFirst();
         }
-        return cursor;
+        return dbManager.addCursor(cursor);
     }
     
     public Cursor searchAssoc(long id) throws SQLException {
     	return doSearchAssoc(
-        		"assoc."+ASSOC_ID1+"=?1",
+        		"assoc."+EXPERIMENTS_ID1+"=?1",
         		new String[] {Long.toString(id)});
     }
     
     public Cursor searchAssoc(long id1, long id2) throws SQLException {
     	return doSearchAssoc(
-    			"(assoc."+ASSOC_ID1+"=?1 and " +
-				"assoc."+ASSOC_ID2+"=?2)",
+    			"(assoc."+EXPERIMENTS_ID1+"=?1 and " +
+				"assoc."+EXPERIMENTS_ID2+"=?2)",
 				new String[] {Long.toString(id1), Long.toString(id2)});
     }
     
     public Long[] getAssoc(long id) {
     	Log.v(TAG, "getAssoc("+id+")");
     	Cursor cursor =
-    			database.query(TABLE_ASSOC, 
-	            		new String[] {ASSOC_ID1, ASSOC_ID2}, 
-	            		ASSOC_ID+" = ?", 
+    			database.query(TABLE_EXPERIMENTS, 
+	            		new String[] {EXPERIMENTS_ID1, EXPERIMENTS_ID2}, 
+	            		EXPERIMENTS_ID+" = ?", 
 	            		new String[] {Long.valueOf(id).toString()},
 	                    null, null, null, null);
-        if (cursor != null && cursor.getCount() > 0) {
-        	Log.v(TAG, "Number of results: " + cursor.getCount());
-            cursor.moveToFirst();
-            return new Long[] {
-            		Long.valueOf(cursor.getLong(0)),
-            		Long.valueOf(cursor.getLong(1))};
+    	Long[] result = null;
+        if (cursor != null) {
+        	if (cursor.getCount() > 0) {
+	        	Log.v(TAG, "Number of results: " + cursor.getCount());
+	            cursor.moveToFirst();
+	            result = new Long[] {
+	            		Long.valueOf(cursor.getLong(0)),
+	            		Long.valueOf(cursor.getLong(1))};
+        	} else {
+        		Log.v(TAG, "No result");
+        	}
+        	cursor.close();
+        } else {
+        	Log.v(TAG, "Null cursor");
         }
-        Log.v(TAG, "No result");
-        return null;
+        
+        return result;
     }
     
     public void addIngredientEffect(long ingredientId, long effectId) throws SQLException {
@@ -300,7 +339,7 @@ public class DbAdapter {
     			database.rawQuery(
     					queryString,
     					new String[] {Long.valueOf(ingredientId).toString()});
-        return cursor;
+        return dbManager.addCursor(cursor);
     }
     
     public Cursor getIngredientsFromEffect(long effectId) {
@@ -318,7 +357,7 @@ public class DbAdapter {
     			database.rawQuery(
     					queryString,
     					new String[] {Long.valueOf(effectId).toString()});
-        return cursor;
+        return dbManager.addCursor(cursor);
     }
     
     public Cursor getExcludedEffects(long ingredientId) {
@@ -328,9 +367,9 @@ public class DbAdapter {
     	    	TABLE_EFFECTS+"."+EFFECTS_VALUE+" "+EFFECTS_VALUE+" from "+
 				TABLE_INGREDIENT_EFFECT+", "+TABLE_EFFECTS+
 				", ("+assocQueryBase+") assoc where "+
-				"assoc."+ASSOC_ID1+"=? and "+
+				"assoc."+EXPERIMENTS_ID1+"=? and "+
 				TABLE_INGREDIENT_EFFECT+"."+INGREDIENT_EFFECT_INGREDIENT+
-				"=assoc."+ASSOC_ID2+" and "+
+				"=assoc."+EXPERIMENTS_ID2+" and "+
 				TABLE_INGREDIENT_EFFECT+"."+INGREDIENT_EFFECT_EFFECT+
 				"="+TABLE_EFFECTS+"."+EFFECTS_ID+
 				" order by "+EFFECTS_VALUE;
@@ -340,7 +379,7 @@ public class DbAdapter {
     			database.rawQuery(
     					queryString,
     					new String[] {Long.valueOf(ingredientId).toString()});
-        return cursor;
+        return dbManager.addCursor(cursor);
     }
     
     public Cursor getExcludedIngredients(long effectId) {
@@ -351,10 +390,10 @@ public class DbAdapter {
 				TABLE_INGREDIENT_EFFECT+", "+
 				TABLE_INGREDIENTS+", ("+assocQueryBase+") assoc where "+
 				TABLE_INGREDIENT_EFFECT+"."+INGREDIENT_EFFECT_EFFECT+"=? and "+
-				"assoc."+ASSOC_ID1+"="+
+				"assoc."+EXPERIMENTS_ID1+"="+
 				TABLE_INGREDIENT_EFFECT+"."+INGREDIENT_EFFECT_INGREDIENT+" and "+
 				TABLE_INGREDIENTS+"."+INGREDIENTS_ID+
-				"=assoc."+ASSOC_ID2+
+				"=assoc."+EXPERIMENTS_ID2+
 				" order by "+EFFECTS_VALUE;
     			
     	Log.v(TAG, queryString);
@@ -362,7 +401,7 @@ public class DbAdapter {
     			database.rawQuery(
     					queryString,
     					new String[] {Long.valueOf(effectId).toString()});
-        return cursor;
+        return dbManager.addCursor(cursor);
     }
     
 	public void cleanup() {

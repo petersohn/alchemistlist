@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.SparseArray;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -26,10 +25,16 @@ public class ExperimentActivity extends Activity {
 	private static final int ACTIVITY_MANAGE_INGREDIENT = 1;
 	private static final String TAG = "ExperimentActivity";
 	
-	private SparseArray<Long> textIds;
+	private static class TextId {
+		Long id;
+		Button view;
+	}
+	
+	private TextId[] textIds;
 	private DbAdapter dbAdapter;
 	private ConfigDbAdapter config;
 	private String dbName;
+	private ListView list;
 	private boolean isMatchList;
 	
     @Override
@@ -38,49 +43,12 @@ public class ExperimentActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_experiment);
         
-        Button btn = (Button)findViewById(R.id.experiment_item1Manage);
-        btn.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				onManageClick(v, R.id.experiment_item1Display);
-			}
-		});
-        btn = (Button)findViewById(R.id.experiment_item1Clear);
-        btn.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				onClearClick(v, R.id.experiment_item1Display);
-			}
-		});
-        btn = (Button)findViewById(R.id.experiment_item1Display);
-        btn.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				onChooseClick(v, R.id.experiment_item1Display);
-			}
-		});
-        btn = (Button)findViewById(R.id.experiment_item2Manage);
-        btn.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				onManageClick(v, R.id.experiment_item2Display);
-			}
-		});
-        btn = (Button)findViewById(R.id.experiment_item2Clear);
-        btn.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				onClearClick(v, R.id.experiment_item2Display);
-			}
-		});
-        btn = (Button)findViewById(R.id.experiment_item2Display);
-        btn.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				onChooseClick(v, R.id.experiment_item2Display);
-			}
-		});
-        btn = (Button)findViewById(R.id.experiment_btnAddAssoc);
+        textIds = new TextId[] { new TextId(), new TextId() };
+        fillTextId(0, R.id.experiment_item1Display, 
+        		R.id.experiment_item1Clear, R.id.experiment_item1Manage);
+        fillTextId(1, R.id.experiment_item2Display, 
+        		R.id.experiment_item2Clear, R.id.experiment_item2Manage);
+        Button btn = (Button)findViewById(R.id.experiment_btnAddAssoc);
         btn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -94,7 +62,7 @@ public class ExperimentActivity extends Activity {
 				onDelAssocClick(v);
 			}
 		});
-        ListView list = (ListView)findViewById(R.id.experiment_displayList);
+        list = (ListView)findViewById(R.id.experiment_displayList);
         list.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, 
@@ -108,8 +76,8 @@ public class ExperimentActivity extends Activity {
 					Log.e(TAG, "Value not found: " + id);
 					return;
 				}
-				setTextId(R.id.experiment_item1Display, assoc[0]);
-				setTextId(R.id.experiment_item2Display, assoc[1]);
+				setTextId(0, assoc[0]);
+				setTextId(1, assoc[1]);
 				refreshList();
 			}
 		});
@@ -117,7 +85,6 @@ public class ExperimentActivity extends Activity {
         Bundle extras = getIntent().getExtras();
         dbName = extras.getString("dbName");
         
-        textIds = new SparseArray<Long>();
         config = new ConfigDbAdapter(this);
         config.open();
         dbAdapter = new DbAdapter(this);
@@ -137,11 +104,36 @@ public class ExperimentActivity extends Activity {
         refreshList();
     }
     
+    private void fillTextId(final int num, int displayId, int clearId, int manageId) {
+    	 Button btn = (Button)findViewById(clearId);
+         btn.setOnClickListener(new OnClickListener() {
+ 			@Override
+ 			public void onClick(View v) {
+ 				onClearClick(v, num);
+ 			}
+ 		});
+         btn = (Button)findViewById(displayId);
+         textIds[num].view = btn;
+         btn.setOnClickListener(new OnClickListener() {
+ 			@Override
+ 			public void onClick(View v) {
+ 				onChooseClick(v, num);
+ 			}
+ 		});
+         btn = (Button)findViewById(manageId);
+         btn.setOnClickListener(new OnClickListener() {
+ 			@Override
+ 			public void onClick(View v) {
+ 				onManageClick(v, num);
+ 			}
+ 		});
+    }
+    
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putSerializable("item1", textIds.get(R.id.experiment_item1Display));
-        outState.putSerializable("item2", textIds.get(R.id.experiment_item2Display));
+        outState.putSerializable("item1", textIds[0].id);
+        outState.putSerializable("item2", textIds[1].id);
     }
    
     @Override
@@ -153,16 +145,14 @@ public class ExperimentActivity extends Activity {
 	}
     
     private void setTextId(int textId, long id) {
-    	Button textView = (Button)findViewById(textId);
-		textView.setText(dbAdapter.getIngredientsWrapper().getString(id));
-		textIds.put(textId, id);
+		textIds[textId].view.setText(dbAdapter.getIngredientsWrapper().getString(id));
+		textIds[textId].id = id;
     }
     
     private void onChooseClick(View v, int textId) {
     	Intent i = new Intent(this, IngredientTextChooser.class);
     	i.putExtra("textId", textId);
-    	Button textView = (Button)findViewById(textId);
-    	i.putExtra("value", textView.getText());
+    	i.putExtra("value", textIds[textId].view.getText());
     	if (dbName != null) {
     		i.putExtra("dbName", dbName);
     	}
@@ -176,9 +166,9 @@ public class ExperimentActivity extends Activity {
     }
     
     private void clearText(int textId) {
-    	Button textView = (Button)findViewById(textId);
-    	textView.setText("");
-		textIds.delete(textId);
+    	
+    	textIds[textId].view.setText("");
+    	textIds[textId].id = null;
     }
     
     private void onClearClick(View v, int textId) {
@@ -192,12 +182,12 @@ public class ExperimentActivity extends Activity {
     		Log.w(TAG, "No database selected.");
     		return;
     	}
-    	if (textIds.get(textId) == null) {
+    	if (textIds[textId].id == null) {
     		Log.d(TAG, "Text field empty.");
     		return;
     	}
     	Intent i = new Intent(this, ManageIngredient.class);
-    	i.putExtra("id", textIds.get(textId));
+    	i.putExtra("id", textIds[textId].id);
     	i.putExtra("dbName", dbName);
     	startActivityForResult(i, ACTIVITY_MANAGE_INGREDIENT);
 	}
@@ -208,14 +198,14 @@ public class ExperimentActivity extends Activity {
     		Log.w(TAG, "No database selected.");
     		return;
     	}
-    	Long id1 = textIds.get(R.id.experiment_item1Display);
-    	Long id2 = textIds.get(R.id.experiment_item2Display);
+    	Long id1 = textIds[0].id;
+    	Long id2 = textIds[1].id;
     	if (id1 != null && id2 != null) {
     		Log.i(TAG, "Adding association: " + 
-    				id1 + " ("+((Button)findViewById(R.id.experiment_item1Display)).getText() + ")" +
+    				id1 + " ("+textIds[0].view.getText() + ")" +
     				" <--> "+
-    				id2 + " ("+((Button)findViewById(R.id.experiment_item2Display)).getText() + ")");
-    		dbAdapter.addAssoc(id1.longValue(), id2.longValue());
+    				id2 + " ("+textIds[1].view.getText() + ")");
+    		dbAdapter.addAssoc(id1, id2);
     		refreshList();
     	}
     }
@@ -226,14 +216,14 @@ public class ExperimentActivity extends Activity {
     		Log.w(TAG, "No database selected.");
     		return;
     	}
-    	Long id1 = textIds.get(R.id.experiment_item1Display);
-    	Long id2 = textIds.get(R.id.experiment_item2Display);
+    	Long id1 = textIds[0].id;
+    	Long id2 = textIds[1].id;
     	if (id1 != null && id2 != null) {
     		Log.i(TAG, "Deleting association: " + 
-    				id1 + " ("+((Button)findViewById(R.id.experiment_item1Display)).getText() + ")" +
+    				id1 + " ("+textIds[0].view.getText() + ")" +
     				" <--> "+
-    				id2 + " ("+((Button)findViewById(R.id.experiment_item2Display)).getText() + ")");
-    		dbAdapter.deleteAssoc(id1.longValue(), id2.longValue());
+    				id2 + " ("+textIds[1].view.getText() + ")");
+    		dbAdapter.deleteAssoc(id1, id2);
     		refreshList();
     	}
     }
@@ -244,8 +234,8 @@ public class ExperimentActivity extends Activity {
     		Log.w(TAG, "No database selected.");
     		return;
     	}
-    	Long id1 = textIds.get(R.id.experiment_item1Display);
-    	Long id2 = textIds.get(R.id.experiment_item2Display);
+    	Long id1 = textIds[0].id;
+    	Long id2 = textIds[1].id;
     	Cursor cursor = null;
     	if (id1 != null && id2 != null) {
     		Log.d(TAG, "Query with two strings.");
@@ -264,7 +254,6 @@ public class ExperimentActivity extends Activity {
     		Log.d(TAG, "Query with second string.");
     		cursor = dbAdapter.searchAssoc(id2.longValue());
     	}
-    	final ListView list = (ListView)findViewById(R.id.experiment_displayList);
     	if (cursor == null) {
     		Log.d(TAG, "No result.");
     		list.setAdapter(null);
@@ -295,11 +284,11 @@ public class ExperimentActivity extends Activity {
 	}
 
     private void refreshText(int textId) {
-    	Button textView = (Button)findViewById(textId);
-    	if (textIds.get(textId) == null) {
-    		textView.setText("");
+    	if (textIds[textId].id == null) {
+    		textIds[textId].view.setText("");
     	} else {
-    		textView.setText(dbAdapter.getIngredientsWrapper().getString(textIds.get(textId)));
+    		textIds[textId].view.setText(
+    				dbAdapter.getIngredientsWrapper().getString(textIds[textId].id));
     	}
     }
     
@@ -326,11 +315,10 @@ public class ExperimentActivity extends Activity {
     		Bundle extras = data.getExtras();
     		Utils.printBundle(TAG, extras);
     		int textId = extras.getInt("textId");
-    		Button Button = (Button)findViewById(textId);
     		String value = extras.getString("result");
-    		Button.setText(value);
+    		textIds[textId].view.setText(value);
     		if (value != null && value.length() > 0) {
-    			textIds.put(textId, Long.valueOf(extras.getLong("id")));
+    			textIds[textId].id = extras.getLong("id");
     		}
     		refreshList();
     	}

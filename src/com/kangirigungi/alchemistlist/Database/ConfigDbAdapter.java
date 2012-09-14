@@ -123,6 +123,9 @@ public class ConfigDbAdapter {
         	Log.d(TAG, "Found last database: " + result);
             return result;
         }
+        if (cursor != null) {
+        	cursor.close();
+        }
         Log.d(TAG, "Last database not found");
         return null;
     }
