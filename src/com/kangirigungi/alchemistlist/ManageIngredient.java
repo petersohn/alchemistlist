@@ -28,12 +28,17 @@ public class ManageIngredient extends ManageTextBase {
 	
 	private DbAdapter dbAdapter;
 	
+	private Button btnAddEffect;
+	private ListView list;
+	
 	@Override
     public void initManageText(Bundle savedInstanceState) {
         setContentView(R.layout.activity_manage_ingredient);
 
-        Button button = (Button)findViewById(R.id.ingredient_addEffect);
-        button.setOnClickListener(new OnClickListener() {
+        btnAddEffect = (Button)findViewById(R.id.ingredient_addEffect);
+        list = (ListView)findViewById(R.id.manage_list);
+        
+        btnAddEffect.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				launchEffectChooser();
@@ -69,12 +74,7 @@ public class ManageIngredient extends ManageTextBase {
 	}
 	
 	private class EffectClicked implements OnSubItemClickListener {
-		private ListView list;
-		
-		EffectClicked() {
-			list = (ListView)findViewById(R.id.manage_list);
-		}
-		
+		@Override
 		public void onSubItemClick(View subView, int position) {
 			long id = list.getItemIdAtPosition(position);
 			Log.v(TAG, "Click on item. Position: "+position+". Id: "+
@@ -85,11 +85,9 @@ public class ManageIngredient extends ManageTextBase {
 	
 	private void addEffectsAdapter(Vector<ListAdapter> adapters) {
 		Cursor cursor = dbAdapter.getEffectsFromIngredient(getId());
-    	final ListView list = (ListView)findViewById(R.id.manage_list);
     	if (cursor == null) {
     		Log.d(TAG, "No normal result.");
     	} else {
-    		Button btnAddEffect = (Button)findViewById(R.id.ingredient_addEffect);
     		btnAddEffect.setEnabled(cursor.getCount() < 4);
 			SubClickableListAdapter itemAdapter = new SubClickableListAdapter(
 					new SimpleCursorAdapter(this, R.layout.activity_manage_list_item, 
@@ -127,7 +125,6 @@ public class ManageIngredient extends ManageTextBase {
 		Vector<ListAdapter> adapters = new Vector<ListAdapter>();
 		addEffectsAdapter(adapters);
 		addExcludedEffectsAdapter(adapters);
-		ListView list = (ListView)findViewById(R.id.manage_list);
     	list.setAdapter(new MultiListAdapter(adapters));
 	}
 

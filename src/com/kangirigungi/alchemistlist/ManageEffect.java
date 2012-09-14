@@ -26,11 +26,13 @@ public class ManageEffect extends ManageTextBase {
 	
 	private DbAdapter dbAdapter;
 	
+	private ListView list;
+	
 	@Override
     public void initManageText(Bundle savedInstanceState) {
         setContentView(R.layout.activity_manage_effect);
 
-        ListView list = (ListView)findViewById(R.id.manage_list);
+        list = (ListView)findViewById(R.id.manage_list);
         list.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, 
@@ -68,12 +70,7 @@ public class ManageEffect extends ManageTextBase {
 	}
 	
 	private class IngredientClicked implements OnSubItemClickListener {
-		private ListView list;
-		
-		IngredientClicked() {
-			list = (ListView)findViewById(R.id.manage_list);
-		}
-		
+		@Override
 		public void onSubItemClick(View subView, int position) {
 			long id = list.getItemIdAtPosition(position);
 			Log.v(TAG, "Click on item. Position: "+position+". Id: "+
@@ -117,7 +114,6 @@ public class ManageEffect extends ManageTextBase {
 		Vector<ListAdapter> adapters = new Vector<ListAdapter>();
 		addEffectsAdapter(adapters);
 		addExcludedIngredientsAdapter(adapters);
-		ListView list = (ListView)findViewById(R.id.manage_list);
     	list.setAdapter(new MultiListAdapter(adapters));
 	}
 

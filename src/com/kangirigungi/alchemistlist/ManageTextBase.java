@@ -31,14 +31,19 @@ public abstract class ManageTextBase extends Activity {
 		return id;
 	}
 	
+	private Button btnRename;
+	TextView nameField;
+	
     @Override
     public void onCreate(Bundle savedInstanceState) {
     	Log.i(TAG, "Creating activity");
         super.onCreate(savedInstanceState);
         initManageText(savedInstanceState);
         
-        Button button = (Button)findViewById(R.id.manage_btnRename);
-        button.setOnClickListener(new OnClickListener() {
+        nameField = (TextView)findViewById(R.id.manage_name);
+        btnRename = (Button)findViewById(R.id.manage_btnRename);
+        
+        btnRename.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
 				rename();
@@ -66,7 +71,6 @@ public abstract class ManageTextBase extends Activity {
     }
     
     private void rename() {
-    	final TextView nameField = (TextView)findViewById(R.id.manage_name);
     	InputQuery q = new InputQuery(this);
     	q.run(getRenameTitle(), getRenameMessage(), nameField.getText(), 
     			new InputQueryResultListener() {
@@ -87,7 +91,6 @@ public abstract class ManageTextBase extends Activity {
     
     private void refresh() {
     	Log.d(TAG, "refresh()");
-    	TextView nameField = (TextView)findViewById(R.id.manage_name);
     	String value = getStringContainer().getString(id);
     	Log.v(TAG, "Name = " + value);
     	nameField.setText(value);
