@@ -267,7 +267,7 @@ public class DbAdapter {
         return dbManager.addCursor(cursor);
     }
     
-    public Cursor searchAssoc(long id) throws SQLException {
+    public Cursor searchExperiment(long id) throws SQLException {
     	return doSearchAssoc(
         		"assoc."+EXPERIMENTS_ID1+"=?1",
         		new String[] {Long.toString(id)});

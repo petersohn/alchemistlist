@@ -1,5 +1,7 @@
 package com.kangirigungi.alchemistlist;
 
+import java.util.Vector;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
@@ -10,6 +12,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
@@ -94,11 +97,11 @@ public class ExperimentActivity extends Activity {
         if (savedInstanceState != null) {
         	Long value = (Long)savedInstanceState.getSerializable("item1");
         	if (value != null) {
-        		setTextId(R.id.experiment_item1Display, value.longValue());
+        		setTextId(0, value.longValue());
         	}
         	value = (Long)savedInstanceState.getSerializable("item2");
         	if (value != null) {
-        		setTextId(R.id.experiment_item2Display, value.longValue());
+        		setTextId(1, value.longValue());
         	}
         }
         refreshList();
@@ -160,8 +163,8 @@ public class ExperimentActivity extends Activity {
     }
     
     private void clearAll() {
-    	clearText(R.id.experiment_item1Display);
-    	clearText(R.id.experiment_item2Display);
+    	clearText(0);
+    	clearText(1);
     	refreshList();
     }
     
@@ -248,11 +251,11 @@ public class ExperimentActivity extends Activity {
     	} else
     	if (id1 != null) {
     		Log.d(TAG, "Query with first string.");
-    		cursor = dbAdapter.searchAssoc(id1.longValue());
+    		cursor = dbAdapter.searchExperiment(id1.longValue());
     	} else
     	if (id2 != null) {
     		Log.d(TAG, "Query with second string.");
-    		cursor = dbAdapter.searchAssoc(id2.longValue());
+    		cursor = dbAdapter.searchExperiment(id2.longValue());
     	}
     	if (cursor == null) {
     		Log.d(TAG, "No result.");
@@ -267,10 +270,63 @@ public class ExperimentActivity extends Activity {
     	isMatchList = false;
     }
     
-//    private void fillMatchList() {
-//    	Cursor effectList1 = dbAdapter.getEffectsFromIngredient(textIds.get(R.id.))
-//    }
-//    
+    private boolean isExcluded(Long[] effectList, Long[] excludeList) {
+    	if (effectList.length < 4) {
+    		return false;
+    	}
+    	for (long id1: effectList) {
+    		boolean found = false;
+    		for (long id2: excludeList) {
+    			if (id2 == id1) {
+    				found = true;
+    				break;
+    			}
+    		}
+    		if (!found) {
+    			return false;
+    		}
+    	}
+    	return true;
+    }
+    
+    private void fillMatchList() {
+    	Long[] effectList1 = Utils.getLongArrayFromCursor(
+    			dbAdapter.getEffectsFromIngredient(textIds[0].id), 0);
+    	Long[] effectList2 = Utils.getLongArrayFromCursor(
+    			dbAdapter.getEffectsFromIngredient(textIds[1].id), 0);
+    	Long[] excludeList1 = Utils.getLongArrayFromCursor(
+    			dbAdapter.getExcludedEffects(textIds[0].id), 0);
+    	Long[] excludeList2 = Utils.getLongArrayFromCursor(
+    			dbAdapter.getExcludedEffects(textIds[1].id), 0);
+    	Log.v(TAG, "Effect list 1: "+effectList1.toString());
+    	Log.v(TAG, "Effect list 2: "+effectList2.toString());
+    	Log.v(TAG, "Exclude list 1: "+excludeList1.toString());
+    	Log.v(TAG, "Exclude list 2: "+excludeList2.toString());
+    	if (isExcluded(effectList1, excludeList2) || isExcluded(effectList2, excludeList1)) {
+    		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, 
+    				R.layout.activity_manage_list_item_excluded,
+    				R.id.text1, new String[] {getString(R.string.excluded)});
+    		list.setAdapter(adapter);
+    		return;
+    	}
+    	Vector<String> matches = new Vector<String>();
+    	for (long id1: effectList1) {
+    		for (long id2: effectList2) {
+    			if (id2 == id1) {
+    				matches.add(dbAdapter.getEffectsWrapper().getString(id1));
+    			}
+    		}
+    	}
+    	for (int i = Math.max(effectList1.length, effectList2.length);
+    			i < 4; ++i) {
+    		matches.add("?");
+    	}
+    	ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, 
+				android.R.layout.simple_list_item_1,
+				android.R.id.text1, matches.toArray(new String[matches.size()]));
+		list.setAdapter(adapter);
+    }
+    
     @Override 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
     	switch (requestCode) {
@@ -295,17 +351,15 @@ public class ExperimentActivity extends Activity {
     private void onManageIngredientResult(int resultCode, Intent data) {
     	Log.d(TAG, "ManageTextBase activity returned with code: " + resultCode);
     	if (resultCode == RESULT_OK) {
-    		Log.d(TAG, "Got OK result from activity.");
     		Bundle extras = data.getExtras();
     		if (extras.getBoolean("deleted")) {
     			Log.d(TAG, "Ingredient deleted. Clearing contents.");
     			clearAll();
-    		} else {
-    			refreshText(R.id.experiment_item1Display);
-    			refreshText(R.id.experiment_item2Display);
-    		}
-    		refreshList();
+    		} 
     	}
+		refreshText(0);
+		refreshText(1);
+    	refreshList();
     }
 
     private void onStringChooserResult(int resultCode, Intent data) {
