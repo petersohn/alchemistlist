@@ -5,7 +5,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
+import java.util.Vector;
 
+import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -21,10 +23,11 @@ public class DbManager {
     
     private SQLiteOpenHelper dbHelper;
     private SQLiteDatabase database;
-
+    private Vector<Cursor> storedCursors;
     
     DbManager() {
     	this.isOpen = false;
+    	storedCursors = new Vector<Cursor>();
     }
     
     /**
@@ -53,9 +56,21 @@ public class DbManager {
     		return;
     	}
     	Log.d(TAG, "Closing database: " + database.getPath());
+    	Log.v(TAG, "Closing cursors");
+    	for (Cursor cursor: storedCursors) {
+    		cursor.close();
+    	}
+    	Log.v(TAG, "Closing database");
         dbHelper.close();
         database = null;
         isOpen = false;
+    }
+    
+    public Cursor addCursor(Cursor cursor) {
+    	if (cursor != null) {
+    		storedCursors.add(cursor);
+    	}
+    	return cursor;
     }
     
     public SQLiteDatabase getDatabase() {

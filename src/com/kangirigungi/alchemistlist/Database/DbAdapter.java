@@ -76,6 +76,7 @@ public class DbAdapter {
                 			Log.w(TAG, s);
                 		}
                 	}
+                	errors.close();
                 } catch (SQLException e) {
                 	Log.e(TAG, e.getMessage());
                 }
@@ -262,7 +263,7 @@ public class DbAdapter {
         	Log.d(TAG, "Number of results: " + cursor.getCount());
             cursor.moveToFirst();
         }
-        return cursor;
+        return dbManager.addCursor(cursor);
     }
     
     public Cursor searchAssoc(long id) throws SQLException {
@@ -286,15 +287,23 @@ public class DbAdapter {
 	            		EXPERIMENTS_ID+" = ?", 
 	            		new String[] {Long.valueOf(id).toString()},
 	                    null, null, null, null);
-        if (cursor != null && cursor.getCount() > 0) {
-        	Log.v(TAG, "Number of results: " + cursor.getCount());
-            cursor.moveToFirst();
-            return new Long[] {
-            		Long.valueOf(cursor.getLong(0)),
-            		Long.valueOf(cursor.getLong(1))};
+    	Long[] result = null;
+        if (cursor != null) {
+        	if (cursor.getCount() > 0) {
+	        	Log.v(TAG, "Number of results: " + cursor.getCount());
+	            cursor.moveToFirst();
+	            result = new Long[] {
+	            		Long.valueOf(cursor.getLong(0)),
+	            		Long.valueOf(cursor.getLong(1))};
+        	} else {
+        		Log.v(TAG, "No result");
+        	}
+        	cursor.close();
+        } else {
+        	Log.v(TAG, "Null cursor");
         }
-        Log.v(TAG, "No result");
-        return null;
+        
+        return result;
     }
     
     public void addIngredientEffect(long ingredientId, long effectId) throws SQLException {
@@ -329,7 +338,7 @@ public class DbAdapter {
     			database.rawQuery(
     					queryString,
     					new String[] {Long.valueOf(ingredientId).toString()});
-        return cursor;
+        return dbManager.addCursor(cursor);
     }
     
     public Cursor getIngredientsFromEffect(long effectId) {
@@ -347,7 +356,7 @@ public class DbAdapter {
     			database.rawQuery(
     					queryString,
     					new String[] {Long.valueOf(effectId).toString()});
-        return cursor;
+        return dbManager.addCursor(cursor);
     }
     
     public Cursor getExcludedEffects(long ingredientId) {
@@ -369,7 +378,7 @@ public class DbAdapter {
     			database.rawQuery(
     					queryString,
     					new String[] {Long.valueOf(ingredientId).toString()});
-        return cursor;
+        return dbManager.addCursor(cursor);
     }
     
     public Cursor getExcludedIngredients(long effectId) {
@@ -391,7 +400,7 @@ public class DbAdapter {
     			database.rawQuery(
     					queryString,
     					new String[] {Long.valueOf(effectId).toString()});
-        return cursor;
+        return dbManager.addCursor(cursor);
     }
     
 	public void cleanup() {
