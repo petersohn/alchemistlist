@@ -16,8 +16,9 @@ import android.widget.SimpleCursorAdapter;
 import com.kangirigungi.alchemistlist.Database.DbAdapter;
 import com.kangirigungi.alchemistlist.Database.StringContainer;
 import com.kangirigungi.alchemistlist.tools.MultiListAdapter;
-import com.kangirigungi.alchemistlist.tools.SubClickableAdapter.OnSubItemClickListener;
-import com.kangirigungi.alchemistlist.tools.SubClickableListAdapter;
+import com.kangirigungi.alchemistlist.tools.OverrideListAdapter;
+import com.kangirigungi.alchemistlist.tools.SubClickableOverride;
+import com.kangirigungi.alchemistlist.tools.SubClickableOverride.OnSubItemClickListener;
 import com.kangirigungi.alchemistlist.tools.Utils;
 
 public class ManageIngredient extends ManageTextBase {
@@ -91,17 +92,20 @@ public class ManageIngredient extends ManageTextBase {
     		Log.d(TAG, "No normal result.");
     	} else {
     		btnAddEffect.setEnabled(cursor.getCount() < 4);
-			SubClickableListAdapter itemAdapter = new SubClickableListAdapter(
-					new SimpleCursorAdapter(this, R.layout.activity_manage_list_item, 
-	    			cursor, new String[] {DbAdapter.EFFECTS_VALUE}, 
-	    			new int[] {R.id.text1}));
-			itemAdapter.setOnClickListener(R.id.text1, effectClicked);
-			itemAdapter.setOnClickListener(R.id.btnRemove, new OnSubItemClickListener() {
+    		SubClickableOverride override = new SubClickableOverride();
+    		override.setOnClickListener(R.id.text1, effectClicked);
+    		override.setOnClickListener(R.id.btnRemove, new OnSubItemClickListener() {
 				@Override
 				public void onSubItemClick(View subView, int position) {
 					removeEffect(list.getItemIdAtPosition(position));
 				}
 			});
+			OverrideListAdapter itemAdapter = new OverrideListAdapter(
+					new SimpleCursorAdapter(this, R.layout.activity_manage_list_item, 
+	    			cursor, new String[] {DbAdapter.EFFECTS_VALUE}, 
+	    			new int[] {R.id.text1}),
+	    			override);
+			
 			adapters.add(itemAdapter);
     	}
 	}
@@ -111,13 +115,16 @@ public class ManageIngredient extends ManageTextBase {
     	if (cursor == null) {
     		Log.d(TAG, "No excluded result.");
     	} else {
-    		SubClickableListAdapter excludedAdapter = new SubClickableListAdapter(
-	    			new SimpleCursorAdapter(this, R.layout.activity_manage_list_item_excluded, 
-	    			cursor, new String[] {DbAdapter.EFFECTS_VALUE}, 
-	    			new int[] {R.id.text1}));
-    		excludedAdapter.setOnClickListener(
+    		SubClickableOverride override = new SubClickableOverride();
+    		override.setOnClickListener(
     				R.id.text1, 
     				effectClicked);
+    		OverrideListAdapter excludedAdapter = new OverrideListAdapter(
+	    			new SimpleCursorAdapter(this, R.layout.activity_manage_list_item_excluded, 
+	    			cursor, new String[] {DbAdapter.EFFECTS_VALUE}, 
+	    			new int[] {R.id.text1}),
+	    			override);
+    		
 	    	adapters.add(excludedAdapter);
     	}
 	}

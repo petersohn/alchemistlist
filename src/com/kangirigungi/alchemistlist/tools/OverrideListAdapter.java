@@ -2,12 +2,12 @@ package com.kangirigungi.alchemistlist.tools;
 
 import android.widget.ListAdapter;
 
-public class SubClickableListAdapter extends SubClickableAdapter implements ListAdapter {
+public class OverrideListAdapter extends OverrideAdapter implements ListAdapter {
 
 	private ListAdapter other;
 	
-	public SubClickableListAdapter(ListAdapter other) {
-		super(other);
+	public OverrideListAdapter(ListAdapter other, AdapterOverride override) {
+		super(other, override);
 		this.other = other;
 	}
 
