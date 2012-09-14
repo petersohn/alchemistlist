@@ -70,7 +70,7 @@ public class DbAdapter {
                 	Log.v(TAG, "Number of messages found: "+errors.getCount());
                 	for (errors.moveToFirst(); !errors.isAfterLast(); errors.moveToNext()) {
                 		String s = errors.getString(0);
-                		if (s == "ok") {
+                		if (s.equals("ok")) {
                 			Log.d(TAG, s);
                 		} else {
                 			Log.w(TAG, s);
@@ -146,6 +146,7 @@ public class DbAdapter {
         	createExperimentsTable(db);
             db.execSQL("insert into "+TABLE_EXPERIMENTS+
             		" select * from assoc");
+            db.execSQL("drop table assoc");
         }
         
         private void createEffectsTable(SQLiteDatabase db) {

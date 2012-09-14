@@ -26,10 +26,21 @@ public class ManageIngredient extends ManageTextBase {
 	private static final int ACTIVITY_CHOOSE_EFFECT = 0;
 	private static final int ACTIVITY_MANAGE_EFFECT = 1;
 	
+	private class EffectClicked implements OnSubItemClickListener {
+		@Override
+		public void onSubItemClick(View subView, int position) {
+			long id = list.getItemIdAtPosition(position);
+			Log.v(TAG, "Click on item. Position: "+position+". Id: "+
+					dbAdapter.getEffectsWrapper().getString(id));
+			manageEffect(id);
+		}
+	}
+	
 	private DbAdapter dbAdapter;
 	
 	private Button btnAddEffect;
 	private ListView list;
+	private EffectClicked effectClicked;
 	
 	@Override
     public void initManageText(Bundle savedInstanceState) {
@@ -37,6 +48,7 @@ public class ManageIngredient extends ManageTextBase {
 
         btnAddEffect = (Button)findViewById(R.id.ingredient_addEffect);
         list = (ListView)findViewById(R.id.manage_list);
+        effectClicked = new EffectClicked();
         
         btnAddEffect.setOnClickListener(new OnClickListener() {
 			@Override
@@ -73,16 +85,6 @@ public class ManageIngredient extends ManageTextBase {
 		return dbAdapter.getIngredientsWrapper();
 	}
 	
-	private class EffectClicked implements OnSubItemClickListener {
-		@Override
-		public void onSubItemClick(View subView, int position) {
-			long id = list.getItemIdAtPosition(position);
-			Log.v(TAG, "Click on item. Position: "+position+". Id: "+
-					dbAdapter.getEffectsWrapper().getString(id));
-			manageEffect(id);
-		}
-	}
-	
 	private void addEffectsAdapter(Vector<ListAdapter> adapters) {
 		Cursor cursor = dbAdapter.getEffectsFromIngredient(getId());
     	if (cursor == null) {
@@ -93,7 +95,7 @@ public class ManageIngredient extends ManageTextBase {
 					new SimpleCursorAdapter(this, R.layout.activity_manage_list_item, 
 	    			cursor, new String[] {DbAdapter.EFFECTS_VALUE}, 
 	    			new int[] {R.id.text1}));
-			itemAdapter.setOnClickListener(R.id.text1, new EffectClicked());
+			itemAdapter.setOnClickListener(R.id.text1, effectClicked);
 			itemAdapter.setOnClickListener(R.id.btnRemove, new OnSubItemClickListener() {
 				@Override
 				public void onSubItemClick(View subView, int position) {
@@ -115,7 +117,7 @@ public class ManageIngredient extends ManageTextBase {
 	    			new int[] {R.id.text1}));
     		excludedAdapter.setOnClickListener(
     				R.id.text1, 
-    				new EffectClicked());
+    				effectClicked);
 	    	adapters.add(excludedAdapter);
     	}
 	}

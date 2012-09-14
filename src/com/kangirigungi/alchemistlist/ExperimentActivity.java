@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.SparseArray;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -71,8 +70,8 @@ public class ExperimentActivity extends Activity {
 					Log.e(TAG, "Value not found: " + id);
 					return;
 				}
-				setTextId(R.id.experiment_item1Display, assoc[0]);
-				setTextId(R.id.experiment_item2Display, assoc[1]);
+				setTextId(0, assoc[0]);
+				setTextId(1, assoc[1]);
 				refreshList();
 			}
 		});
