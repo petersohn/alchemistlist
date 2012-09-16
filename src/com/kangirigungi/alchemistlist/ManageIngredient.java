@@ -91,7 +91,7 @@ public class ManageIngredient extends ManageTextBase {
     	if (cursor == null) {
     		Log.d(TAG, "No normal result.");
     	} else {
-    		btnAddEffect.setEnabled(cursor.getCount() < 4);
+    		btnAddEffect.setEnabled(cursor.getCount() < Utils.MAX_EFFECT_PER_INGREDIENT);
     		SubClickableOverride override = new SubClickableOverride();
     		override.setOnClickListener(R.id.text1, effectClicked);
     		override.setOnClickListener(R.id.btnRemove, new OnSubItemClickListener() {
@@ -120,7 +120,7 @@ public class ManageIngredient extends ManageTextBase {
     				R.id.text1, 
     				effectClicked);
     		OverrideListAdapter excludedAdapter = new OverrideListAdapter(
-	    			new SimpleCursorAdapter(this, R.layout.activity_manage_list_item_excluded, 
+	    			new SimpleCursorAdapter(this, R.layout.manage_list_item_excluded, 
 	    			cursor, new String[] {DbAdapter.EFFECTS_VALUE}, 
 	    			new int[] {R.id.text1}),
 	    			override);

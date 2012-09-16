@@ -74,7 +74,7 @@ public class ExperimentActivity extends Activity {
 					Log.d(TAG, "We are match list. Ignoring click.");
 					return;
 				}
-				Long[] assoc = dbAdapter.getAssoc(id);
+				Long[] assoc = dbAdapter.getExperiment(id);
 				if (assoc == null) {
 					Log.e(TAG, "Value not found: " + id);
 					return;
@@ -242,7 +242,7 @@ public class ExperimentActivity extends Activity {
     	Cursor cursor = null;
     	if (id1 != null && id2 != null) {
     		Log.d(TAG, "Query with two strings.");
-    		cursor = dbAdapter.searchAssoc(id1.longValue(), id2.longValue());
+    		cursor = dbAdapter.searchExperiment(id1.longValue(), id2.longValue());
     		if (cursor.getCount() == 0) {
     			fillMatchList();
     			isMatchList = true;
@@ -271,7 +271,7 @@ public class ExperimentActivity extends Activity {
     }
     
     private boolean isExcluded(Long[] effectList, Long[] excludeList) {
-    	if (effectList.length < 4) {
+    	if (effectList.length < Utils.MAX_EFFECT_PER_INGREDIENT) {
     		return false;
     	}
     	for (long id1: effectList) {
@@ -304,7 +304,7 @@ public class ExperimentActivity extends Activity {
     	Log.v(TAG, "Exclude list 2: "+excludeList2.toString());
     	if (isExcluded(effectList1, excludeList2) || isExcluded(effectList2, excludeList1)) {
     		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, 
-    				R.layout.activity_manage_list_item_excluded,
+    				R.layout.manage_list_item_excluded,
     				R.id.text1, new String[] {getString(R.string.excluded)});
     		list.setAdapter(adapter);
     		return;
@@ -318,7 +318,7 @@ public class ExperimentActivity extends Activity {
     		}
     	}
     	for (int i = Math.max(effectList1.length, effectList2.length);
-    			i < 4; ++i) {
+    			i < Utils.MAX_EFFECT_PER_INGREDIENT; ++i) {
     		matches.add("?");
     	}
     	ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, 

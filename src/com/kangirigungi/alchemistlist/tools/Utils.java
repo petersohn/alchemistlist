@@ -1,10 +1,13 @@
 package com.kangirigungi.alchemistlist.tools;
 
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 
 public class Utils {
+	public static final int MAX_EFFECT_PER_INGREDIENT = 4;
+	
 	public static void printBundle(String TAG, Bundle bundle) {
 		for (String key: bundle.keySet()) {
 			Object obj = bundle.get(key);
@@ -28,5 +31,14 @@ public class Utils {
 			++i;
 		}
 		return result;
+	}
+	
+	public static long getCountQuery(SQLiteDatabase db, String query, String[] args) {
+		Cursor cursor = db.rawQuery(query, args);
+		if (cursor != null && cursor.getCount() > 0) {
+			cursor.moveToFirst();
+			return cursor.getLong(0);
+		}
+		return 0;
 	}
 }
