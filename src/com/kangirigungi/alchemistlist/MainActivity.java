@@ -256,6 +256,8 @@ public class MainActivity extends Activity {
     		Log.i(TAG, "No database selected. Exiting.");
     		setResult(RESULT_CANCELED, null);
     		finish();
+    	} else {
+    		config.saveLastDatabase(dbName);
     	}
     }
     

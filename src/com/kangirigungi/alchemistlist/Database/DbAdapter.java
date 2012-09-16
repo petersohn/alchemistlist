@@ -8,7 +8,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 
@@ -29,147 +28,26 @@ public class DbAdapter {
      * Database creation sql statement
      */
 
-    private static final String DATABASE_NAME_BASE = "data_";
+    static final String DATABASE_NAME_BASE = "data_";
     
-    private static final String TABLE_INGREDIENTS = "ingredients";
+    static final String TABLE_INGREDIENTS = "ingredients";
     public static final String INGREDIENTS_ID = "_id";
     public static final String INGREDIENTS_VALUE = "value";
     
-    private static final String TABLE_EFFECTS = "effects";
+    static final String TABLE_EFFECTS = "effects";
     public static final String EFFECTS_ID = "_id";
     public static final String EFFECTS_VALUE = "value";
     
-    private static final String TABLE_EXPERIMENTS = "experiments";
+    static final String TABLE_EXPERIMENTS = "experiments";
     public static final String EXPERIMENTS_ID = "_id";
     public static final String EXPERIMENTS_ID1 = "id1";
     public static final String EXPERIMENTS_ID2 = "id2";
     
-    private static final String TABLE_INGREDIENT_EFFECT = "ingredient_effect";
+    static final String TABLE_INGREDIENT_EFFECT = "ingredient_effect";
     public static final String INGREDIENT_EFFECT_ID = "_id";
     public static final String INGREDIENT_EFFECT_INGREDIENT = "ingredientId";
     public static final String INGREDIENT_EFFECT_EFFECT = "effectId";
     
-    private static final int DATABASE_VERSION = 6;
-
-    private class DatabaseHelper extends SQLiteOpenHelper {
-
-    	private static final String TAG = "DbAdapter.DatabaseHelper";
-    	
-        DatabaseHelper(String dbName) {
-            super(context, DATABASE_NAME_BASE + dbName, null, DATABASE_VERSION);
-        }
-
-        @Override
-        public void onOpen(SQLiteDatabase db) {
-            super.onOpen(db);
-            if (!db.isReadOnly()) {
-                Log.i(TAG, "Opening database.");
-                try {
-                	db.execSQL("PRAGMA foreign_keys=ON;");
-                	Cursor errors = db.rawQuery("PRAGMA integrity_check", null);
-                	Log.v(TAG, "Number of messages found: "+errors.getCount());
-                	for (errors.moveToFirst(); !errors.isAfterLast(); errors.moveToNext()) {
-                		String s = errors.getString(0);
-                		if (s.equals("ok")) {
-                			Log.d(TAG, s);
-                		} else {
-                			Log.w(TAG, s);
-                		}
-                	}
-                	errors.close();
-                } catch (SQLException e) {
-                	Log.e(TAG, e.getMessage());
-                }
-            }
-        }
-
-        void createExperimentsTable(SQLiteDatabase db) {
-        	 db.execSQL("create table "+TABLE_EXPERIMENTS+" (" +
-             		EXPERIMENTS_ID+" integer primary key," +
-             		EXPERIMENTS_ID1+" integer not null references "+
-             		TABLE_INGREDIENTS+"("+INGREDIENTS_ID+") on delete cascade," +
-             		EXPERIMENTS_ID2+" integer not null references "+
-             		TABLE_INGREDIENTS+"("+INGREDIENTS_ID+") on delete cascade" +
-             		");");
-        }
-        
-        @Override
-        public void onCreate(SQLiteDatabase db) {
-        	Log.i(TAG, "Creating database.");
-            db.execSQL("create table "+TABLE_INGREDIENTS+" (" +
-            		INGREDIENTS_ID+" integer primary key," +
-            		INGREDIENTS_VALUE+" text not null);");
-            createExperimentsTable(db);
-            createEffectsTable(db);
-            createIngredientEffectTable(db);
-            db.execSQL("PRAGMA foreign_keys=ON;");
-        }
-
-        private void recreateDatabase(SQLiteDatabase db) {
-        	Log.w(TAG, "Recreating database. All old data will be destroyed.");
-        	db.execSQL("DROP TABLE IF EXISTS "+TABLE_INGREDIENTS);
-            db.execSQL("DROP TABLE IF EXISTS "+TABLE_EXPERIMENTS);
-            onCreate(db);
-        }
-        
-        
-        
-        @Override
-        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            Log.i(TAG, "Upgrading database from version " + oldVersion + " to "
-                    + newVersion);
-            if (oldVersion < 2) {
-            	recreateDatabase(db);
-            	return;
-            }
-            if (oldVersion < 3) {
-            	upgradeFrom2To3(db);
-            }
-            if (oldVersion < 4) {
-            	upgradeFrom3To4(db);
-            }
-            if (oldVersion < 6) {
-            	upgradeFrom4To6(db);
-            }
-        }
-        
-        private void upgradeFrom2To3(SQLiteDatabase db) {
-        	db.execSQL("alter table strings rename to " + TABLE_INGREDIENTS);
-        }
-        
-        private void upgradeFrom3To4(SQLiteDatabase db) {
-        	createEffectsTable(db);
-            createIngredientEffectTable(db);
-        }
-        
-        private void upgradeFrom4To6(SQLiteDatabase db) {
-        	createExperimentsTable(db);
-            db.execSQL("insert into "+TABLE_EXPERIMENTS+
-            		" select * from assoc");
-            db.execSQL("drop table assoc");
-        }
-        
-        private void createEffectsTable(SQLiteDatabase db) {
-        	db.execSQL("create table "+TABLE_EFFECTS+" (" +
-            		EFFECTS_ID+" integer primary key," +
-            		EFFECTS_VALUE+" text not null);");
-        }
-        
-        private void createIngredientEffectTable(SQLiteDatabase db) {
-        	db.execSQL("create table "+TABLE_INGREDIENT_EFFECT+" (" +
-            		INGREDIENT_EFFECT_ID+" integer primary key," +
-            		INGREDIENT_EFFECT_INGREDIENT+" integer not null references "+
-            		TABLE_INGREDIENTS+"("+INGREDIENTS_ID+") on delete cascade," +
-            		INGREDIENT_EFFECT_EFFECT+" integer not null references "+
-            		TABLE_EFFECTS+"("+EFFECTS_ID+") on delete cascade" +
-            		");");
-        	db.execSQL("create index ie_ingredient on "+TABLE_INGREDIENT_EFFECT+
-        			" ("+INGREDIENT_EFFECT_INGREDIENT+")");
-        	db.execSQL("create index ie_effect on "+TABLE_INGREDIENT_EFFECT+
-        			" ("+INGREDIENT_EFFECT_EFFECT+")");
-        }
-    } // DatabaseHelper
-
     /**
      * Constructor - takes the context to allow the database to be
      * opened/created
@@ -187,7 +65,7 @@ public class DbAdapter {
 
     public DbAdapter open(String dbName) throws SQLException {
     	try {
-	    	dbManager.open(new DatabaseHelper(dbName));
+	    	dbManager.open(new DatabaseHelper(context, dbName));
 	    	database = dbManager.getDatabase();
 	    	ingredientsWrapper = new StringTable(
 	    			database, TABLE_INGREDIENTS, INGREDIENTS_ID, INGREDIENTS_VALUE);
@@ -360,18 +238,23 @@ public class DbAdapter {
         return dbManager.addCursor(cursor);
     }
     
-    public Cursor getExcludedEffects(long ingredientId) {
-    	Log.v(TAG, "getExcludedEffects("+ingredientId+")");
-    	String queryString = 
-    			"select distinct "+TABLE_EFFECTS+"."+EFFECTS_ID+" "+EFFECTS_ID+", "+
-    	    	TABLE_EFFECTS+"."+EFFECTS_VALUE+" "+EFFECTS_VALUE+" from "+
+    private String getExcludedEffectsQuery(String selectedColumns) {
+    	return "select distinct "+selectedColumns+" from "+
 				TABLE_INGREDIENT_EFFECT+", "+TABLE_EFFECTS+
 				", ("+assocQueryBase+") assoc where "+
 				"assoc."+EXPERIMENTS_ID1+"=? and "+
 				TABLE_INGREDIENT_EFFECT+"."+INGREDIENT_EFFECT_INGREDIENT+
 				"=assoc."+EXPERIMENTS_ID2+" and "+
 				TABLE_INGREDIENT_EFFECT+"."+INGREDIENT_EFFECT_EFFECT+
-				"="+TABLE_EFFECTS+"."+EFFECTS_ID+
+				"="+TABLE_EFFECTS+"."+EFFECTS_ID;
+    }
+    
+    public Cursor getExcludedEffects(long ingredientId) {
+    	Log.v(TAG, "getExcludedEffects("+ingredientId+")");
+    	String queryString =
+    			getExcludedEffectsQuery(
+		    			TABLE_EFFECTS+"."+EFFECTS_ID+" "+EFFECTS_ID+", "+
+		    	    	TABLE_EFFECTS+"."+EFFECTS_VALUE+" "+EFFECTS_VALUE)+
 				" order by "+EFFECTS_VALUE;
     			
     	Log.v(TAG, queryString);
@@ -382,18 +265,23 @@ public class DbAdapter {
         return dbManager.addCursor(cursor);
     }
     
-    public Cursor getExcludedIngredients(long effectId) {
-    	Log.v(TAG, "getExcludedIngredients("+effectId+")");
-    	String queryString = 
-    			"select distinct "+TABLE_INGREDIENTS+"."+INGREDIENTS_ID+" "+INGREDIENTS_ID+", "+
-    			TABLE_INGREDIENTS+"."+INGREDIENTS_VALUE+" "+INGREDIENTS_VALUE+" from "+
+    private String getExcludedIngredientsQuery(String selectedColumns) {
+    	return "select distinct "+selectedColumns+" from "+
 				TABLE_INGREDIENT_EFFECT+", "+
 				TABLE_INGREDIENTS+", ("+assocQueryBase+") assoc where "+
 				TABLE_INGREDIENT_EFFECT+"."+INGREDIENT_EFFECT_EFFECT+"=? and "+
 				"assoc."+EXPERIMENTS_ID1+"="+
 				TABLE_INGREDIENT_EFFECT+"."+INGREDIENT_EFFECT_INGREDIENT+" and "+
 				TABLE_INGREDIENTS+"."+INGREDIENTS_ID+
-				"=assoc."+EXPERIMENTS_ID2+
+				"=assoc."+EXPERIMENTS_ID2;
+    }
+    
+    public Cursor getExcludedIngredients(long effectId) {
+    	Log.v(TAG, "getExcludedIngredients("+effectId+")");
+    	String queryString = 
+    			getExcludedIngredientsQuery(
+    					TABLE_INGREDIENTS+"."+INGREDIENTS_ID+" "+INGREDIENTS_ID+", "+
+    					TABLE_INGREDIENTS+"."+INGREDIENTS_VALUE+" "+INGREDIENTS_VALUE)+
 				" order by "+EFFECTS_VALUE;
     			
     	Log.v(TAG, queryString);
