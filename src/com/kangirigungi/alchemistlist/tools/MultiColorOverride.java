@@ -45,7 +45,7 @@ public class MultiColorOverride implements AdapterOverride {
 			Log.w(TAG, "Target view invalid.");
 			return convertView;
 		}
-		targetView.setTextColor(colorIds[colorPosition]);
+		targetView.setTextColor(convertView.getResources().getColor(colorIds[colorPosition]));
 		return convertView;
 	}
 
