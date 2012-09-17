@@ -25,6 +25,7 @@ public class ExperimentActivity extends Activity {
 
 	private static final int ACTIVITY_CHOOSE_INGREDIENT = 0;
 	private static final int ACTIVITY_MANAGE_INGREDIENT = 1;
+	private static final int ACTIVITY_MANAGE_EFFECT = 10;
 	private static final String TAG = "ExperimentActivity";
 	
 	private static class TextId {
@@ -70,17 +71,11 @@ public class ExperimentActivity extends Activity {
 			public void onItemClick(AdapterView<?> parent, View view, 
 					int position, long id) {
 				if (isMatchList) {
-					Log.d(TAG, "We are match list. Ignoring click.");
-					return;
+					onMatchListItemClick(view, id);
+				} else {
+					onPairListItemClick(id);
 				}
-				Long[] assoc = dbAdapter.getExperiment(id);
-				if (assoc == null) {
-					Log.e(TAG, "Value not found: " + id);
-					return;
-				}
-				setTextId(0, assoc[0]);
-				setTextId(1, assoc[1]);
-				refreshList();
+				
 			}
 		});
         
@@ -296,6 +291,9 @@ public class ExperimentActivity extends Activity {
     	case ACTIVITY_MANAGE_INGREDIENT:
     		onManageIngredientResult(resultCode, data);
     		break;
+    	case ACTIVITY_MANAGE_EFFECT:
+    		refreshList();
+    		break;
     	}
 	}
 
@@ -337,6 +335,28 @@ public class ExperimentActivity extends Activity {
     		refreshList();
     	}
     }
+    
+    private void onMatchListItemClick(View view, long id) {
+		TextView indicator = (TextView)view.findViewById(R.id.categoryIndicator);
+		int category = Integer.parseInt(indicator.getText().toString());
+		if (category != DbAdapter.CATEGORY_SOMETHING) {
+			Intent i = new Intent(this, ManageEffect.class);
+	    	i.putExtra("id", id);
+	    	i.putExtra("dbName", dbName);
+	    	startActivityForResult(i, ACTIVITY_MANAGE_EFFECT);
+		}
+	}
+    
+    private void onPairListItemClick(long id) {
+    	Long[] experiment = dbAdapter.getExperiment(id);
+		if (experiment == null) {
+			Log.e(TAG, "Value not found: " + id);
+			return;
+		}
+		setTextId(0, experiment[0]);
+		setTextId(1, experiment[1]);
+		refreshList();
+	}
     
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
