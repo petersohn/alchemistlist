@@ -101,7 +101,7 @@ public class ManageIngredient extends ManageTextBase {
 				}
 			});
 			OverrideListAdapter itemAdapter = new OverrideListAdapter(
-					new SimpleCursorAdapter(this, R.layout.activity_manage_list_item, 
+					new SimpleCursorAdapter(this, R.layout.manage_list_item, 
 	    			cursor, new String[] {DbAdapter.EFFECTS_VALUE}, 
 	    			new int[] {R.id.text1}),
 	    			override);

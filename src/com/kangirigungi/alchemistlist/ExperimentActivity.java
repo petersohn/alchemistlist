@@ -1,7 +1,5 @@
 package com.kangirigungi.alchemistlist;
 
-import java.util.Vector;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
@@ -12,7 +10,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
@@ -20,6 +17,8 @@ import android.widget.TextView;
 
 import com.kangirigungi.alchemistlist.Database.ConfigDbAdapter;
 import com.kangirigungi.alchemistlist.Database.DbAdapter;
+import com.kangirigungi.alchemistlist.tools.MultiColorOverride;
+import com.kangirigungi.alchemistlist.tools.OverrideListAdapter;
 import com.kangirigungi.alchemistlist.tools.Utils;
 
 public class ExperimentActivity extends Activity {
@@ -242,7 +241,7 @@ public class ExperimentActivity extends Activity {
     	Cursor cursor = null;
     	if (id1 != null && id2 != null) {
     		Log.d(TAG, "Query with two strings.");
-    		cursor = dbAdapter.searchExperiment(id1.longValue(), id2.longValue());
+    		cursor = dbAdapter.searchExperiment(id1, id2);
     		if (cursor.getCount() == 0) {
     			fillMatchList();
     			isMatchList = true;
@@ -270,60 +269,21 @@ public class ExperimentActivity extends Activity {
     	isMatchList = false;
     }
     
-    private boolean isExcluded(Long[] effectList, Long[] excludeList) {
-    	if (effectList.length < Utils.MAX_EFFECT_PER_INGREDIENT) {
-    		return false;
-    	}
-    	for (long id1: effectList) {
-    		boolean found = false;
-    		for (long id2: excludeList) {
-    			if (id2 == id1) {
-    				found = true;
-    				break;
-    			}
-    		}
-    		if (!found) {
-    			return false;
-    		}
-    	}
-    	return true;
-    }
-    
-    private void fillMatchList() {
-    	Long[] effectList1 = Utils.getLongArrayFromCursor(
-    			dbAdapter.getEffectsFromIngredient(textIds[0].id), 0);
-    	Long[] effectList2 = Utils.getLongArrayFromCursor(
-    			dbAdapter.getEffectsFromIngredient(textIds[1].id), 0);
-    	Long[] excludeList1 = Utils.getLongArrayFromCursor(
-    			dbAdapter.getExcludedEffects(textIds[0].id), 0);
-    	Long[] excludeList2 = Utils.getLongArrayFromCursor(
-    			dbAdapter.getExcludedEffects(textIds[1].id), 0);
-    	Log.v(TAG, "Effect list 1: "+effectList1.toString());
-    	Log.v(TAG, "Effect list 2: "+effectList2.toString());
-    	Log.v(TAG, "Exclude list 1: "+excludeList1.toString());
-    	Log.v(TAG, "Exclude list 2: "+excludeList2.toString());
-    	if (isExcluded(effectList1, excludeList2) || isExcluded(effectList2, excludeList1)) {
-    		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, 
-    				R.layout.manage_list_item_excluded,
-    				R.id.text1, new String[] {getString(R.string.excluded)});
-    		list.setAdapter(adapter);
-    		return;
-    	}
-    	Vector<String> matches = new Vector<String>();
-    	for (long id1: effectList1) {
-    		for (long id2: effectList2) {
-    			if (id2 == id1) {
-    				matches.add(dbAdapter.getEffectsWrapper().getString(id1));
-    			}
-    		}
-    	}
-    	for (int i = Math.max(effectList1.length, effectList2.length);
-    			i < Utils.MAX_EFFECT_PER_INGREDIENT; ++i) {
-    		matches.add("?");
-    	}
-    	ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, 
-				android.R.layout.simple_list_item_1,
-				android.R.id.text1, matches.toArray(new String[matches.size()]));
+   private void fillMatchList() {
+    	Cursor cursor = dbAdapter.getPairing(textIds[0].id, textIds[1].id);
+    	MultiColorOverride override = new MultiColorOverride(
+    			R.id.text1, R.id.categoryIndicator, 
+    			new Integer[] {
+    					R.color.pairing_something,
+    					R.color.pairing_yes,
+    					R.color.pairing_maybe,
+    					R.color.pairing_no}); 
+    	OverrideListAdapter adapter = new OverrideListAdapter(
+    			new SimpleCursorAdapter(this,
+    					R.layout.experiment_list_item,
+    					cursor,
+    					new String[] {DbAdapter.EFFECTS_VALUE, DbAdapter.PAIRING_CATEGORY},
+    					new int[] {R.id.text1, R.id.categoryIndicator}), override);
 		list.setAdapter(adapter);
     }
     
