@@ -137,9 +137,7 @@ public class ManageEffect extends ManageTextBase {
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
     	switch (requestCode) {
     	case ACTIVITY_MANAGE_INGREDIENT:
-    		if (resultCode == RESULT_OK) {
-    			refreshList();
-    		}
+			refreshList();
     		break;
     	}
     }

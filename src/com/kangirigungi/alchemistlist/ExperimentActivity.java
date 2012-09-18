@@ -233,16 +233,13 @@ public class ExperimentActivity extends Activity {
     	}
     	Long id1 = textIds[0].id;
     	Long id2 = textIds[1].id;
-    	Cursor cursor = null;
     	if (id1 != null && id2 != null) {
     		Log.d(TAG, "Query with two strings.");
-    		cursor = dbAdapter.searchExperiment(id1, id2);
-    		if (cursor.getCount() == 0) {
-    			fillMatchList();
-    			isMatchList = true;
-    			return;
-    		}
-    	} else
+			fillMatchList();
+			isMatchList = true;
+			return;
+    	}
+    	Cursor cursor = null;
     	if (id1 != null) {
     		Log.d(TAG, "Query with first string.");
     		cursor = dbAdapter.searchExperiment(id1.longValue());

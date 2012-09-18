@@ -3,14 +3,15 @@ package com.kangirigungi.alchemistlist.Database;
 import java.io.File;
 import java.io.IOException;
 
-import com.kangirigungi.alchemistlist.tools.Utils;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
+
+import com.kangirigungi.alchemistlist.R;
+import com.kangirigungi.alchemistlist.tools.Utils;
 
 
 public class DbAdapter {
@@ -107,6 +108,11 @@ public class DbAdapter {
     	ContentValues args = new ContentValues();
         args.put(EXPERIMENTS_ID1, id1);
         args.put(EXPERIMENTS_ID2, id2);
+        database.insertOrThrow(TABLE_EXPERIMENTS, null, args);
+        
+        args = new ContentValues();
+        args.put(EXPERIMENTS_ID1, id2);
+        args.put(EXPERIMENTS_ID2, id1);
 
         database.insertOrThrow(TABLE_EXPERIMENTS, null, args);
     }
@@ -118,19 +124,11 @@ public class DbAdapter {
     			new String[] {Long.toString(id2), Long.toString(id1)});
     }
    
-    private static final String assocQueryBase =
-    		"select * from "+TABLE_EXPERIMENTS+
-    		" union "+
-			"select "+EXPERIMENTS_ID+", "+
-			EXPERIMENTS_ID2+" "+EXPERIMENTS_ID1+", "+
-			EXPERIMENTS_ID1+" "+EXPERIMENTS_ID2+" from "+
-			TABLE_EXPERIMENTS;
-    
     private String experimentQueryString(String filter) {
     	return "select assoc."+EXPERIMENTS_ID+" "+EXPERIMENTS_ID+", "+
     			"strings1."+INGREDIENTS_VALUE+" value1, "+
     			"strings2."+INGREDIENTS_VALUE+" value2 from " +
-    			"("+assocQueryBase+") assoc left join " +
+    			TABLE_EXPERIMENTS+" assoc, " +
 				TABLE_INGREDIENTS+" strings1, "+
 				TABLE_INGREDIENTS+" strings2 " +
 				
@@ -143,7 +141,7 @@ public class DbAdapter {
     public boolean hasExperiment(long id1, long id2) {
     	return Utils.getCountQuery(database, 
     					"select count(*) from "+
-						"("+assocQueryBase+") assoc where " +
+						TABLE_EXPERIMENTS+" assoc where " +
     					"(assoc."+EXPERIMENTS_ID1+"=?1 and " +
     					"assoc."+EXPERIMENTS_ID2+"=?2)",
     					new String[] {Long.toString(id1), Long.toString(id2)}) > 0;
@@ -269,7 +267,7 @@ public class DbAdapter {
     private String getExcludedEffectsQuery(String selectedColumns, String variable) {
     	return "select distinct "+selectedColumns+" from "+
 				TABLE_INGREDIENT_EFFECT+", "+TABLE_EFFECTS+
-				", ("+assocQueryBase+") assoc where "+
+				", "+TABLE_EXPERIMENTS+" assoc where "+
 				"assoc."+EXPERIMENTS_ID1+"="+variable+" and "+
 				TABLE_INGREDIENT_EFFECT+"."+INGREDIENT_EFFECT_INGREDIENT+
 				"=assoc."+EXPERIMENTS_ID2+" and "+
@@ -297,7 +295,7 @@ public class DbAdapter {
     private String getExcludedIngredientsQuery(String selectedColumns, String variable) {
     	return "select distinct "+selectedColumns+" from "+
 				TABLE_INGREDIENT_EFFECT+", "+
-				TABLE_INGREDIENTS+", ("+assocQueryBase+") assoc where "+
+				TABLE_INGREDIENTS+", "+TABLE_EXPERIMENTS+" assoc where "+
 				TABLE_INGREDIENT_EFFECT+"."+INGREDIENT_EFFECT_EFFECT+"="+variable+" and "+
 				"assoc."+EXPERIMENTS_ID1+"="+
 				TABLE_INGREDIENT_EFFECT+"."+INGREDIENT_EFFECT_INGREDIENT+" and "+
@@ -365,16 +363,13 @@ public class DbAdapter {
     }
     
     private String addNoAndMaybeParts(String queryString,
-    		long ingredient1Id, long ingredient2Id) {
+    		long ingredient1Id, long ingredient2Id, long maxEffectId) {
     	long count1 = Utils.getCountQuery(database, 
     			getEffectsQuery("count("+TABLE_EFFECTS+"."+EFFECTS_ID+")", "?"), 
     			new String[] {ingredient1Id+""});
     	long count2 = Utils.getCountQuery(database, 
     			getEffectsQuery("count("+TABLE_EFFECTS+"."+EFFECTS_ID+")", "?"), 
     			new String[] {ingredient2Id+""});
-    	long maxEffectId = Utils.getCountQuery(database, 
-    			"select max("+EFFECTS_ID+") from "+TABLE_EFFECTS,
-    			null);
     	
     	String v1 = "?1";
     	String v2 = "?2";
@@ -407,8 +402,16 @@ public class DbAdapter {
     	Log.v(TAG, "getPairing("+ingredient1Id+", "+ingredient2Id+")");
     	
     	String queryString = getPairingQueryYesPart("?1", "?2");
+    	long maxEffectId = Utils.getCountQuery(database, 
+    			"select max("+EFFECTS_ID+") from "+TABLE_EFFECTS,
+    			null);
     	if (!hasExperiment(ingredient1Id, ingredient2Id)) {
-	    	queryString = addNoAndMaybeParts(queryString, ingredient1Id, ingredient2Id);
+	    	queryString = addNoAndMaybeParts(queryString, ingredient1Id, ingredient2Id,
+	    			maxEffectId);
+    	} else {
+    		queryString += " union select "+(maxEffectId+1)+" "+EFFECTS_ID+
+					", '"+context.getString(R.string.experimented)+"' "+EFFECTS_VALUE+", "+
+					CATEGORY_SOMETHING+" "+PAIRING_CATEGORY;
     	}
     	queryString += " order by "+PAIRING_CATEGORY+", "+EFFECTS_VALUE;
     	Log.v(TAG, queryString);

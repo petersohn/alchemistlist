@@ -162,9 +162,7 @@ public class ManageIngredient extends ManageTextBase {
     		onEffectChooserResult(resultCode, data);
     		break;
     	case ACTIVITY_MANAGE_EFFECT:
-    		if (resultCode == RESULT_OK) {
-    			refreshList();
-    		}
+			refreshList();
     		break;
     	}
     }

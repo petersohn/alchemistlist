@@ -1,5 +1,7 @@
 package com.kangirigungi.alchemistlist.Database;
 
+import com.kangirigungi.alchemistlist.tools.Utils;
+
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -11,7 +13,7 @@ class DatabaseHelper extends SQLiteOpenHelper {
 
 	private static final String TAG = "DbAdapter.DatabaseHelper";
 	
-	private static final int DATABASE_VERSION = 6;
+	private static final int DATABASE_VERSION = 7;
 	
     DatabaseHelper(Context context, String dbName) {
         super(context, DbAdapter.DATABASE_NAME_BASE + dbName, null, DATABASE_VERSION);
@@ -40,8 +42,14 @@ class DatabaseHelper extends SQLiteOpenHelper {
             }
         }
     }
+
+    private void createExperimentIndices(SQLiteDatabase db) {
+    	db.execSQL("create index experiments_ids on "+
+    			DbAdapter.TABLE_EXPERIMENTS+" ("+
+    			DbAdapter.EXPERIMENTS_ID1+","+DbAdapter.EXPERIMENTS_ID1+")");
+    }
     
-    void createExperimentsTable(SQLiteDatabase db) {
+    private void createExperimentsTable(SQLiteDatabase db) {
    	 db.execSQL("create table "+DbAdapter.TABLE_EXPERIMENTS+" (" +
    			DbAdapter.EXPERIMENTS_ID+" integer primary key," +
    			DbAdapter.EXPERIMENTS_ID1+" integer not null references "+
@@ -51,8 +59,9 @@ class DatabaseHelper extends SQLiteOpenHelper {
    			DbAdapter.TABLE_INGREDIENTS+"("+
    			DbAdapter.INGREDIENTS_ID+") on delete cascade" +
         		");");
+   	 createExperimentIndices(db);
    }
-   
+    
    @Override
    public void onCreate(SQLiteDatabase db) {
    	Log.i(TAG, "Creating database.");
@@ -91,9 +100,25 @@ class DatabaseHelper extends SQLiteOpenHelper {
        if (oldVersion < 6) {
        	upgradeFrom4To6(db);
        }
+       if (oldVersion < 7) {
+      	upgradeFrom6To7(db);
+      }
    }
    
-   private void upgradeFrom2To3(SQLiteDatabase db) {
+   private void upgradeFrom6To7(SQLiteDatabase db) {
+		createExperimentIndices(db);
+		long maxId = Utils.getCountQuery(db, 
+				"select max("+DbAdapter.EXPERIMENTS_ID+") from "+
+				DbAdapter.TABLE_EXPERIMENTS, null) + 1;
+		db.execSQL("insert into "+DbAdapter.TABLE_EXPERIMENTS+
+				" select "+DbAdapter.EXPERIMENTS_ID+"+"+maxId+" "+
+				DbAdapter.EXPERIMENTS_ID+", "+
+				DbAdapter.EXPERIMENTS_ID2+" "+DbAdapter.EXPERIMENTS_ID1+", "+
+				DbAdapter.EXPERIMENTS_ID1+" "+DbAdapter.EXPERIMENTS_ID2+" from "+
+				DbAdapter.TABLE_EXPERIMENTS);
+	}
+
+private void upgradeFrom2To3(SQLiteDatabase db) {
    	db.execSQL("alter table strings rename to " + DbAdapter.TABLE_INGREDIENTS);
    }
    

@@ -38,5 +38,6 @@
     <string name="ingredientsHeader">Ingredients:</string>
     <string name="rename">Rename</string>
     <string name="excluded">Excluded</string>
+    <string name="experimented">Experimented</string>
 
 </resources>
