@@ -33,6 +33,8 @@ public class MainActivity extends Activity {
 	private String dbName;
 	private DbAdapter dbAdapter;
 	private ConfigDbAdapter config;
+	private InputQuery backupFilename;
+	private InputQuery restoreFilename;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -65,8 +67,57 @@ public class MainActivity extends Activity {
         config.open();
         dbAdapter = new DbAdapter(this);
         setDbName(config.getLastDatabase());
+        
+        backupFilename = new InputQuery(this, 
+        		getString(R.string.export_title),
+    			getString(R.string.export_value), "backup.db",
+    			new InputQueryResultListener() {
+						@Override
+						public void onOk(String result) {
+							Log.i(TAG, "Backup database to file: " + result);
+							try {
+								dbAdapter.backupDatabase(result);
+							} catch (IOException e) {
+								Log.e(TAG, e.getMessage());
+							}
+						}
+						@Override
+						public void onCancel() {
+							Log.d(TAG, "Backup cancelled.");			
+						}
+				});
+        restoreFilename = new InputQuery(this, 
+        		getString(R.string.import_title),
+    			getString(R.string.import_value), "backup.db",
+    			new InputQueryResultListener() {
+						@Override
+						public void onOk(String result) {
+							Log.i(TAG, "Restore database from file: " + result);
+							try {
+								dbAdapter.restoreDatabase(result);
+							} catch (IOException e) {
+								Log.e(TAG, e.getMessage());
+							}
+						}
+						@Override
+						public void onCancel() {
+							Log.d(TAG, "Restore cancelled.");			
+						}
+				});
+        if (savedInstanceState != null) {
+        	Utils.printBundle(TAG, savedInstanceState);
+        }
+        backupFilename.restoreState(savedInstanceState, "backupFilename");
+        restoreFilename.restoreState(savedInstanceState, "restoreFilename");
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        backupFilename.saveState(outState, "backupFilename");
+        restoreFilename.saveState(outState, "restoreFilename");
+    }
+    
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_main, menu);
@@ -133,6 +184,8 @@ public class MainActivity extends Activity {
     @Override
 	protected void onDestroy() {
     	Log.v(TAG, "onDestroy()");
+    	backupFilename.dismiss();
+    	restoreFilename.dismiss();
     	dbAdapter.close();
     	if (dbName == null) {
     		config.deleteLastDatabase();
@@ -192,24 +245,7 @@ public class MainActivity extends Activity {
     		Log.w(TAG, "No database selected.");
     		return;
     	}
-    	InputQuery alert = new InputQuery(this);
-    	alert.run(getString(R.string.export_title),
-    			getString(R.string.export_value), "backup.db",
-				new InputQueryResultListener() {
-					@Override
-					public void onOk(String result) {
-						Log.i(TAG, "Export database to file: " + result);
-						try {
-							dbAdapter.backupDatabase(result);
-						} catch (IOException e) {
-							Log.e(TAG, e.getMessage());
-						}
-					}
-					@Override
-					public void onCancel() {
-						Log.d(TAG, "Export cancelled.");			
-					}
-				});
+    	backupFilename.show();
     }
     
     private void importDatabase() {
@@ -217,24 +253,7 @@ public class MainActivity extends Activity {
     		Log.w(TAG, "No database selected.");
     		return;
     	}
-    	InputQuery alert = new InputQuery(this);
-    	alert.run(getString(R.string.import_title),
-    			getString(R.string.import_value), "backup.db",
-				new InputQueryResultListener() {
-					@Override
-					public void onOk(String result) {
-						Log.i(TAG, "Import database from file: " + result);
-						try {
-							dbAdapter.restoreDatabase(result);
-						} catch (IOException e) {
-							Log.e(TAG, e.getMessage());
-						}
-					}
-					@Override
-					public void onCancel() {
-						Log.d(TAG, "Import cancelled.");			
-					}
-				});
+    	restoreFilename.show();
     }
     
     private void onDatabaseChooserResult(int resultCode, Intent data) {

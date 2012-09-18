@@ -32,7 +32,8 @@ public abstract class ManageTextBase extends Activity {
 	}
 	
 	private Button btnRename;
-	TextView nameField;
+	private TextView nameField;
+	private InputQuery rename;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -46,13 +47,43 @@ public abstract class ManageTextBase extends Activity {
         btnRename.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				rename();
+				rename.show();
 			}
 		});
+        rename = new InputQuery(this,
+        		getRenameTitle(), getRenameMessage(), nameField.getText(), 
+    			new InputQueryResultListener() {
+					
+					@Override
+					public void onOk(String result) {
+						Log.i(TAG, "Renameing to "+result);
+				    	getStringContainer().changeString(id, result);
+				    	refresh();
+					}
+					
+					@Override
+					public void onCancel() {
+						Log.d(TAG, "Rename cancelled.");
+					}
+				});
         
         Bundle extras = getIntent().getExtras();
         id = extras.getLong("id");
         refresh();
+        
+        rename.restoreState(savedInstanceState, "rename");
+    }
+    
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        rename.saveState(outState, "rename");
+    }
+    
+    @Override
+    protected void onDestroy() {
+    	rename.dismiss();
+    	super.onDestroy();
     }
 
     @Override
@@ -68,25 +99,6 @@ public abstract class ManageTextBase extends Activity {
 			}
 		});
         return true;
-    }
-    
-    private void rename() {
-    	InputQuery q = new InputQuery(this);
-    	q.run(getRenameTitle(), getRenameMessage(), nameField.getText(), 
-    			new InputQueryResultListener() {
-					
-					@Override
-					public void onOk(String result) {
-						Log.i(TAG, "Renameing to "+result);
-				    	getStringContainer().changeString(id, result);
-				    	refresh();
-					}
-					
-					@Override
-					public void onCancel() {
-						Log.d(TAG, "Rename cancelled.");
-					}
-				});
     }
     
     private void refresh() {
