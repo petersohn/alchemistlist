@@ -129,8 +129,8 @@ public class DbAdapter {
     private String experimentQueryString(String filter) {
     	return "select assoc."+EXPERIMENTS_ID+" "+EXPERIMENTS_ID+", "+
     			"strings1."+INGREDIENTS_VALUE+" value1, "+
-    			" strings2."+INGREDIENTS_VALUE+" value2 from " +
-    			"("+assocQueryBase+") assoc, " +
+    			"strings2."+INGREDIENTS_VALUE+" value2 from " +
+    			"("+assocQueryBase+") assoc left join " +
 				TABLE_INGREDIENTS+" strings1, "+
 				TABLE_INGREDIENTS+" strings2 " +
 				
@@ -138,6 +138,15 @@ public class DbAdapter {
 				" strings1."+INGREDIENTS_ID+"=assoc."+EXPERIMENTS_ID1+
         		" and strings2."+INGREDIENTS_ID+"=assoc."+EXPERIMENTS_ID2+
         		" order by value1 asc, value2 asc";
+    }
+    
+    public boolean hasExperiment(long id1, long id2) {
+    	return Utils.getCountQuery(database, 
+    					"select count(*) from "+
+						"("+assocQueryBase+") assoc where " +
+    					"(assoc."+EXPERIMENTS_ID1+"=?1 and " +
+    					"assoc."+EXPERIMENTS_ID2+"=?2)",
+    					new String[] {Long.toString(id1), Long.toString(id2)}) > 0;
     }
     
     private Cursor doSearchExperiment(String filter, String[] filterParams) {
@@ -265,7 +274,8 @@ public class DbAdapter {
 				TABLE_INGREDIENT_EFFECT+"."+INGREDIENT_EFFECT_INGREDIENT+
 				"=assoc."+EXPERIMENTS_ID2+" and "+
 				TABLE_INGREDIENT_EFFECT+"."+INGREDIENT_EFFECT_EFFECT+
-				"="+TABLE_EFFECTS+"."+EFFECTS_ID;
+				"="+TABLE_EFFECTS+"."+EFFECTS_ID+
+				" except "+getEffectsQuery(selectedColumns, variable);
     }
     
     public Cursor getExcludedEffects(long ingredientId) {
@@ -273,7 +283,7 @@ public class DbAdapter {
     	String queryString =
     			getExcludedEffectsQuery(
 		    			TABLE_EFFECTS+"."+EFFECTS_ID+" "+EFFECTS_ID+", "+
-		    	    	TABLE_EFFECTS+"."+EFFECTS_VALUE+" "+EFFECTS_VALUE, "?")+
+		    	    	TABLE_EFFECTS+"."+EFFECTS_VALUE+" "+EFFECTS_VALUE, "?1")+
 				" order by "+EFFECTS_VALUE;
     			
     	Log.v(TAG, queryString);
@@ -292,7 +302,8 @@ public class DbAdapter {
 				"assoc."+EXPERIMENTS_ID1+"="+
 				TABLE_INGREDIENT_EFFECT+"."+INGREDIENT_EFFECT_INGREDIENT+" and "+
 				TABLE_INGREDIENTS+"."+INGREDIENTS_ID+
-				"=assoc."+EXPERIMENTS_ID2;
+				"=assoc."+EXPERIMENTS_ID2+
+				" except "+getIngredientsQuery(selectedColumns, variable);
     }
     
     public Cursor getExcludedIngredients(long effectId) {
@@ -300,7 +311,7 @@ public class DbAdapter {
     	String queryString = 
     			getExcludedIngredientsQuery(
     					TABLE_INGREDIENTS+"."+INGREDIENTS_ID+" "+INGREDIENTS_ID+", "+
-    					TABLE_INGREDIENTS+"."+INGREDIENTS_VALUE+" "+INGREDIENTS_VALUE, "?")+
+    					TABLE_INGREDIENTS+"."+INGREDIENTS_VALUE+" "+INGREDIENTS_VALUE, "?1")+
 				" order by "+EFFECTS_VALUE;
     			
     	Log.v(TAG, queryString);
@@ -327,10 +338,11 @@ public class DbAdapter {
     
     private String getPairingQueryNoPart(
     		String variable) {
-    	return getExcludedEffectsQuery(
+    	return "select * from ("+
+    			getExcludedEffectsQuery(
         				TABLE_EFFECTS+"."+EFFECTS_ID+" "+EFFECTS_ID+", "+
     					TABLE_EFFECTS+"."+EFFECTS_VALUE+" "+EFFECTS_VALUE+", "+
-        				CATEGORY_NO+" "+PAIRING_CATEGORY, variable);
+        				CATEGORY_NO+" "+PAIRING_CATEGORY, variable)+")";
     }
     
     private String getPairingQueryMaybePart(
@@ -352,8 +364,8 @@ public class DbAdapter {
         			CATEGORY_MAYBE+" "+PAIRING_CATEGORY, variable2)+")";
     }
     
-    public Cursor getPairing(long ingredient1Id, long ingredient2Id) {
-    	Log.v(TAG, "getPairing("+ingredient1Id+", "+ingredient2Id+")");
+    private String addNoAndMaybeParts(String queryString,
+    		long ingredient1Id, long ingredient2Id) {
     	long count1 = Utils.getCountQuery(database, 
     			getEffectsQuery("count("+TABLE_EFFECTS+"."+EFFECTS_ID+")", "?"), 
     			new String[] {ingredient1Id+""});
@@ -363,10 +375,9 @@ public class DbAdapter {
     	long maxEffectId = Utils.getCountQuery(database, 
     			"select max("+EFFECTS_ID+") from "+TABLE_EFFECTS,
     			null);
+    	
     	String v1 = "?1";
     	String v2 = "?2";
-    	String queryString = 
-    			getPairingQueryYesPart(v1, v2);
     	if (count1 < Utils.MAX_EFFECT_PER_INGREDIENT) {
     		queryString += " union "+
     				getPairingQueryMaybePart(v2, v1);
@@ -388,6 +399,16 @@ public class DbAdapter {
     					", '?' "+EFFECTS_VALUE+", "+
     					CATEGORY_SOMETHING+" "+PAIRING_CATEGORY;
     		}
+    	}
+    	return queryString;
+    }
+    
+    public Cursor getPairing(long ingredient1Id, long ingredient2Id) {
+    	Log.v(TAG, "getPairing("+ingredient1Id+", "+ingredient2Id+")");
+    	
+    	String queryString = getPairingQueryYesPart("?1", "?2");
+    	if (!hasExperiment(ingredient1Id, ingredient2Id)) {
+	    	queryString = addNoAndMaybeParts(queryString, ingredient1Id, ingredient2Id);
     	}
     	queryString += " order by "+PAIRING_CATEGORY+", "+EFFECTS_VALUE;
     	Log.v(TAG, queryString);
