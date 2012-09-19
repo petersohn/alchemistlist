@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_experiment"
@@ -40,7 +39,6 @@
             android:layout_alignParentTop="true"
             android:layout_toLeftOf="@+id/experiment_item1Manage"
             android:textAppearance="?android:attr/textAppearanceMedium" />
-
     </RelativeLayout>
 
     <RelativeLayout
@@ -71,29 +69,38 @@
             android:layout_alignParentTop="true"
             android:layout_toLeftOf="@+id/experiment_item2Manage"
             android:textAppearance="?android:attr/textAppearanceMedium" />
-
     </RelativeLayout>
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
+
+        <Button
+            android:id="@+id/experiment_btnAddAssoc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/addAssoc" />
 
         <Button
             android:id="@+id/experiment_btnDelAssoc"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true"
+            android:layout_weight="1"
             android:text="@string/delAssoc" />
-        
+
         <Button
-            android:id="@+id/experiment_btnAddAssoc"
-            android:layout_width="fill_parent"
+            android:id="@+id/experiment_btnAddEffect"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_toLeftOf="@id/experiment_btnDelAssoc"
-            android:text="@string/addAssoc" />
-        
+            android:layout_weight="1"
+            android:text="@string/addEffect" />
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
     </RelativeLayout>
 
     <ListView

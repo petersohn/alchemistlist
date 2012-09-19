@@ -26,6 +26,7 @@ public class ExperimentActivity extends Activity {
 	private static final int ACTIVITY_CHOOSE_INGREDIENT = 0;
 	private static final int ACTIVITY_MANAGE_INGREDIENT = 1;
 	private static final int ACTIVITY_MANAGE_EFFECT = 10;
+	private static final int ACTIVITY_ADD_EFFECT = 20;
 	private static final String TAG = "ExperimentActivity";
 	
 	private static class TextId {
@@ -38,6 +39,9 @@ public class ExperimentActivity extends Activity {
 	private ConfigDbAdapter config;
 	private String dbName;
 	private ListView list;
+	private Button btnAddExperiment;
+	private Button btnDeleteExperiment;
+	private Button btnAddEffect;
 	private boolean isMatchList;
 	
     @Override
@@ -51,20 +55,28 @@ public class ExperimentActivity extends Activity {
         		R.id.experiment_item1Clear, R.id.experiment_item1Manage);
         fillTextId(1, R.id.experiment_item2Display, 
         		R.id.experiment_item2Clear, R.id.experiment_item2Manage);
-        Button btn = (Button)findViewById(R.id.experiment_btnAddAssoc);
-        btn.setOnClickListener(new OnClickListener() {
+        btnAddExperiment = (Button)findViewById(R.id.experiment_btnAddAssoc);
+        btnAddExperiment.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				onAddAssocClick(v);
+				onAddExperimentClick(v);
 			}
 		});
-        btn = (Button)findViewById(R.id.experiment_btnDelAssoc);
-        btn.setOnClickListener(new OnClickListener() {
+        btnDeleteExperiment = (Button)findViewById(R.id.experiment_btnDelAssoc);
+        btnDeleteExperiment.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				onDelAssocClick(v);
+				onDelExperimentClick(v);
 			}
 		});
+        btnAddEffect = (Button)findViewById(R.id.experiment_btnAddEffect);
+        btnAddEffect.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				onAddEffectClick(v);
+			}
+		});
+        
         list = (ListView)findViewById(R.id.experiment_displayList);
         list.setOnItemClickListener(new OnItemClickListener() {
 			@Override
@@ -99,6 +111,13 @@ public class ExperimentActivity extends Activity {
         	}
         }
         refreshList();
+    }
+    
+    private void onAddEffectClick(View v) {
+    	Log.v(TAG, "onAddEffectClick()");
+    	Intent i = new Intent(this, EffectTextChooser.class);
+   		i.putExtra("dbName", dbAdapter.getDbName());
+        startActivityForResult(i, ACTIVITY_ADD_EFFECT);
     }
     
     private void fillTextId(final int num, int displayId, int clearId, int manageId) {
@@ -189,7 +208,7 @@ public class ExperimentActivity extends Activity {
     	startActivityForResult(i, ACTIVITY_MANAGE_INGREDIENT);
 	}
     
-    private void onAddAssocClick(View v) {
+    private void onAddExperimentClick(View v) {
     	Log.d(TAG, "onAddAssocClick()");
     	if (dbName == null) {
     		Log.w(TAG, "No database selected.");
@@ -207,7 +226,7 @@ public class ExperimentActivity extends Activity {
     	}
     }
     
-    private void onDelAssocClick(View v) {
+    private void onDelExperimentClick(View v) {
     	Log.d(TAG, "onDelAssocClick()");
     	if (dbName == null) {
     		Log.w(TAG, "No database selected.");
@@ -243,14 +262,22 @@ public class ExperimentActivity extends Activity {
     	if (id1 != null) {
     		Log.d(TAG, "Query with first string.");
     		cursor = dbAdapter.searchExperiment(id1.longValue());
+    		btnAddEffect.setEnabled(dbAdapter.getEffectNum(
+    				id1) < Utils.MAX_EFFECT_PER_INGREDIENT);
     	} else
     	if (id2 != null) {
     		Log.d(TAG, "Query with second string.");
     		cursor = dbAdapter.searchExperiment(id2.longValue());
+    		btnAddEffect.setEnabled(dbAdapter.getEffectNum(
+    				id2) < Utils.MAX_EFFECT_PER_INGREDIENT);
     	}
+    	btnAddExperiment.setVisibility(View.VISIBLE);
+    	btnAddExperiment.setEnabled(false);
+    	btnDeleteExperiment.setVisibility(View.GONE);
     	if (cursor == null) {
     		Log.d(TAG, "No result.");
     		list.setAdapter(null);
+    		btnAddEffect.setEnabled(false);
     	} else {
     		SimpleCursorAdapter adapter = new SimpleCursorAdapter(
     				this, android.R.layout.two_line_list_item, 
@@ -277,6 +304,18 @@ public class ExperimentActivity extends Activity {
     					new String[] {DbAdapter.EFFECTS_VALUE, DbAdapter.PAIRING_CATEGORY},
     					new int[] {R.id.text1, R.id.categoryIndicator}), override);
 		list.setAdapter(adapter);
+		if (dbAdapter.hasExperiment(textIds[0].id, textIds[1].id)) {
+			btnAddExperiment.setVisibility(View.GONE);
+			btnDeleteExperiment.setVisibility(View.VISIBLE);
+			btnDeleteExperiment.setEnabled(true);
+		} else {
+			btnAddExperiment.setVisibility(View.VISIBLE);
+			btnAddExperiment.setEnabled(true);
+			btnDeleteExperiment.setVisibility(View.GONE);
+		}
+		btnAddEffect.setEnabled(
+				dbAdapter.getEffectNum(textIds[0].id) < Utils.MAX_EFFECT_PER_INGREDIENT &&
+				dbAdapter.getEffectNum(textIds[1].id) < Utils.MAX_EFFECT_PER_INGREDIENT);
     }
     
     @Override 
@@ -291,8 +330,26 @@ public class ExperimentActivity extends Activity {
     	case ACTIVITY_MANAGE_EFFECT:
     		refreshList();
     		break;
+    	case ACTIVITY_ADD_EFFECT:
+    		onAddEffectResult(resultCode, data);
+    		break;
     	}
 	}
+    
+    private void onAddEffectResult(int resultCode, Intent data) {
+    	Log.d(TAG, "EffectTectChooser activity returned with code: " + resultCode);
+    	if (resultCode == RESULT_OK) {
+    		Bundle extras = data.getExtras();
+    		long effectId = extras.getLong("id");
+    		for (TextId textId: textIds) {
+    			if (textId.id != null) {
+    				Log.i(TAG, "Adding effect "+effectId+" to ingredient "+textId.id+".");
+    				dbAdapter.addIngredientEffect(textId.id, effectId);
+    			}
+    		}
+    		refreshList();
+    	}
+    }
 
     private void refreshText(int textId) {
     	if (textIds[textId].id == null) {

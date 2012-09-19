@@ -235,6 +235,14 @@ public class DbAdapter {
     			INGREDIENT_EFFECT_EFFECT+"=?", 
     			new String[] {Long.toString(ingredientId), Long.toString(effectId)});
     }
+
+    public long getEffectNum(long ingredientId) {
+    	return Utils.getCountQuery(database, 
+    			"select count(*) from "+
+				TABLE_INGREDIENT_EFFECT+" where "+
+				TABLE_INGREDIENT_EFFECT+"."+INGREDIENT_EFFECT_INGREDIENT+"=?1",
+				new String[] {ingredientId+""});
+    }
     
     private String getEffectsQuery(String selectedColumns, String variable) {
     	return "select "+selectedColumns+" from "+

@@ -11,8 +11,8 @@
     <string name="title_activity_manage_ingredient">Manage ingredient</string>
     <string name="title_activity_manage_effect">Manage effect</string>
     <string name="clear">clear</string>
-    <string name="addAssoc">Add</string>
-    <string name="delAssoc">Delete</string>
+    <string name="addAssoc">Add experiment</string>
+    <string name="delAssoc">Delete experiment</string>
     <string name="delString">Delete string</string>
     <string name="menu_backup">Create backup</string>
     <string name="menu_restore">Restore backup</string>
