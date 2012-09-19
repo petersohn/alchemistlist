@@ -104,7 +104,17 @@ public class DbAdapter {
     	return effectsWrapper;
     }
       
-    public void addAssoc(long id1, long id2) throws SQLException {
+    public void addExperiment(long id1, long id2) throws SQLException {
+    	long num = Utils.getCountQuery(database, "select count(*) from "+
+    			TABLE_EXPERIMENTS+" where "+ 
+    			EXPERIMENTS_ID1+"=?1 and "+
+    			EXPERIMENTS_ID2+"=?2", 
+    			new String[] {id1+"", id2+""});
+    	if (num > 0) {
+    		Log.d(TAG, "Experiment already in database. Not inserting.");
+    		return;
+    	}
+    	
     	ContentValues args = new ContentValues();
         args.put(EXPERIMENTS_ID1, id1);
         args.put(EXPERIMENTS_ID2, id2);
@@ -202,6 +212,15 @@ public class DbAdapter {
     
     public void addIngredientEffect(long ingredientId, long effectId) throws SQLException {
     	Log.v(TAG, "addIngredientEffect("+ingredientId+", "+effectId+")");
+    	long num = Utils.getCountQuery(database, "select count(*) from "+
+    			TABLE_INGREDIENT_EFFECT+" where "+ 
+    			INGREDIENT_EFFECT_INGREDIENT+"=?1 and "+
+    			INGREDIENT_EFFECT_EFFECT+"=?2", 
+    			new String[] {ingredientId+"", effectId+""});
+    	if (num > 0) {
+    		Log.d(TAG, "Ingredient and effect association already in database. Not inserting.");
+    		return;
+    	}
     	ContentValues args = new ContentValues();
         args.put(INGREDIENT_EFFECT_INGREDIENT, ingredientId);
         args.put(INGREDIENT_EFFECT_EFFECT, effectId);

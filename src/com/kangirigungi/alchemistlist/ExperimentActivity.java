@@ -202,7 +202,7 @@ public class ExperimentActivity extends Activity {
     				id1 + " ("+textIds[0].view.getText() + ")" +
     				" <--> "+
     				id2 + " ("+textIds[1].view.getText() + ")");
-    		dbAdapter.addAssoc(id1, id2);
+    		dbAdapter.addExperiment(id1, id2);
     		refreshList();
     	}
     }
