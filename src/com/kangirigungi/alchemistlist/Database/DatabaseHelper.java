@@ -45,19 +45,19 @@ class DatabaseHelper extends SQLiteOpenHelper {
 
     private void createExperimentIndices(SQLiteDatabase db) {
     	db.execSQL("create index experiments_ids on "+
-    			DbAdapter.TABLE_EXPERIMENTS+" ("+
-    			DbAdapter.EXPERIMENTS_ID1+","+DbAdapter.EXPERIMENTS_ID1+")");
+    			DbSqlQueries.TABLE_EXPERIMENTS+" ("+
+    			DbSqlQueries.EXPERIMENTS_ID1+","+DbSqlQueries.EXPERIMENTS_ID1+")");
     }
     
     private void createExperimentsTable(SQLiteDatabase db) {
-   	 db.execSQL("create table "+DbAdapter.TABLE_EXPERIMENTS+" (" +
-   			DbAdapter.EXPERIMENTS_ID+" integer primary key," +
-   			DbAdapter.EXPERIMENTS_ID1+" integer not null references "+
-   			DbAdapter.TABLE_INGREDIENTS+"("+
-   			DbAdapter.INGREDIENTS_ID+") on delete cascade," +
-   			DbAdapter.EXPERIMENTS_ID2+" integer not null references "+
-   			DbAdapter.TABLE_INGREDIENTS+"("+
-   			DbAdapter.INGREDIENTS_ID+") on delete cascade" +
+   	 db.execSQL("create table "+DbSqlQueries.TABLE_EXPERIMENTS+" (" +
+   			DbSqlQueries.EXPERIMENTS_ID+" integer primary key," +
+   			DbSqlQueries.EXPERIMENTS_ID1+" integer not null references "+
+   			DbSqlQueries.TABLE_INGREDIENTS+"("+
+   			DbSqlQueries.INGREDIENTS_ID+") on delete cascade," +
+   			DbSqlQueries.EXPERIMENTS_ID2+" integer not null references "+
+   			DbSqlQueries.TABLE_INGREDIENTS+"("+
+   			DbSqlQueries.INGREDIENTS_ID+") on delete cascade" +
         		");");
    	 createExperimentIndices(db);
    }
@@ -65,9 +65,9 @@ class DatabaseHelper extends SQLiteOpenHelper {
    @Override
    public void onCreate(SQLiteDatabase db) {
    	Log.i(TAG, "Creating database.");
-       db.execSQL("create table "+DbAdapter.TABLE_INGREDIENTS+" (" +
-    		   DbAdapter.INGREDIENTS_ID+" integer primary key," +
-    		   DbAdapter.INGREDIENTS_VALUE+" text not null);");
+       db.execSQL("create table "+DbSqlQueries.TABLE_INGREDIENTS+" (" +
+    		   DbSqlQueries.INGREDIENTS_ID+" integer primary key," +
+    		   DbSqlQueries.INGREDIENTS_VALUE+" text not null);");
        createExperimentsTable(db);
        createEffectsTable(db);
        createIngredientEffectTable(db);
@@ -76,8 +76,8 @@ class DatabaseHelper extends SQLiteOpenHelper {
 
    private void recreateDatabase(SQLiteDatabase db) {
    	Log.w(TAG, "Recreating database. All old data will be destroyed.");
-   	db.execSQL("DROP TABLE IF EXISTS "+DbAdapter.TABLE_INGREDIENTS);
-       db.execSQL("DROP TABLE IF EXISTS "+DbAdapter.TABLE_EXPERIMENTS);
+   	db.execSQL("DROP TABLE IF EXISTS "+DbSqlQueries.TABLE_INGREDIENTS);
+       db.execSQL("DROP TABLE IF EXISTS "+DbSqlQueries.TABLE_EXPERIMENTS);
        onCreate(db);
    }
    
@@ -108,18 +108,18 @@ class DatabaseHelper extends SQLiteOpenHelper {
    private void upgradeFrom6To7(SQLiteDatabase db) {
 		createExperimentIndices(db);
 		long maxId = Utils.getCountQuery(db, 
-				"select max("+DbAdapter.EXPERIMENTS_ID+") from "+
-				DbAdapter.TABLE_EXPERIMENTS, null) + 1;
-		db.execSQL("insert into "+DbAdapter.TABLE_EXPERIMENTS+
-				" select "+DbAdapter.EXPERIMENTS_ID+"+"+maxId+" "+
-				DbAdapter.EXPERIMENTS_ID+", "+
-				DbAdapter.EXPERIMENTS_ID2+" "+DbAdapter.EXPERIMENTS_ID1+", "+
-				DbAdapter.EXPERIMENTS_ID1+" "+DbAdapter.EXPERIMENTS_ID2+" from "+
-				DbAdapter.TABLE_EXPERIMENTS);
+				"select max("+DbSqlQueries.EXPERIMENTS_ID+") from "+
+						DbSqlQueries.TABLE_EXPERIMENTS, null) + 1;
+		db.execSQL("insert into "+DbSqlQueries.TABLE_EXPERIMENTS+
+				" select "+DbSqlQueries.EXPERIMENTS_ID+"+"+maxId+" "+
+				DbSqlQueries.EXPERIMENTS_ID+", "+
+				DbSqlQueries.EXPERIMENTS_ID2+" "+DbSqlQueries.EXPERIMENTS_ID1+", "+
+				DbSqlQueries.EXPERIMENTS_ID1+" "+DbSqlQueries.EXPERIMENTS_ID2+" from "+
+				DbSqlQueries.TABLE_EXPERIMENTS);
 	}
 
 private void upgradeFrom2To3(SQLiteDatabase db) {
-   	db.execSQL("alter table strings rename to " + DbAdapter.TABLE_INGREDIENTS);
+   	db.execSQL("alter table strings rename to " + DbSqlQueries.TABLE_INGREDIENTS);
    }
    
    private void upgradeFrom3To4(SQLiteDatabase db) {
@@ -129,28 +129,28 @@ private void upgradeFrom2To3(SQLiteDatabase db) {
    
    private void upgradeFrom4To6(SQLiteDatabase db) {
    	createExperimentsTable(db);
-       db.execSQL("insert into "+DbAdapter.TABLE_EXPERIMENTS+
+       db.execSQL("insert into "+DbSqlQueries.TABLE_EXPERIMENTS+
        		" select * from assoc");
        db.execSQL("drop table assoc");
    }
    
    private void createEffectsTable(SQLiteDatabase db) {
-   	db.execSQL("create table "+DbAdapter.TABLE_EFFECTS+" (" +
-   			DbAdapter.EFFECTS_ID+" integer primary key," +
-   			DbAdapter.EFFECTS_VALUE+" text not null);");
+   	db.execSQL("create table "+DbSqlQueries.TABLE_EFFECTS+" (" +
+   			DbSqlQueries.EFFECTS_ID+" integer primary key," +
+   			DbSqlQueries.EFFECTS_VALUE+" text not null);");
    }
    
    private void createIngredientEffectTable(SQLiteDatabase db) {
-   	db.execSQL("create table "+DbAdapter.TABLE_INGREDIENT_EFFECT+" (" +
-   			DbAdapter.INGREDIENT_EFFECT_ID+" integer primary key," +
-   			DbAdapter.INGREDIENT_EFFECT_INGREDIENT+" integer not null references "+
-   			DbAdapter.TABLE_INGREDIENTS+"("+DbAdapter.INGREDIENTS_ID+") on delete cascade," +
-   			DbAdapter.INGREDIENT_EFFECT_EFFECT+" integer not null references "+
-   			DbAdapter.TABLE_EFFECTS+"("+DbAdapter.EFFECTS_ID+") on delete cascade" +
+   	db.execSQL("create table "+DbSqlQueries.TABLE_INGREDIENT_EFFECT+" (" +
+   			DbSqlQueries.INGREDIENT_EFFECT_ID+" integer primary key," +
+   			DbSqlQueries.INGREDIENT_EFFECT_INGREDIENT+" integer not null references "+
+   			DbSqlQueries.TABLE_INGREDIENTS+"("+DbSqlQueries.INGREDIENTS_ID+") on delete cascade," +
+   			DbSqlQueries.INGREDIENT_EFFECT_EFFECT+" integer not null references "+
+   			DbSqlQueries.TABLE_EFFECTS+"("+DbSqlQueries.EFFECTS_ID+") on delete cascade" +
        		");");
-   	db.execSQL("create index ie_ingredient on "+DbAdapter.TABLE_INGREDIENT_EFFECT+
-   			" ("+DbAdapter.INGREDIENT_EFFECT_INGREDIENT+")");
-   	db.execSQL("create index ie_effect on "+DbAdapter.TABLE_INGREDIENT_EFFECT+
-   			" ("+DbAdapter.INGREDIENT_EFFECT_EFFECT+")");
+   	db.execSQL("create index ie_ingredient on "+DbSqlQueries.TABLE_INGREDIENT_EFFECT+
+   			" ("+DbSqlQueries.INGREDIENT_EFFECT_INGREDIENT+")");
+   	db.execSQL("create index ie_effect on "+DbSqlQueries.TABLE_INGREDIENT_EFFECT+
+   			" ("+DbSqlQueries.INGREDIENT_EFFECT_EFFECT+")");
    }
 } // DatabaseHelper

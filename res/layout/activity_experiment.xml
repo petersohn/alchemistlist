@@ -98,11 +98,6 @@
 
     </LinearLayout>
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-    </RelativeLayout>
-
     <ListView
         android:id="@+id/experiment_displayList"
         android:layout_width="match_parent"

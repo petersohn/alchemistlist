@@ -35,10 +35,18 @@ public class Utils {
 	
 	public static long getCountQuery(SQLiteDatabase db, String query, String[] args) {
 		Cursor cursor = db.rawQuery(query, args);
-		if (cursor != null && cursor.getCount() > 0) {
+		if (cursor.getCount() > 0) {
 			cursor.moveToFirst();
-			return cursor.getLong(0);
+			long result = cursor.getLong(0);
+			cursor.close();
+			return result;
 		}
 		return 0;
+	}
+	
+	public static Cursor query(SQLiteDatabase db, String query, String[] args, String tag) {
+		Log.v(tag, query);
+		Cursor cursor = db.rawQuery(query, args);
+		return cursor;
 	}
 }

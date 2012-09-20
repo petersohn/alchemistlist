@@ -14,6 +14,7 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
 import com.kangirigungi.alchemistlist.Database.DbAdapter;
+import com.kangirigungi.alchemistlist.Database.DbSqlQueries;
 import com.kangirigungi.alchemistlist.Database.StringContainer;
 import com.kangirigungi.alchemistlist.tools.MultiListAdapter;
 import com.kangirigungi.alchemistlist.tools.OverrideListAdapter;
@@ -92,7 +93,7 @@ public class ManageEffect extends ManageTextBase {
     		override.setOnClickListener(android.R.id.text1, ingredientClicked);
 			OverrideListAdapter itemAdapter = new OverrideListAdapter(
 					new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1, 
-	    			cursor, new String[] {DbAdapter.EFFECTS_VALUE}, 
+	    			cursor, new String[] {DbSqlQueries.EFFECTS_VALUE}, 
 	    			new int[] {android.R.id.text1}),
 	    			override);
 			
@@ -111,7 +112,7 @@ public class ManageEffect extends ManageTextBase {
     				ingredientClicked);
     		OverrideListAdapter excludedAdapter = new OverrideListAdapter(
 	    			new SimpleCursorAdapter(this, R.layout.manage_list_item_excluded, 
-	    			cursor, new String[] {DbAdapter.EFFECTS_VALUE}, 
+	    			cursor, new String[] {DbSqlQueries.EFFECTS_VALUE}, 
 	    			new int[] {R.id.text1}),
 	    			override);
     		

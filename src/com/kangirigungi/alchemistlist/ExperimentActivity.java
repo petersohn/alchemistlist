@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import com.kangirigungi.alchemistlist.Database.ConfigDbAdapter;
 import com.kangirigungi.alchemistlist.Database.DbAdapter;
+import com.kangirigungi.alchemistlist.Database.DbSqlQueries;
 import com.kangirigungi.alchemistlist.tools.MultiColorOverride;
 import com.kangirigungi.alchemistlist.tools.OverrideListAdapter;
 import com.kangirigungi.alchemistlist.tools.Utils;
@@ -239,7 +240,7 @@ public class ExperimentActivity extends Activity {
     				id1 + " ("+textIds[0].view.getText() + ")" +
     				" <--> "+
     				id2 + " ("+textIds[1].view.getText() + ")");
-    		dbAdapter.deleteAssoc(id1, id2);
+    		dbAdapter.deleteExperiment(id1, id2);
     		refreshList();
     	}
     }
@@ -301,7 +302,7 @@ public class ExperimentActivity extends Activity {
     			new SimpleCursorAdapter(this,
     					R.layout.experiment_list_item,
     					cursor,
-    					new String[] {DbAdapter.EFFECTS_VALUE, DbAdapter.PAIRING_CATEGORY},
+    					new String[] {DbSqlQueries.EFFECTS_VALUE, DbSqlQueries.PAIRING_CATEGORY},
     					new int[] {R.id.text1, R.id.categoryIndicator}), override);
 		list.setAdapter(adapter);
 		if (dbAdapter.hasExperiment(textIds[0].id, textIds[1].id)) {
@@ -393,7 +394,7 @@ public class ExperimentActivity extends Activity {
     private void onMatchListItemClick(View view, long id) {
 		TextView indicator = (TextView)view.findViewById(R.id.categoryIndicator);
 		int category = Integer.parseInt(indicator.getText().toString());
-		if (category != DbAdapter.CATEGORY_SOMETHING) {
+		if (category != DbSqlQueries.CATEGORY_SOMETHING) {
 			Intent i = new Intent(this, ManageEffect.class);
 	    	i.putExtra("id", id);
 	    	i.putExtra("dbName", dbName);
