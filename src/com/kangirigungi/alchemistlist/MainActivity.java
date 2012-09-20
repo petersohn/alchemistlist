@@ -219,11 +219,12 @@ public class MainActivity extends Activity {
     
     private void selectDatabase() {
     	Log.v(TAG, "selectDatabase()");
-    	Intent i = new Intent(this, DbTextChooser.class);
+    	Bundle extras = new Bundle();
     	if (dbName != null) {
-    		i.putExtra("value", dbName);
+    		extras.putString("value", dbName);
     	}
-        startActivityForResult(i, ACTIVITY_CHOOSE_DATABASE);
+        Utils.startActivityWithDb(this, DbTextChooser.class, 
+    			null, ACTIVITY_CHOOSE_DATABASE, extras);
     }
     
     private void deleteDatabase() {
@@ -288,10 +289,8 @@ public class MainActivity extends Activity {
     		Utils.printBundle(TAG, extras);
     		long id = extras.getLong("id");
     		Log.d(TAG, "Launching ingredient manager for id " + id);
-    		Intent manageIngredientIntent = new Intent(this, ManageIngredient.class);
-    		manageIngredientIntent.putExtra("id", id);
-    		manageIngredientIntent.putExtra("dbName", dbName);
-    		startActivityForResult(manageIngredientIntent, ACTIVITY_MANAGE_INGREDIENT);
+    		Utils.startActivityWithDb(this, ManageIngredient.class, 
+	    			dbName, ACTIVITY_MANAGE_INGREDIENT, extras);
     	} else {
     		Log.v(TAG, "DbTextChooser cancelled.");
     	}
@@ -305,10 +304,8 @@ public class MainActivity extends Activity {
     		Utils.printBundle(TAG, extras);
     		long id = extras.getLong("id");
     		Log.d(TAG, "Launching effect manager for id " + id);
-    		Intent manageEffectIntent = new Intent(this, ManageEffect.class);
-    		manageEffectIntent.putExtra("id", id);
-    		manageEffectIntent.putExtra("dbName", dbName);
-    		startActivityForResult(manageEffectIntent, ACTIVITY_MANAGE_EFFECT);
+    		Utils.startActivityWithDb(this, ManageEffect.class, 
+	    			dbName, ACTIVITY_MANAGE_EFFECT, extras);
     	} else {
     		Log.v(TAG, "DbTextChooser cancelled.");
     	}
@@ -316,23 +313,20 @@ public class MainActivity extends Activity {
     
     private void launchExperimentActivity() {
     	Log.v(TAG, "launchExperimentActivity()");
-    	Intent i = new Intent(this, ExperimentActivity.class);
-   		i.putExtra("dbName", dbName);
-        startActivityForResult(i, ACTIVITY_EXPERIMENT);
+    	Utils.startActivityWithDb(this, ExperimentActivity.class, 
+    			dbName, ACTIVITY_EXPERIMENT);
     }
     
     private void launchIngredientChooser() {
     	Log.v(TAG, "launchIngredientChooser()");
-    	Intent i = new Intent(this, IngredientTextChooser.class);
-   		i.putExtra("dbName", dbName);
-        startActivityForResult(i, ACTIVITY_CHOOSE_INGREDIENT);
+    	Utils.startActivityWithDb(this, IngredientTextChooser.class, 
+    			dbName, ACTIVITY_CHOOSE_INGREDIENT);
     }
     
     private void launchEffectChooser() {
     	Log.v(TAG, "launchEffectChooser()");
-    	Intent i = new Intent(this, EffectTextChooser.class);
-   		i.putExtra("dbName", dbName);
-        startActivityForResult(i, ACTIVITY_CHOOSE_EFFECT);
+    	Utils.startActivityWithDb(this, EffectTextChooser.class, 
+    			dbName, ACTIVITY_CHOOSE_EFFECT);
     }
 
 }

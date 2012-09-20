@@ -1,5 +1,7 @@
 package com.kangirigungi.alchemistlist.tools;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -48,5 +50,22 @@ public class Utils {
 		Log.v(tag, query);
 		Cursor cursor = db.rawQuery(query, args);
 		return cursor;
+	}
+	
+	public static void startActivityWithDb(Activity activity, Class<?> cls, 
+			String dbName, int requestCode, Bundle extras) {
+		Intent intent = new Intent(activity, cls);
+		if (extras != null) {
+			intent.putExtras(extras);
+		}
+		if (dbName != null) {
+			intent.putExtra("dbName", dbName);
+		}
+		activity.startActivityForResult(intent, requestCode);
+	}
+	
+	public static void startActivityWithDb(Activity activity, Class<?> cls, 
+			String dbName, int requestCode) {
+		startActivityWithDb(activity, cls, dbName, requestCode, null);
 	}
 }

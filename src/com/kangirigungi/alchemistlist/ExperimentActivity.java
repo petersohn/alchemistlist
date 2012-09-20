@@ -116,9 +116,8 @@ public class ExperimentActivity extends Activity {
     
     private void onAddEffectClick(View v) {
     	Log.v(TAG, "onAddEffectClick()");
-    	Intent i = new Intent(this, EffectTextChooser.class);
-   		i.putExtra("dbName", dbAdapter.getDbName());
-        startActivityForResult(i, ACTIVITY_ADD_EFFECT);
+    	Utils.startActivityWithDb(this, EffectTextChooser.class, 
+    			dbName, ACTIVITY_ADD_EFFECT);
     }
     
     private void fillTextId(final int num, int displayId, int clearId, int manageId) {
@@ -167,13 +166,11 @@ public class ExperimentActivity extends Activity {
     }
     
     private void onChooseClick(View v, int textId) {
-    	Intent i = new Intent(this, IngredientTextChooser.class);
-    	i.putExtra("textId", textId);
-    	i.putExtra("value", textIds[textId].view.getText());
-    	if (dbName != null) {
-    		i.putExtra("dbName", dbName);
-    	}
-        startActivityForResult(i, ACTIVITY_CHOOSE_INGREDIENT);
+    	Bundle extras = new Bundle();
+    	extras.putInt("textId", textId);
+    	extras.putString("value", textIds[textId].view.getText().toString());
+    	Utils.startActivityWithDb(this, IngredientTextChooser.class, 
+    			dbName, ACTIVITY_CHOOSE_INGREDIENT, extras);
     }
     
     private void clearAll() {
@@ -203,10 +200,10 @@ public class ExperimentActivity extends Activity {
     		Log.d(TAG, "Text field empty.");
     		return;
     	}
-    	Intent i = new Intent(this, ManageIngredient.class);
-    	i.putExtra("id", textIds[textId].id);
-    	i.putExtra("dbName", dbName);
-    	startActivityForResult(i, ACTIVITY_MANAGE_INGREDIENT);
+    	Bundle extras = new Bundle();
+    	extras.putLong("id", textIds[textId].id);
+    	Utils.startActivityWithDb(this, ManageIngredient.class, 
+    			dbName, ACTIVITY_MANAGE_INGREDIENT, extras);
 	}
     
     private void onAddExperimentClick(View v) {
@@ -395,10 +392,11 @@ public class ExperimentActivity extends Activity {
 		TextView indicator = (TextView)view.findViewById(R.id.categoryIndicator);
 		int category = Integer.parseInt(indicator.getText().toString());
 		if (category != DbSqlQueries.CATEGORY_SOMETHING) {
-			Intent i = new Intent(this, ManageEffect.class);
-	    	i.putExtra("id", id);
-	    	i.putExtra("dbName", dbName);
-	    	startActivityForResult(i, ACTIVITY_MANAGE_EFFECT);
+			Bundle extras = new Bundle();
+	    	extras.putLong("id", id);
+	    	Utils.startActivityWithDb(this, ManageEffect.class, 
+	    			dbName, ACTIVITY_MANAGE_EFFECT, extras);
+	    	
 		}
 	}
     

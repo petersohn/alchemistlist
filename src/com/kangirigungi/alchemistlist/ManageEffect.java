@@ -19,6 +19,7 @@ import com.kangirigungi.alchemistlist.Database.StringContainer;
 import com.kangirigungi.alchemistlist.tools.MultiListAdapter;
 import com.kangirigungi.alchemistlist.tools.OverrideListAdapter;
 import com.kangirigungi.alchemistlist.tools.SubClickableOverride;
+import com.kangirigungi.alchemistlist.tools.Utils;
 import com.kangirigungi.alchemistlist.tools.SubClickableOverride.OnSubItemClickListener;
 
 public class ManageEffect extends ManageTextBase {
@@ -129,10 +130,11 @@ public class ManageEffect extends ManageTextBase {
 	}
 
 	private void manageIngredient(long id) {
-		Intent i = new Intent(this, ManageIngredient.class);
-   		i.putExtra("dbName", dbAdapter.getDbName());
-   		i.putExtra("id", id);
-        startActivityForResult(i, ACTIVITY_MANAGE_INGREDIENT);
+		
+		Bundle extras = new Bundle();
+   		extras.putLong("id", id);
+        Utils.startActivityWithDb(this, ManageIngredient.class, 
+        		dbAdapter.getDbName(), ACTIVITY_MANAGE_INGREDIENT, extras);
 	}
 	
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {

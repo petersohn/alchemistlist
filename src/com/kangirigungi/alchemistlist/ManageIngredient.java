@@ -139,10 +139,10 @@ public class ManageIngredient extends ManageTextBase {
 	}
 
 	private void manageEffect(long id) {
-		Intent i = new Intent(this, ManageEffect.class);
-   		i.putExtra("dbName", dbAdapter.getDbName());
-   		i.putExtra("id", id);
-        startActivityForResult(i, ACTIVITY_MANAGE_EFFECT);
+        Bundle extras = new Bundle();
+   		extras.putLong("id", id);
+        Utils.startActivityWithDb(this, ManageEffect.class, 
+        		dbAdapter.getDbName(), ACTIVITY_MANAGE_EFFECT, extras);
 	}
 	
 	private void removeEffect(long id) {
@@ -152,9 +152,8 @@ public class ManageIngredient extends ManageTextBase {
 	
 	private void launchEffectChooser() {
     	Log.v(TAG, "launchEffectChooser()");
-    	Intent i = new Intent(this, EffectTextChooser.class);
-   		i.putExtra("dbName", dbAdapter.getDbName());
-        startActivityForResult(i, ACTIVITY_CHOOSE_EFFECT);
+        Utils.startActivityWithDb(this, EffectTextChooser.class, 
+        		dbAdapter.getDbName(), ACTIVITY_CHOOSE_EFFECT, null);
     }
 	
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
