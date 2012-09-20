@@ -92,8 +92,8 @@ public class DbSqlQueries {
     static String getIngredientsQuery(String selectedColumns, String variable) {
     	return "select "+selectedColumns+" from "+
 				DbSqlQueries.TABLE_INGREDIENT_EFFECT+", "+
-    			DbSqlQueries.TABLE_EFFECTS+" where "+
-				ingredientEffectWhere("?1", TABLE_EFFECTS+"."+EFFECTS_ID);
+    			DbSqlQueries.TABLE_INGREDIENTS+" where "+
+				ingredientEffectWhere(TABLE_INGREDIENTS+"."+INGREDIENTS_ID, "?1");
     }
     
     static String getExcludedEffectsQuery(String selectedColumns, String variable) {
@@ -113,7 +113,7 @@ public class DbSqlQueries {
 				TABLE_INGREDIENTS+", "+TABLE_EXPERIMENTS+" where "+
 				searchExperiment2Where(
 						TABLE_INGREDIENT_EFFECT+"."+INGREDIENT_EFFECT_INGREDIENT, 
-						TABLE_INGREDIENTS+"."+INGREDIENTS_ID)+
+						TABLE_INGREDIENTS+"."+INGREDIENTS_ID)+" and "+
 				ingredientEffectEffectWhere(variable)+
 				" except "+getIngredientsQuery(selectedColumns, variable);
     }
