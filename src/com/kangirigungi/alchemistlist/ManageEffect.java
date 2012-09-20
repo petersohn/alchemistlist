@@ -141,6 +141,7 @@ public class ManageEffect extends ManageTextBase {
     	switch (requestCode) {
     	case ACTIVITY_MANAGE_INGREDIENT:
 			refreshList();
+			refresh();
     		break;
     	}
     }

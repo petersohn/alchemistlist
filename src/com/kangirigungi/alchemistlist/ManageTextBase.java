@@ -47,6 +47,7 @@ public abstract class ManageTextBase extends Activity {
         btnRename.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
+				rename.setText(nameField.getText());
 				rename.show();
 			}
 		});
@@ -101,7 +102,7 @@ public abstract class ManageTextBase extends Activity {
         return true;
     }
     
-    private void refresh() {
+    protected void refresh() {
     	Log.d(TAG, "refresh()");
     	String value = getStringContainer().getString(id);
     	Log.v(TAG, "Name = " + value);

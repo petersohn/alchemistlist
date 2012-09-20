@@ -161,19 +161,19 @@ public class MainActivity extends Activity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
     	switch (requestCode) {
     	case ACTIVITY_CHOOSE_DATABASE:
-    		onDatabaseChooserResult(resultCode, data);
+    		onDatabaseChooserResult(resultCode, Utils.getExtrasIfExists(data));
     		break;
     	case ACTIVITY_EXPERIMENT:
     		Log.d(TAG, "Experiment activity finished.");
     		break;
     	case ACTIVITY_CHOOSE_INGREDIENT:
-    		onIngredientChooserResult(resultCode, data);
+    		onIngredientChooserResult(resultCode, Utils.getExtrasIfExists(data));
     		break;
     	case ACTIVITY_MANAGE_INGREDIENT:
     		Log.d(TAG, "Manage ingredient activity finished.");
     		break;
     	case ACTIVITY_CHOOSE_EFFECT:
-    		onEffectChooserResult(resultCode, data);
+    		onEffectChooserResult(resultCode, Utils.getExtrasIfExists(data));
     		break;
     	case ACTIVITY_MANAGE_EFFECT:
     		Log.d(TAG, "Manage effect activity finished.");
@@ -257,12 +257,9 @@ public class MainActivity extends Activity {
     	restoreFilename.show();
     }
     
-    private void onDatabaseChooserResult(int resultCode, Intent data) {
+    private void onDatabaseChooserResult(int resultCode, Bundle extras) {
     	Log.d(TAG, "DbTextChooser activity returned with code: " + resultCode);
     	if (resultCode == RESULT_OK) {
-    		Log.d(TAG, "Got OK result from activity.");
-    		Bundle extras = data.getExtras();
-    		Utils.printBundle(TAG, extras);
     		String value = extras.getString("result");
     		if (value != null && value.length() > 0) {
     			setDbName(value);
@@ -281,12 +278,9 @@ public class MainActivity extends Activity {
     	}
     }
     
-    private void onIngredientChooserResult(int resultCode, Intent data) {
+    private void onIngredientChooserResult(int resultCode, Bundle extras) {
     	Log.d(TAG, "IngredientTextChooser activity returned with code: " + resultCode);
     	if (resultCode == RESULT_OK) {
-    		Log.v(TAG, "Got OK result from activity.");
-    		Bundle extras = data.getExtras();
-    		Utils.printBundle(TAG, extras);
     		long id = extras.getLong("id");
     		Log.d(TAG, "Launching ingredient manager for id " + id);
     		Utils.startActivityWithDb(this, ManageIngredient.class, 
@@ -296,12 +290,9 @@ public class MainActivity extends Activity {
     	}
     }
     
-    private void onEffectChooserResult(int resultCode, Intent data) {
+    private void onEffectChooserResult(int resultCode, Bundle extras) {
     	Log.d(TAG, "EffectTextChooser activity returned with code: " + resultCode);
     	if (resultCode == RESULT_OK) {
-    		Log.v(TAG, "Got OK result from activity.");
-    		Bundle extras = data.getExtras();
-    		Utils.printBundle(TAG, extras);
     		long id = extras.getLong("id");
     		Log.d(TAG, "Launching effect manager for id " + id);
     		Utils.startActivityWithDb(this, ManageEffect.class, 

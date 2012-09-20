@@ -68,4 +68,8 @@ public class Utils {
 			String dbName, int requestCode) {
 		startActivityWithDb(activity, cls, dbName, requestCode, null);
 	}
+	
+	public static Bundle getExtrasIfExists(Intent intent) {
+		return intent == null ? null : intent.getExtras();
+	}
 }

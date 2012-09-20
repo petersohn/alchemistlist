@@ -159,20 +159,18 @@ public class ManageIngredient extends ManageTextBase {
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
     	switch (requestCode) {
     	case ACTIVITY_CHOOSE_EFFECT:
-    		onEffectChooserResult(resultCode, data);
+    		onEffectChooserResult(resultCode, Utils.getExtrasIfExists(data));
     		break;
     	case ACTIVITY_MANAGE_EFFECT:
 			refreshList();
+			refresh();
     		break;
     	}
     }
 
-	private void onEffectChooserResult(int resultCode, Intent data) {
+	private void onEffectChooserResult(int resultCode, Bundle extras) {
 		Log.d(TAG, "EffectTextChooser activity returned with code: " + resultCode);
     	if (resultCode == RESULT_OK) {
-    		Log.v(TAG, "Got OK result from activity.");
-    		Bundle extras = data.getExtras();
-    		Utils.printBundle(TAG, extras);
     		long id = extras.getLong("id");
     		Log.i(TAG, "Adding effect "+id+" to ingredient.");
     		dbAdapter.addIngredientEffect(getId(), id);

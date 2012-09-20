@@ -320,24 +320,23 @@ public class ExperimentActivity extends Activity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
     	switch (requestCode) {
     	case ACTIVITY_CHOOSE_INGREDIENT:
-    		onStringChooserResult(resultCode, data);
+    		onStringChooserResult(resultCode, Utils.getExtrasIfExists(data));
     		break;
     	case ACTIVITY_MANAGE_INGREDIENT:
-    		onManageIngredientResult(resultCode, data);
+    		onManageIngredientResult(resultCode, Utils.getExtrasIfExists(data));
     		break;
     	case ACTIVITY_MANAGE_EFFECT:
     		refreshList();
     		break;
     	case ACTIVITY_ADD_EFFECT:
-    		onAddEffectResult(resultCode, data);
+    		onAddEffectResult(resultCode, Utils.getExtrasIfExists(data));
     		break;
     	}
 	}
     
-    private void onAddEffectResult(int resultCode, Intent data) {
+    private void onAddEffectResult(int resultCode, Bundle extras) {
     	Log.d(TAG, "EffectTectChooser activity returned with code: " + resultCode);
     	if (resultCode == RESULT_OK) {
-    		Bundle extras = data.getExtras();
     		long effectId = extras.getLong("id");
     		for (TextId textId: textIds) {
     			if (textId.id != null) {
@@ -358,10 +357,9 @@ public class ExperimentActivity extends Activity {
     	}
     }
     
-    private void onManageIngredientResult(int resultCode, Intent data) {
+    private void onManageIngredientResult(int resultCode, Bundle extras) {
     	Log.d(TAG, "ManageTextBase activity returned with code: " + resultCode);
     	if (resultCode == RESULT_OK) {
-    		Bundle extras = data.getExtras();
     		if (extras.getBoolean("deleted")) {
     			Log.d(TAG, "Ingredient deleted. Clearing contents.");
     			clearAll();
@@ -372,12 +370,9 @@ public class ExperimentActivity extends Activity {
     	refreshList();
     }
 
-    private void onStringChooserResult(int resultCode, Intent data) {
+    private void onStringChooserResult(int resultCode, Bundle extras) {
     	Log.d(TAG, "IngredientTextChooser activity returned with code: " + resultCode);
     	if (resultCode == RESULT_OK) {
-    		Log.d(TAG, "Got OK result from activity.");
-    		Bundle extras = data.getExtras();
-    		Utils.printBundle(TAG, extras);
     		int textId = extras.getInt("textId");
     		String value = extras.getString("result");
     		textIds[textId].view.setText(value);
