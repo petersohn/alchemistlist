@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -19,6 +20,7 @@ import com.kangirigungi.alchemistlist.Database.ConfigDbAdapter;
 import com.kangirigungi.alchemistlist.Database.DbAdapter;
 import com.kangirigungi.alchemistlist.Database.DbSqlQueries;
 import com.kangirigungi.alchemistlist.tools.MultiColorOverride;
+import com.kangirigungi.alchemistlist.tools.OverrideAdapter.AdapterOverride;
 import com.kangirigungi.alchemistlist.tools.OverrideListAdapter;
 import com.kangirigungi.alchemistlist.tools.Utils;
 
@@ -256,34 +258,69 @@ public class ExperimentActivity extends Activity {
 			isMatchList = true;
 			return;
     	}
-    	Cursor cursor = null;
     	if (id1 != null) {
     		Log.d(TAG, "Query with first string.");
-    		cursor = dbAdapter.searchExperiment(id1.longValue());
-    		btnAddEffect.setEnabled(dbAdapter.getEffectNum(
-    				id1) < Utils.MAX_EFFECT_PER_INGREDIENT);
+    		fillSingleItemList(id1);
     	} else
     	if (id2 != null) {
     		Log.d(TAG, "Query with second string.");
-    		cursor = dbAdapter.searchExperiment(id2.longValue());
-    		btnAddEffect.setEnabled(dbAdapter.getEffectNum(
-    				id2) < Utils.MAX_EFFECT_PER_INGREDIENT);
+    		fillSingleItemList(id2);
+    	} else {
+    		btnAddExperiment.setVisibility(View.VISIBLE);
+        	btnAddExperiment.setEnabled(false);
+        	btnDeleteExperiment.setVisibility(View.GONE);
+        	btnAddEffect.setEnabled(false);
     	}
-    	btnAddExperiment.setVisibility(View.VISIBLE);
-    	btnAddExperiment.setEnabled(false);
-    	btnDeleteExperiment.setVisibility(View.GONE);
+    	isMatchList = false;
+    }
+    
+    private void fillSingleItemList(long id) {
+    	Cursor cursor = dbAdapter.searchExperiment(id);
     	if (cursor == null) {
     		Log.d(TAG, "No result.");
     		list.setAdapter(null);
     		btnAddEffect.setEnabled(false);
-    	} else {
-    		SimpleCursorAdapter adapter = new SimpleCursorAdapter(
-    				this, android.R.layout.two_line_list_item, 
-	    			cursor, new String[] {"value1", "value2"}, 
-	    			new int[] {android.R.id.text1, android.R.id.text2});
-	    	list.setAdapter(adapter);
+    		return;
     	}
-    	isMatchList = false;
+		btnAddEffect.setEnabled(dbAdapter.getEffectNum(id) < 
+				Utils.MAX_EFFECT_PER_INGREDIENT);
+		btnAddExperiment.setVisibility(View.VISIBLE);
+    	btnAddExperiment.setEnabled(false);
+    	btnDeleteExperiment.setVisibility(View.GONE);
+    	
+    	AdapterOverride override = new AdapterOverride() {
+			@Override
+			public View onOverride(int position, View convertView, ViewGroup parent) {
+				updateSingleListItem(position, convertView);
+				return convertView;
+			}
+		};
+		SimpleCursorAdapter adapter = new SimpleCursorAdapter(
+				this, R.layout.experiment_single_list_item, 
+    			cursor, new String[] {"value1", "value2"}, 
+    			new int[] {R.id.text1, R.id.text2});
+    	list.setAdapter(new OverrideListAdapter(adapter, override));
+    }
+    
+    private void updateSingleListItem(int position, View view) {
+    	long id = list.getItemIdAtPosition(position);
+    	Long[] experiment = dbAdapter.getExperiment(id);
+		Cursor cursor = dbAdapter.getCommonEffects(experiment[0], experiment[1]);
+		int color = (cursor.getCount() > 0) ? R.color.pairing_yes : R.color.pairing_no;
+		TextView text = (TextView)view.findViewById(R.id.text1);
+		text.setTextColor(getResources().getColor(color));
+		text = (TextView)view.findViewById(R.id.text2);
+		text.setTextColor(getResources().getColor(color));
+		String effects = new String();
+		for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
+			if (effects.length() > 0) {
+				effects += "\n";
+			}
+			effects += cursor.getString(1);
+		}
+		text = (TextView)view.findViewById(R.id.descriptionText);
+		text.setTextColor(getResources().getColor(color));
+		text.setText(effects);
     }
     
    private void fillMatchList() {

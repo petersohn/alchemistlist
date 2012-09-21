@@ -122,12 +122,18 @@ public class DbSqlQueries {
     	return effectsIdAndValue()+", "+value+" "+PAIRING_CATEGORY;
     }
     
+    static String getCommonEffectsQuery(String selectedColumns,
+    		String variable1, String variable2) {
+    	return getEffectsQuery(selectedColumns, variable1)+
+        		" intersect "+
+        		getEffectsQuery(selectedColumns, variable2);
+    }
+    
     static String getPairingQueryYesPart(
     		String variable1, String variable2) {
     	return "select * from ("+
-    		getEffectsQuery(pairingColumns(CATEGORY_YES), variable1)+
-    		" intersect "+
-    		getEffectsQuery(pairingColumns(CATEGORY_YES), variable2)+")";
+    		getCommonEffectsQuery(pairingColumns(CATEGORY_YES),
+    				variable1, variable2)+")";
     }
     
     static String getPairingQueryNoPart(String variable) {

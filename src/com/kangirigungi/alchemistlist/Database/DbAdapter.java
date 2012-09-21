@@ -294,6 +294,14 @@ public class DbAdapter {
 						ingredient2Id+""}, TAG));
     }
     
+    public Cursor getCommonEffects(long ingredient1Id, long ingredient2Id) {
+    	Log.v(TAG, "getCommonIngredients("+ingredient1Id+", "+ingredient2Id+")");
+    	return dbManager.addCursor(Utils.query(database, 
+				DbSqlQueries.getCommonEffectsQuery(
+						DbSqlQueries.effectsIdAndValue(), "?1", "?2"), 
+				new String[] {ingredient1Id+"", ingredient2Id+""}, TAG));
+    }
+    
 	public void cleanup() {
 	}
 	
