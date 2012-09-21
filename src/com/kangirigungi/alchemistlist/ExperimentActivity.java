@@ -274,6 +274,7 @@ public class ExperimentActivity extends Activity {
         	btnAddExperiment.setEnabled(false);
         	btnDeleteExperiment.setVisibility(View.GONE);
         	btnAddEffect.setEnabled(false);
+        	list.setAdapter(null);
     	}
     	isMatchList = false;
     }
