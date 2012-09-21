@@ -5,13 +5,16 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
@@ -46,6 +49,7 @@ public class ExperimentActivity extends Activity {
 	private Button btnDeleteExperiment;
 	private Button btnAddEffect;
 	private boolean isMatchList;
+	private String[][] singleItemListDescriptions;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -295,32 +299,55 @@ public class ExperimentActivity extends Activity {
 				return convertView;
 			}
 		};
-		SimpleCursorAdapter adapter = new SimpleCursorAdapter(
+		SimpleCursorAdapter cursorAdapter = new SimpleCursorAdapter(
 				this, R.layout.experiment_single_list_item, 
     			cursor, new String[] {"value1", "value2"}, 
     			new int[] {R.id.text1, R.id.text2});
-    	list.setAdapter(new OverrideListAdapter(adapter, override));
+		OverrideListAdapter adapter = new OverrideListAdapter(cursorAdapter, override);
+		singleItemListDescriptions = new String[adapter.getCount()][];
+    	list.setAdapter(adapter);
     }
     
-    private void updateSingleListItem(int position, View view) {
+    private String[] getSingleListItem(int position) {
+    	if (singleItemListDescriptions[position] != null) {
+    		return singleItemListDescriptions[position];
+    	}
+    	
     	long id = list.getItemIdAtPosition(position);
     	Long[] experiment = dbAdapter.getExperiment(id);
 		Cursor cursor = dbAdapter.getCommonEffects(experiment[0], experiment[1]);
-		int color = (cursor.getCount() > 0) ? R.color.pairing_yes : R.color.pairing_no;
-		TextView text = (TextView)view.findViewById(R.id.text1);
-		text.setTextColor(getResources().getColor(color));
-		text = (TextView)view.findViewById(R.id.text2);
-		text.setTextColor(getResources().getColor(color));
-		String effects = new String();
-		for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
-			if (effects.length() > 0) {
-				effects += "\n";
-			}
-			effects += cursor.getString(1);
+		String[] result = new String[cursor.getCount()];
+		int i = 0;
+		for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext(), ++i) {
+			result[i] = cursor.getString(1);
 		}
-		text = (TextView)view.findViewById(R.id.descriptionText);
-		text.setTextColor(getResources().getColor(color));
-		text.setText(effects);
+		singleItemListDescriptions[position] = result;
+		return result;
+    }
+    
+    private void updateSingleListItem(int position, View view) {
+    	String[] effects = getSingleListItem(position);
+    	
+		int colorId = (effects.length > 0) ? R.color.pairing_yes : R.color.pairing_no;
+		int color = getResources().getColor(colorId);
+		TextView text = (TextView)view.findViewById(R.id.text1);
+		text.setTextColor(color);
+		text = (TextView)view.findViewById(R.id.text2);
+		text.setTextColor(color);
+		
+		LinearLayout effectContainer = 
+				(LinearLayout)view.findViewById(R.id.descriptionText);
+		effectContainer.removeAllViews();
+		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		params.gravity = Gravity.RIGHT;
+		for (String effect: effects) {
+			TextView effectText = new TextView(this);
+			effectText.setTextColor(color);
+			effectText.setText(effect);
+			effectText.setLayoutParams(params);
+			effectContainer.addView(effectText);
+		}
     }
     
    private void fillMatchList() {
