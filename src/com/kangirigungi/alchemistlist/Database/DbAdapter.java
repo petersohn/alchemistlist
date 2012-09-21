@@ -209,7 +209,8 @@ public class DbAdapter {
     	Log.v(TAG, "getEffectFromIngredient("+ingredientId+")");
         return dbManager.addCursor(Utils.query(database, 
 				DbSqlQueries.getEffectsQuery(
-						DbSqlQueries.effectsIdAndValue(), "?1"), 
+						DbSqlQueries.effectsIdAndValue(), "?1")+
+						" order by "+DbSqlQueries.EFFECTS_VALUE, 
 				new String[] {ingredientId+""}, TAG));
     }
     
@@ -217,7 +218,8 @@ public class DbAdapter {
     	Log.v(TAG, "getIngredientFromEffect("+effectId+")");
     	return dbManager.addCursor(Utils.query(database, 
 				DbSqlQueries.getIngredientsQuery(
-						DbSqlQueries.ingredientsIdAndValue(), "?1"), 
+						DbSqlQueries.ingredientsIdAndValue(), "?1")+
+						" order by "+DbSqlQueries.INGREDIENTS_VALUE, 
 				new String[] {effectId+""}, TAG));
     }
     
@@ -225,7 +227,8 @@ public class DbAdapter {
     	Log.v(TAG, "getExcludedEffects("+ingredientId+")");
     	return dbManager.addCursor(Utils.query(database, 
 				DbSqlQueries.getExcludedEffectsQuery(
-						DbSqlQueries.effectsIdAndValue(), "?1"), 
+						DbSqlQueries.effectsIdAndValue(), "?1")+
+						" order by "+DbSqlQueries.EFFECTS_VALUE, 
 				new String[] {ingredientId+""}, TAG));
     }
     
@@ -235,7 +238,8 @@ public class DbAdapter {
     	Log.v(TAG, "getExcludedIngredients("+effectId+")");
     	return dbManager.addCursor(Utils.query(database, 
 				DbSqlQueries.getExcludedIngredientsQuery(
-						DbSqlQueries.ingredientsIdAndValue(), "?1"), 
+						DbSqlQueries.ingredientsIdAndValue(), "?1")+
+						" order by "+DbSqlQueries.INGREDIENTS_VALUE, 
 				new String[] {effectId+""}, TAG));
     }
     
