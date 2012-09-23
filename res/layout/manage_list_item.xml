@@ -1,23 +1,17 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
-    android:layout_height="wrap_content" >
-
-    <Button
-        android:id="@+id/btnRemove"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_centerVertical="true"
-        android:text="@string/remove" />
+    android:layout_height="wrap_content" 
+    android:orientation="vertical" >
     
     <TextView
         android:id="@+id/text1"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_toLeftOf="@id/btnRemove"
-        android:clickable="true"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="@color/matching_element" />
 
-</RelativeLayout>
+</LinearLayout>

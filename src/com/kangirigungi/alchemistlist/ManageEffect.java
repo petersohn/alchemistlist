@@ -93,9 +93,9 @@ public class ManageEffect extends ManageTextBase {
     		SubClickableOverride override = new SubClickableOverride();
     		override.setOnClickListener(android.R.id.text1, ingredientClicked);
 			OverrideListAdapter itemAdapter = new OverrideListAdapter(
-					new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1, 
+					new SimpleCursorAdapter(this, R.layout.manage_list_item, 
 	    			cursor, new String[] {DbSqlQueries.EFFECTS_VALUE}, 
-	    			new int[] {android.R.id.text1}),
+	    			new int[] {R.id.text1}),
 	    			override);
 			
 			adapters.add(itemAdapter);
