@@ -38,13 +38,14 @@ public class StringTable implements StringContainer {
 	            		columnIdName+" = ?", 
 	            		new String[] {Long.valueOf(id).toString()},
 	                    null, null, null, null);
-        if (cursor != null && cursor.getCount() > 0) {
+    	String result = null;
+        if (cursor.getCount() > 0) {
         	Log.v(TAG, "Number of results: " + cursor.getCount());
             cursor.moveToFirst();
-            return cursor.getString(1);
+            result = cursor.getString(1);
         }
-        Log.v(TAG, "No result");
-        return null;
+        cursor.close();
+        return result;
 	}
 	
 	public Cursor searchString(String match, boolean exact) throws SQLException {

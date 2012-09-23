@@ -8,7 +8,6 @@
         android:id="@+id/text1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:clickable="true"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="@color/excluded_element" />
 

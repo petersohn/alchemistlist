@@ -1,11 +1,12 @@
 package com.kangirigungi.alchemistlist.tools;
 
-import com.kangirigungi.alchemistlist.tools.OverrideAdapter.AdapterOverride;
-
 import android.util.SparseArray;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+
+import com.kangirigungi.alchemistlist.tools.OverrideAdapter.AdapterOverride;
 
 public class SubClickableOverride implements AdapterOverride {
 
@@ -27,7 +28,11 @@ public class SubClickableOverride implements AdapterOverride {
 		onClickListeners.remove(id);
 	}
 	
-	public View onOverride(int position, final View convertView, final ViewGroup parent) {
+	public View onOverride(int position, final View convertView, ViewGroup parent) {
+		final AdapterView<?> parentView = (AdapterView<?>)parent;
+		if (parentView == null) {
+			return convertView;
+		}
 		for(int i = 0; i < onClickListeners.size(); i++) {
 			View subView = convertView.findViewById(onClickListeners.keyAt(i));
 			if (subView != null) {
@@ -36,7 +41,10 @@ public class SubClickableOverride implements AdapterOverride {
 					subView.setOnClickListener(new OnClickListener() {
 						@Override
 						public void onClick(View v) {
-							listener.onSubItemClick(v, parent.indexOfChild(convertView));
+							// position is not good when using MultiListAdapter
+							listener.onSubItemClick(v, 
+									parentView.getFirstVisiblePosition()+
+									parentView.indexOfChild(convertView));
 						}
 					});
 				}
