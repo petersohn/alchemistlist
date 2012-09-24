@@ -1,10 +1,8 @@
 package com.kangirigungi.alchemistlist;
 
 import java.io.IOException;
-import java.text.Format;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;

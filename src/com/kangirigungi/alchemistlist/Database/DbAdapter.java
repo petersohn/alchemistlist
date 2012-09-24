@@ -121,29 +121,12 @@ public class DbAdapter {
     					new String[] {id1+"", id2+""}) > 0;
     }
     
-    private Cursor doSearchExperiment(String filter, String[] filterParams) {
-    	Log.v(TAG, "searchAssoc()");
-    	String query = DbSqlQueries.experimentQueryString(filter);
-    	Log.v(TAG, query);
-        Cursor cursor =
-            database.rawQuery(query, filterParams);
-        if (cursor != null) {
-        	Log.d(TAG, "Number of results: " + cursor.getCount());
-            cursor.moveToFirst();
-        }
-        return dbManager.addCursor(cursor);
-    }
-    
     public Cursor searchExperiment(long id) throws SQLException {
-    	return doSearchExperiment(
-    			DbSqlQueries.searchExperiment1Where("?1"),
-        		new String[] {id+""});
-    }
-    
-    public Cursor searchExperiment(long id1, long id2) throws SQLException {
-    	return doSearchExperiment(
-    			DbSqlQueries.searchExperiment2Where("?1", "?2"),
-				new String[] {id1+"", id2+""});
+    	return Utils.query(database, 
+    			DbSqlQueries.getExperimentQuery(
+    					DbSqlQueries.experimentQueryColumns, 
+    					"?1"),
+    			new String[] {id+""}, TAG);
     }
     
     public Long[] getExperiment(long id) {

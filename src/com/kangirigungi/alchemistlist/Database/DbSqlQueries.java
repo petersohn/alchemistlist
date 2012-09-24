@@ -156,4 +156,30 @@ public class DbSqlQueries {
 				", '"+value+"' "+EFFECTS_VALUE+", "+
 				CATEGORY_SOMETHING+" "+PAIRING_CATEGORY;
     }
+    
+    static final String experimentQueryColumns =
+    		TABLE_EXPERIMENTS+"."+EXPERIMENTS_ID+" "+EXPERIMENTS_ID+", "+
+			"i1."+INGREDIENTS_VALUE+" value1, "+
+			"i2."+INGREDIENTS_VALUE+" value2";
+    
+    static String getExperimentQuery(String selectedColumns, String variable) {
+    	return "select "+selectedColumns+", count(assoc.id1) count_ from "+
+    			TABLE_EXPERIMENTS+" left join "+
+    			"(select assoc1."+INGREDIENTS_ID+" id1, "+
+    			"assoc2."+INGREDIENTS_ID+" id2 from "+
+    			TABLE_INGREDIENT_EFFECT+" assoc1, "+
+    			TABLE_INGREDIENT_EFFECT+" assoc2 where "+
+    			"assoc1."+INGREDIENT_EFFECT_EFFECT+"="+
+    			"assoc2."+INGREDIENT_EFFECT_EFFECT+
+    			") assoc on "+
+    			searchExperiment2Where("assoc.id1", "assoc.id2")+
+    			", "+TABLE_INGREDIENTS+" i1, "+TABLE_INGREDIENTS+" i2 "+
+    			"where "+searchExperiment1Where(variable)+" and "
+    			+searchExperiment2Where(
+    					"i1."+INGREDIENTS_ID,
+    					"i2."+INGREDIENTS_ID)+
+    			" group by "+TABLE_EXPERIMENTS+"."+EXPERIMENTS_ID+
+    			" order by count_ desc, i1."+
+    			INGREDIENTS_ID+" asc, i2."+INGREDIENTS_ID+" asc";
+    }
 }
