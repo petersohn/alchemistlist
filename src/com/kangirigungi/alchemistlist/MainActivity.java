@@ -1,6 +1,7 @@
 package com.kangirigungi.alchemistlist;
 
 import java.io.IOException;
+import java.text.Format;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -251,31 +252,19 @@ public class MainActivity extends Activity {
     		Log.w(TAG, "No database selected.");
     		return;
     	}
-    	AlertDialog.Builder builder = new AlertDialog.Builder(this);
-    	builder.setMessage("Really delete database "+dbName+"?")
-    	       .setCancelable(false)
-    	       .setPositiveButton(getString(android.R.string.yes), 
-    	    		   new DialogInterface.OnClickListener() {
-    	           public void onClick(DialogInterface dialog, int id) {
-    	        	   if (!dbAdapter.deleteDatabase()) {
-		    	           Log.w(TAG, "Could not delete database.");
-		    	           return;
-	    	           }
-    	        	   Log.i(TAG, "Deleting database "+dbName);
-	    	           config.deleteDatabase(dbName);
-	    	           setDbName(null);
-	    	           dialog.dismiss();
-    	           }
-    	       })
-    	       .setNegativeButton(getString(android.R.string.no), 
-    	    		   new DialogInterface.OnClickListener() {
-    	           public void onClick(DialogInterface dialog, int id) {
-    	        	   Log.i(TAG, "Not deleting database "+dbName);
-    	                dialog.cancel();
-    	           }
-    	       });
-    	builder.show();
-    	
+    	Utils.displayYesNoQuestion(this, getString(R.string.deleteDatabaseQuestion), 
+    			new DialogInterface.OnClickListener() {
+		           public void onClick(DialogInterface dialog, int id) {
+		        	   if (!dbAdapter.deleteDatabase()) {
+				    	   Log.w(TAG, "Could not delete database.");
+				    	   return;
+		 	           }
+		        	   Log.i(TAG, "Deleting database "+dbName);
+		 	           config.deleteDatabase(dbName);
+		 	           setDbName(null);
+		 	           dialog.dismiss();
+		           }
+	       }, null);
     }
     
     private void exportDatabase() {

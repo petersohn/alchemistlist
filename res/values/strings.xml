@@ -39,5 +39,6 @@
     <string name="rename">Rename</string>
     <string name="excluded">Excluded</string>
     <string name="experimented">Experimented</string>
+    <string name="deleteDatabaseQuestion">"Really delete database?"</string>
 
 </resources>
