@@ -181,12 +181,17 @@ public class ManageIngredient extends ManageTextBase {
 	}
 
 	@Override
-	protected CharSequence getRenameTitle() {
-		return "Rename ingredient";
+	protected String getRenameTitle() {
+		return getString(R.string.renameIngredientTitle);
 	}
 
 	@Override
-	protected CharSequence getRenameMessage() {
-		return "Choose new name for the ingredient";
+	protected String getRenameMessage() {
+		return getString(R.string.renameIngredientQuestion);
+	}
+	
+	@Override
+	protected String getDeleteMessage() {
+		return getString(R.string.deleteIngredientQuestion);
 	}
 }

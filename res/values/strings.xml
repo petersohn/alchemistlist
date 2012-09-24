@@ -39,6 +39,13 @@
     <string name="rename">Rename</string>
     <string name="excluded">Excluded</string>
     <string name="experimented">Experimented</string>
-    <string name="deleteDatabaseQuestion">"Really delete database?"</string>
+    <string name="deleteDatabaseQuestion">Really delete database?</string>
+    <string name="deleteIngredientQuestion">Really delete ingredient?</string>
+    <string name="deleteEffectQuestion">Really delete effect?</string>
+    <string name="renameIngredientTitle">Rename ingredient</string>
+    <string name="renameIngredientQuestion">Choose new name for the ingredient</string>
+    <string name="renameEffectTitle">Rename effect</string>
+    <string name="renameEffectQuestion">Choose new name for the effect</string>
+    
 
 </resources>

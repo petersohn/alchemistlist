@@ -1,6 +1,7 @@
 package com.kangirigungi.alchemistlist;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,6 +16,7 @@ import android.widget.TextView;
 import com.kangirigungi.alchemistlist.Database.StringContainer;
 import com.kangirigungi.alchemistlist.tools.InputQuery;
 import com.kangirigungi.alchemistlist.tools.InputQueryResultListener;
+import com.kangirigungi.alchemistlist.tools.Utils;
 
 public abstract class ManageTextBase extends Activity {
 	private static final String TAG = "ManageTextBase";
@@ -24,8 +26,9 @@ public abstract class ManageTextBase extends Activity {
 	protected abstract StringContainer getStringContainer();
 	protected abstract void initManageText(Bundle savedInstanceState);
 	protected void prepareResult(Intent resultIntent) {}
-	protected abstract CharSequence getRenameTitle();
-	protected abstract CharSequence getRenameMessage();
+	protected abstract String getRenameTitle();
+	protected abstract String getRenameMessage();
+	protected abstract String getDeleteMessage();
 	
 	public long getId() {
 		return id;
@@ -118,7 +121,12 @@ public abstract class ManageTextBase extends Activity {
 	}
     
     private void delete() {
-    	getStringContainer().deleteString(id);
-    	finishOk(true);
+    	Utils.displayYesNoQuestion(this, getDeleteMessage(), 
+    			new DialogInterface.OnClickListener() {
+		           public void onClick(DialogInterface dialog, int id) {
+		        	   getStringContainer().deleteString(getId());
+		        	   finishOk(true);
+		           }
+	       }, null);
     }
 }

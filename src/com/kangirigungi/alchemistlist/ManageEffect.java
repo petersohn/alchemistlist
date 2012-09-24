@@ -147,13 +147,18 @@ public class ManageEffect extends ManageTextBase {
     }
 	
 	@Override
-	protected CharSequence getRenameTitle() {
-		return "Rename effect";
+	protected String getRenameTitle() {
+		return getString(R.string.renameEffectTitle);
 	}
 
 	@Override
-	protected CharSequence getRenameMessage() {
-		return "Choose new name for the effect";
+	protected String getRenameMessage() {
+		return getString(R.string.renameEffectQuestion);
+	}
+	
+	@Override
+	protected String getDeleteMessage() {
+		return getString(R.string.deleteEffectQuestion);
 	}
 
 }
