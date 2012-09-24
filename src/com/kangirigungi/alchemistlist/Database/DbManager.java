@@ -58,7 +58,9 @@ public class DbManager {
     	Log.d(TAG, "Closing database: " + database.getPath());
     	Log.v(TAG, "Closing cursors");
     	for (Cursor cursor: storedCursors) {
-    		cursor.close();
+    		if (cursor != null && !cursor.isClosed()) {
+    			cursor.close();
+    		}
     	}
     	Log.v(TAG, "Closing database");
         dbHelper.close();
