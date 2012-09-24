@@ -77,6 +77,7 @@ public class MainActivity extends Activity {
 							Log.i(TAG, "Backup database to file: " + result);
 							try {
 								dbAdapter.backupDatabase(result);
+								restoreFilename.setText(result);
 							} catch (IOException e) {
 								Log.e(TAG, e.getMessage());
 							}
@@ -95,6 +96,7 @@ public class MainActivity extends Activity {
 							Log.i(TAG, "Restore database from file: " + result);
 							try {
 								dbAdapter.restoreDatabase(result);
+								backupFilename.setText(result);
 							} catch (IOException e) {
 								Log.e(TAG, e.getMessage());
 							}
