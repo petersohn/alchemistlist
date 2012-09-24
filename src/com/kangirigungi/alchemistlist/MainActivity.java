@@ -3,6 +3,8 @@ package com.kangirigungi.alchemistlist;
 import java.io.IOException;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -35,28 +37,31 @@ public class MainActivity extends Activity {
 	private ConfigDbAdapter config;
 	private InputQuery backupFilename;
 	private InputQuery restoreFilename;
+	private Button btnExperiment;
+	private Button btnManageIngredient;
+	private Button btnManageEffect;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         
-        Button button = (Button)findViewById(R.id.main_btnExperiment);
-        button.setOnClickListener(new OnClickListener() {
+        btnExperiment = (Button)findViewById(R.id.main_btnExperiment);
+        btnExperiment.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				launchExperimentActivity();
 			}
 		});
-        button = (Button)findViewById(R.id.main_btnManageIngredients);
-        button.setOnClickListener(new OnClickListener() {
+        btnManageIngredient = (Button)findViewById(R.id.main_btnManageIngredients);
+        btnManageIngredient.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				launchIngredientChooser();
 			}
 		});
-        button = (Button)findViewById(R.id.main_btnManageEffects);
-        button.setOnClickListener(new OnClickListener() {
+        btnManageEffect = (Button)findViewById(R.id.main_btnManageEffects);
+        btnManageEffect.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				launchEffectChooser();
@@ -66,11 +71,16 @@ public class MainActivity extends Activity {
         config = new ConfigDbAdapter(this);
         config.open();
         dbAdapter = new DbAdapter(this);
-        setDbName(config.getLastDatabase());
+        setDbName(config.getLastDatabase().get());
+        
+        String lastDatabase = config.getLastBackup().get();
+        if (lastDatabase == null) {
+        	lastDatabase = "backup.db";
+        }
         
         backupFilename = new InputQuery(this, 
         		getString(R.string.export_title),
-    			getString(R.string.export_value), "backup.db",
+    			getString(R.string.export_value), lastDatabase,
     			new InputQueryResultListener() {
 						@Override
 						public void onOk(String result) {
@@ -78,6 +88,7 @@ public class MainActivity extends Activity {
 							try {
 								dbAdapter.backupDatabase(result);
 								restoreFilename.setText(result);
+								config.getLastBackup().set(result);
 							} catch (IOException e) {
 								Log.e(TAG, e.getMessage());
 							}
@@ -89,7 +100,7 @@ public class MainActivity extends Activity {
 				});
         restoreFilename = new InputQuery(this, 
         		getString(R.string.import_title),
-    			getString(R.string.import_value), "backup.db",
+    			getString(R.string.import_value), lastDatabase,
     			new InputQueryResultListener() {
 						@Override
 						public void onOk(String result) {
@@ -97,6 +108,7 @@ public class MainActivity extends Activity {
 							try {
 								dbAdapter.restoreDatabase(result);
 								backupFilename.setText(result);
+								config.getLastBackup().set(result);
 							} catch (IOException e) {
 								Log.e(TAG, e.getMessage());
 							}
@@ -192,7 +204,7 @@ public class MainActivity extends Activity {
     	if (dbName == null) {
     		config.deleteLastDatabase();
     	} else {
-    		config.saveLastDatabase(dbName);
+    		config.getLastDatabase().set(dbName);
     	}
     	config.close();
 		super.onDestroy();
@@ -212,11 +224,15 @@ public class MainActivity extends Activity {
     	dbAdapter.close();
     	dbName = value;
     	TextView indicator = (TextView)findViewById(R.id.main_currentDatabase);
-    	if (dbName != null) {
+    	boolean hasDb = dbName != null;
+    	if (hasDb) {
     		dbAdapter.open(dbName);
     	}
+    	btnExperiment.setEnabled(hasDb);
+    	btnManageIngredient.setEnabled(hasDb);
+    	btnManageEffect.setEnabled(hasDb);
     	indicator.setText(dbName);
-    	
+    	config.getLastDatabase().set(dbName);
     }
     
     private void selectDatabase() {
@@ -235,12 +251,31 @@ public class MainActivity extends Activity {
     		Log.w(TAG, "No database selected.");
     		return;
     	}
-    	if (!dbAdapter.deleteDatabase()) {
-    		Log.w(TAG, "Could not delete database.");
-    		return;
-    	}
-    	config.deleteDatabase(dbName);
-    	setDbName(null);
+    	AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    	builder.setMessage("Really delete database "+dbName+"?")
+    	       .setCancelable(false)
+    	       .setPositiveButton(getString(android.R.string.yes), 
+    	    		   new DialogInterface.OnClickListener() {
+    	           public void onClick(DialogInterface dialog, int id) {
+    	        	   if (!dbAdapter.deleteDatabase()) {
+		    	           Log.w(TAG, "Could not delete database.");
+		    	           return;
+	    	           }
+    	        	   Log.i(TAG, "Deleting database "+dbName);
+	    	           config.deleteDatabase(dbName);
+	    	           setDbName(null);
+	    	           dialog.dismiss();
+    	           }
+    	       })
+    	       .setNegativeButton(getString(android.R.string.no), 
+    	    		   new DialogInterface.OnClickListener() {
+    	           public void onClick(DialogInterface dialog, int id) {
+    	        	   Log.i(TAG, "Not deleting database "+dbName);
+    	                dialog.cancel();
+    	           }
+    	       });
+    	builder.show();
+    	
     }
     
     private void exportDatabase() {
@@ -263,20 +298,12 @@ public class MainActivity extends Activity {
     	Log.d(TAG, "DbTextChooser activity returned with code: " + resultCode);
     	if (resultCode == RESULT_OK) {
     		String value = extras.getString("result");
-    		if (value != null && value.length() > 0) {
-    			setDbName(value);
-    		} else {
-    			Log.w(TAG, "Value is null or empty.");
+    		if (value.length() == 0) {
+    			value = null;
     		}
+    		setDbName(value);
     	} else {
     		Log.v(TAG, "DbTextChooser cancelled.");
-    	}
-    	if (dbName == null) {
-    		Log.i(TAG, "No database selected. Exiting.");
-    		setResult(RESULT_CANCELED, null);
-    		finish();
-    	} else {
-    		config.saveLastDatabase(dbName);
     	}
     }
     
@@ -306,18 +333,30 @@ public class MainActivity extends Activity {
     
     private void launchExperimentActivity() {
     	Log.v(TAG, "launchExperimentActivity()");
+    	if (dbName == null) {
+    		Log.w(TAG, "No database selected.");
+    		return;
+    	}
     	Utils.startActivityWithDb(this, ExperimentActivity.class, 
     			dbName, ACTIVITY_EXPERIMENT);
     }
     
     private void launchIngredientChooser() {
     	Log.v(TAG, "launchIngredientChooser()");
+    	if (dbName == null) {
+    		Log.w(TAG, "No database selected.");
+    		return;
+    	}
     	Utils.startActivityWithDb(this, IngredientTextChooser.class, 
     			dbName, ACTIVITY_CHOOSE_INGREDIENT);
     }
     
     private void launchEffectChooser() {
     	Log.v(TAG, "launchEffectChooser()");
+    	if (dbName == null) {
+    		Log.w(TAG, "No database selected.");
+    		return;
+    	}
     	Utils.startActivityWithDb(this, EffectTextChooser.class, 
     			dbName, ACTIVITY_CHOOSE_EFFECT);
     }

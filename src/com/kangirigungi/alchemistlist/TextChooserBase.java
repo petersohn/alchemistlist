@@ -25,20 +25,20 @@ public abstract class TextChooserBase extends Activity {
 	protected abstract StringContainer getStringContainer();
 	protected void prepareResult(Intent resultIntent) {}
 	
+	private ListView list;
+	EditText valueField;
+	Button btnOk;
+	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_text_chooser);
         
-//        EditText valueField = (EditText)findViewById(R.id.textChooser_textValue);
-//        valueField.setText(extras.getCharSequence("value"));
-        
-        Button btn = (Button)findViewById(R.id.textChooser_buttonOk);
-        btn.setOnClickListener(new OnClickListener() {
+        btnOk = (Button)findViewById(R.id.textChooser_buttonOk);
+        btnOk.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				Log.d(TAG, "OK button clicked.");
-				EditText valueField = (EditText)findViewById(R.id.textChooser_textValue);
             	Intent resultIntent = new Intent();
             	prepareResult(resultIntent);
             	String value = valueField.getText().toString();
@@ -49,7 +49,7 @@ public abstract class TextChooserBase extends Activity {
 
 			}
 		});
-        EditText valueField = (EditText)findViewById(R.id.textChooser_textValue);
+        valueField = (EditText)findViewById(R.id.textChooser_textValue);
         valueField.addTextChangedListener(new TextWatcher() {
 			@Override
 			public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -63,7 +63,7 @@ public abstract class TextChooserBase extends Activity {
 			public void afterTextChanged(Editable s) {
 			}
 		});
-        ListView list = (ListView)findViewById(R.id.textChooser_searchList);
+        list = (ListView)findViewById(R.id.textChooser_searchList);
         list.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, 
@@ -87,10 +87,10 @@ public abstract class TextChooserBase extends Activity {
   
     public void refreshList() {
     	Log.d(TAG, "refreshList()");
-    	EditText valueField = (EditText)findViewById(R.id.textChooser_textValue);
     	String value = valueField.getText().toString();
-    	ListView listView = (ListView)findViewById(R.id.textChooser_searchList);
-    	fillList(value, listView);
+    	btnOk.setEnabled(value.length() > 0);
+    	fillList(value, list);
+    	
     }
     
     private void fillList(String value, ListView listView) {

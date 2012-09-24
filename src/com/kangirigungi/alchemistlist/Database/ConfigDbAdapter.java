@@ -1,9 +1,7 @@
 package com.kangirigungi.alchemistlist.Database;
 
 
-import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -18,6 +16,8 @@ public class ConfigDbAdapter {
     private DbManager dbManager;
     private SQLiteDatabase database;
     private StringTable databasesWrapper;
+    private SingleStringContainer lastDatabase;
+    private SingleStringContainer lastBackup;
     
     /**
      * Database creation sql statement
@@ -33,7 +33,11 @@ public class ConfigDbAdapter {
     public static final String LAST_DATABASE_ID = "_id";
     public static final String LAST_DATABASE_NAME = "name";
     
-    private static final int DATABASE_VERSION = 2;
+    private static final String TABLE_LAST_BACKUP = "last_backup";
+    public static final String LAST_BACKUP_ID = "_id";
+    public static final String LAST_BACKUP_NAME = "name";
+    
+    private static final int DATABASE_VERSION = 3;
 
     private class DatabaseHelper extends SQLiteOpenHelper {
 
@@ -52,6 +56,9 @@ public class ConfigDbAdapter {
             db.execSQL("create table "+TABLE_LAST_DATABASE+" (" +
             		LAST_DATABASE_ID+" integer primary key," +
             		LAST_DATABASE_NAME+" text not null);");
+            db.execSQL("create table "+TABLE_LAST_BACKUP+" (" +
+            		LAST_BACKUP_ID+" integer primary key," +
+            		LAST_BACKUP_NAME+" text not null);");
         }
 
         @Override
@@ -61,12 +68,21 @@ public class ConfigDbAdapter {
             if (oldVersion < 2) {
             	upgradeFrom1To2(db);
             }
+            if (oldVersion < 3) {
+            	upgradeFrom2To3(db);
+            }
         }
         
         private void upgradeFrom1To2(SQLiteDatabase db) {
         	db.execSQL("create table "+TABLE_LAST_DATABASE+" (" +
             		LAST_DATABASE_ID+" integer primary key," +
             		LAST_DATABASE_NAME+" text not null);");
+        }
+        
+        private void upgradeFrom2To3(SQLiteDatabase db) {
+        	db.execSQL("create table "+TABLE_LAST_BACKUP+" (" +
+            		LAST_BACKUP_ID+" integer primary key," +
+            		LAST_BACKUP_NAME+" text not null);");
         }
     } // DatabaseHelper
 
@@ -86,6 +102,10 @@ public class ConfigDbAdapter {
     	database = dbManager.getDatabase();
     	databasesWrapper = new StringTable(database, 
     			TABLE_DATABASES, DATABASES_ID, DATABASES_NAME);
+    	lastDatabase = new SingleStringTable(database, 
+    			TABLE_LAST_DATABASE, LAST_DATABASE_NAME);
+    	lastBackup = new SingleStringTable(database, 
+    			TABLE_LAST_BACKUP, LAST_BACKUP_NAME);
         return this;
     }
 
@@ -111,33 +131,11 @@ public class ConfigDbAdapter {
     	database.delete(TABLE_LAST_DATABASE, null, null); 
     }
     
-    public String getLastDatabase() {
-    	Log.v(TAG, "getLastDatabase()");
-        Cursor cursor =
-            database.query(TABLE_LAST_DATABASE, 
-            		new String[] {LAST_DATABASE_NAME}, 
-            		null, null, null, null, null, null);
-        if (cursor != null && cursor.getCount() > 0) {
-        	cursor.moveToFirst();
-        	String result = cursor.getString(0);
-        	Log.d(TAG, "Found last database: " + result);
-            return result;
-        }
-        if (cursor != null) {
-        	cursor.close();
-        }
-        Log.d(TAG, "Last database not found");
-        return null;
+    public SingleStringContainer getLastDatabase() {
+    	return lastDatabase;
     }
     
-    public void saveLastDatabase(String dbName) {
-    	Log.d(TAG, "saveLastDatabase("+dbName+")");
-    	ContentValues args = new ContentValues();
-        args.put(LAST_DATABASE_NAME, dbName);
-        if (getLastDatabase() == null) {
-        	database.insert(TABLE_LAST_DATABASE, null, args);
-        } else {
-        	database.update(TABLE_LAST_DATABASE, args, null, null);
-        }
+    public SingleStringContainer getLastBackup() {
+    	return lastBackup;
     }
 }
