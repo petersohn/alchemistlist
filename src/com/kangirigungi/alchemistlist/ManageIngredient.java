@@ -134,7 +134,9 @@ public class ManageIngredient extends ManageTextBase {
 		Log.d(TAG, "refreshList()");
 		Vector<ListAdapter> adapters = new Vector<ListAdapter>();
 		addEffectsAdapter(adapters);
-		addExcludedEffectsAdapter(adapters);
+		if (dbAdapter.getEffectNum(getId()) < Utils.MAX_EFFECT_PER_INGREDIENT) {
+			addExcludedEffectsAdapter(adapters);			
+		}
     	list.setAdapter(new MultiListAdapter(adapters));
 	}
 

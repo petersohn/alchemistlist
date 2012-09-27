@@ -182,9 +182,7 @@ public class DbAdapter {
 
     public long getEffectNum(long ingredientId) {
     	return Utils.getCountQuery(database, 
-    			"select count(*) from "+
-				DbSqlQueries.TABLE_INGREDIENT_EFFECT+" where "+
-				DbSqlQueries.ingredientEffectIngredientWhere("?1"),
+				DbSqlQueries.getEffectNumQuery("?1"),
 				new String[] {ingredientId+""});
     }
     

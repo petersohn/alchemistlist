@@ -183,4 +183,10 @@ public class DbSqlQueries {
     			" order by count_ desc, i1."+
     			INGREDIENTS_ID+" asc, i2."+INGREDIENTS_ID+" asc";
     }
+    
+    static String getEffectNumQuery(String variable) {
+    	return "select count(*) from "+
+				TABLE_INGREDIENT_EFFECT+" where "+
+				ingredientEffectIngredientWhere(variable);
+    }
 }
