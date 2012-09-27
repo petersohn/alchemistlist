@@ -3,6 +3,7 @@ package com.kangirigungi.alchemistlist;
 import java.io.IOException;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -30,12 +31,13 @@ public class MainActivity extends Activity {
 	private static final int ACTIVITY_CHOOSE_EFFECT = 30;
 	private static final int ACTIVITY_MANAGE_EFFECT = 31;
 	
+	private static final int DIALOG_BACKUP_DATABASE = 0;
+	private static final int DIALOG_RESTORE_DATABASE = 1;
+	
 	private static final String TAG = "MainActivity";
 	private String dbName;
 	private DbAdapter dbAdapter;
 	private ConfigDbAdapter config;
-	private InputQuery backupFilename;
-	private InputQuery restoreFilename;
 	private Button btnExperiment;
 	private Button btnManageIngredient;
 	private Button btnManageEffect;
@@ -77,16 +79,30 @@ public class MainActivity extends Activity {
         	lastDatabase = "backup.db";
         }
         
-        backupFilename = new InputQuery(this, 
+    }
+    
+    @Override
+    protected Dialog onCreateDialog(int id, Bundle args) {
+        switch(id) {
+        case DIALOG_BACKUP_DATABASE:
+            return createBackupDialog(); 
+        case DIALOG_RESTORE_DATABASE:
+        	return createRestoreDialog();
+        default:
+            return null;
+        }
+    }
+    
+    private Dialog createBackupDialog() {
+    	return InputQuery.create(this, 
         		getString(R.string.export_title),
-    			getString(R.string.export_value), lastDatabase,
+    			getString(R.string.export_value),
     			new InputQueryResultListener() {
 						@Override
 						public void onOk(String result) {
 							Log.i(TAG, "Backup database to file: " + result);
 							try {
 								dbAdapter.backupDatabase(result);
-								restoreFilename.setText(result);
 								config.getLastBackup().set(result);
 							} catch (IOException e) {
 								Log.e(TAG, e.getMessage());
@@ -97,16 +113,18 @@ public class MainActivity extends Activity {
 							Log.d(TAG, "Backup cancelled.");			
 						}
 				});
-        restoreFilename = new InputQuery(this, 
+    }
+    
+    private Dialog createRestoreDialog() {
+    	return InputQuery.create(this, 
         		getString(R.string.import_title),
-    			getString(R.string.import_value), lastDatabase,
+    			getString(R.string.import_value),
     			new InputQueryResultListener() {
 						@Override
 						public void onOk(String result) {
 							Log.i(TAG, "Restore database from file: " + result);
 							try {
 								dbAdapter.restoreDatabase(result);
-								backupFilename.setText(result);
 								config.getLastBackup().set(result);
 							} catch (IOException e) {
 								Log.e(TAG, e.getMessage());
@@ -117,18 +135,24 @@ public class MainActivity extends Activity {
 							Log.d(TAG, "Restore cancelled.");			
 						}
 				});
-        if (savedInstanceState != null) {
-        	Utils.printBundle(TAG, savedInstanceState);
-        }
-        backupFilename.restoreState(savedInstanceState, "backupFilename");
-        restoreFilename.restoreState(savedInstanceState, "restoreFilename");
     }
+    
+    @Override
+    protected void onPrepareDialog(int id, Dialog dialog, Bundle args) {
+    	switch(id) {
+        case DIALOG_BACKUP_DATABASE:
+        case DIALOG_RESTORE_DATABASE:
+        	InputQuery.setText(dialog, config.getLastBackup().get());
+        	break;
+        default:
+        	Log.w(TAG, "Invalid dialog id: "+id);
+    	}
+    }
+
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        backupFilename.saveState(outState, "backupFilename");
-        restoreFilename.saveState(outState, "restoreFilename");
     }
     
     @Override
@@ -197,8 +221,6 @@ public class MainActivity extends Activity {
     @Override
 	protected void onDestroy() {
     	Log.v(TAG, "onDestroy()");
-    	backupFilename.dismiss();
-    	restoreFilename.dismiss();
     	dbAdapter.close();
     	if (dbName == null) {
     		config.deleteLastDatabase();
@@ -270,7 +292,7 @@ public class MainActivity extends Activity {
     		Log.w(TAG, "No database selected.");
     		return;
     	}
-    	backupFilename.show();
+    	showDialog(DIALOG_BACKUP_DATABASE, null);
     }
     
     private void importDatabase() {
@@ -278,7 +300,7 @@ public class MainActivity extends Activity {
     		Log.w(TAG, "No database selected.");
     		return;
     	}
-    	restoreFilename.show();
+    	showDialog(DIALOG_RESTORE_DATABASE, null);
     }
     
     private void onDatabaseChooserResult(int resultCode, Bundle extras) {

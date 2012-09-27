@@ -1,6 +1,7 @@
 package com.kangirigungi.alchemistlist;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -21,6 +22,8 @@ import com.kangirigungi.alchemistlist.tools.Utils;
 public abstract class ManageTextBase extends Activity {
 	private static final String TAG = "ManageTextBase";
 	
+	private static final int DIALOG_RENAME = 0;
+	
 	private long id;
 	
 	protected abstract StringContainer getStringContainer();
@@ -36,7 +39,6 @@ public abstract class ManageTextBase extends Activity {
 	
 	private Button btnRename;
 	private TextView nameField;
-	private InputQuery rename;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -50,12 +52,28 @@ public abstract class ManageTextBase extends Activity {
         btnRename.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				rename.setText(nameField.getText());
-				rename.show();
+				showDialog(DIALOG_RENAME, null);
 			}
 		});
-        rename = new InputQuery(this,
-        		getRenameTitle(), getRenameMessage(), nameField.getText(), 
+        
+        Bundle extras = getIntent().getExtras();
+        id = extras.getLong("id");
+        refresh();
+    }
+    
+    @Override
+    protected Dialog onCreateDialog(int id, Bundle args) {
+    	switch(id) {
+        case DIALOG_RENAME:
+            return rename(); 
+        default:
+            return null;
+        }
+    }
+    
+    private Dialog rename() {
+    	return InputQuery.create(this, 
+    			getRenameTitle(), getRenameMessage(), 
     			new InputQueryResultListener() {
 					
 					@Override
@@ -70,23 +88,26 @@ public abstract class ManageTextBase extends Activity {
 						Log.d(TAG, "Rename cancelled.");
 					}
 				});
-        
-        Bundle extras = getIntent().getExtras();
-        id = extras.getLong("id");
-        refresh();
-        
-        rename.restoreState(savedInstanceState, "rename");
+    }
+    
+    @Override
+    protected void onPrepareDialog(int id, Dialog dialog, Bundle args) {
+    	switch(id) {
+        case DIALOG_RENAME:
+        	InputQuery.setText(dialog, nameField.getText());
+        	break;
+    	default:
+        	Log.w(TAG, "Invalid dialog id: "+id);	
+        }
     }
     
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        rename.saveState(outState, "rename");
     }
     
     @Override
     protected void onDestroy() {
-    	rename.dismiss();
     	super.onDestroy();
     }
 
