@@ -1,9 +1,6 @@
 package com.kangirigungi.alchemistlist.tools;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -76,18 +73,4 @@ public class Utils {
 		return intent == null ? null : intent.getExtras();
 	}
 	
-	public static void displayYesNoQuestion(Activity activity, String text, 
-			DialogInterface.OnClickListener onYesClick,
-			DialogInterface.OnClickListener onNoClick) {
-		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-    	builder.setMessage(text)
-    	       .setCancelable(false)
-    	       .setPositiveButton(
-    	    		   activity.getString(android.R.string.yes), onYesClick)
-    	       .setNegativeButton(
-    	    		   activity.getString(android.R.string.no), onNoClick);
-    	Dialog dialog = builder.create();
-    	dialog.setOwnerActivity(activity);
-    	dialog.show();
-	}
 }

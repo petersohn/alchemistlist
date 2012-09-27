@@ -2,7 +2,6 @@ package com.kangirigungi.alchemistlist;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,12 +15,13 @@ import android.widget.TextView;
 
 import com.kangirigungi.alchemistlist.Database.StringContainer;
 import com.kangirigungi.alchemistlist.tools.InputQuery;
-import com.kangirigungi.alchemistlist.tools.Utils;
+import com.kangirigungi.alchemistlist.tools.YesNoDialog;
 
 public abstract class ManageTextBase extends Activity {
 	private static final String TAG = "ManageTextBase";
 	
 	private static final int DIALOG_RENAME = 0;
+	private static final int DIALOG_DELETE = 1;
 	
 	private long id;
 	
@@ -64,13 +64,15 @@ public abstract class ManageTextBase extends Activity {
     protected Dialog onCreateDialog(int id, Bundle args) {
     	switch(id) {
         case DIALOG_RENAME:
-            return rename(); 
+            return createRenameDialog(); 
+        case DIALOG_DELETE:
+        	return createDeleteDialog();
         default:
             return null;
         }
     }
     
-    private Dialog rename() {
+    private Dialog createRenameDialog() {
     	return InputQuery.create(this, 
     			getRenameTitle(), getRenameMessage(), 
     			new InputQuery.ResultListener() {
@@ -85,6 +87,24 @@ public abstract class ManageTextBase extends Activity {
 					@Override
 					public void onCancel() {
 						Log.d(TAG, "Rename cancelled.");
+					}
+				});
+    }
+    
+    private Dialog createDeleteDialog() {
+    	return YesNoDialog.create(this, null, 
+    			getDeleteMessage(), 
+    			new YesNoDialog.ResultListener() {
+					@Override
+					public void onYes() {
+						Log.d(TAG, "Delete confirmed.");
+		        	   getStringContainer().deleteString(getId());
+		        	   finishOk(true);
+					}
+					
+					@Override
+					public void onNo() {
+						Log.d(TAG, "Delete cancelled.");
 					}
 				});
     }
@@ -141,12 +161,6 @@ public abstract class ManageTextBase extends Activity {
 	}
     
     private void delete() {
-    	Utils.displayYesNoQuestion(this, getDeleteMessage(), 
-    			new DialogInterface.OnClickListener() {
-		           public void onClick(DialogInterface dialog, int id) {
-		        	   getStringContainer().deleteString(getId());
-		        	   finishOk(true);
-		           }
-	       }, null);
+    	showDialog(DIALOG_DELETE, null);
     }
 }

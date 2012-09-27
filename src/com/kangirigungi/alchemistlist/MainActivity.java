@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,6 +19,7 @@ import com.kangirigungi.alchemistlist.Database.ConfigDbAdapter;
 import com.kangirigungi.alchemistlist.Database.DbAdapter;
 import com.kangirigungi.alchemistlist.tools.InputQuery;
 import com.kangirigungi.alchemistlist.tools.Utils;
+import com.kangirigungi.alchemistlist.tools.YesNoDialog;
 
 public class MainActivity extends Activity {
 
@@ -32,6 +32,7 @@ public class MainActivity extends Activity {
 	
 	private static final int DIALOG_BACKUP_DATABASE = 0;
 	private static final int DIALOG_RESTORE_DATABASE = 1;
+	private static final int DIALOG_DELETE_DATABASE = 2;
 	
 	private static final String TAG = "MainActivity";
 	private String dbName;
@@ -87,6 +88,8 @@ public class MainActivity extends Activity {
             return createBackupDialog(); 
         case DIALOG_RESTORE_DATABASE:
         	return createRestoreDialog();
+        case DIALOG_DELETE_DATABASE:
+        	return createDeleteDatabaseDialog();
         default:
             return null;
         }
@@ -136,6 +139,27 @@ public class MainActivity extends Activity {
 				});
     }
     
+    private Dialog createDeleteDatabaseDialog() {
+    	return YesNoDialog.create(this, null, 
+    			getString(R.string.deleteDatabaseQuestion), 
+    					new YesNoDialog.ResultListener() {
+							@Override
+							public void onYes() {
+								if (!dbAdapter.deleteDatabase()) {
+							    	   Log.w(TAG, "Could not delete database.");
+							    	   return;
+					 	           }
+					        	   Log.i(TAG, "Deleting database "+dbName);
+					 	           config.deleteDatabase(dbName);
+					 	           setDbName(null);
+							}
+							@Override
+							public void onNo() {
+								Log.d(TAG, "Delete database cancelled.");
+							}
+						});
+    }
+    
     @Override
     protected void onPrepareDialog(int id, Dialog dialog, Bundle args) {
     	switch(id) {
@@ -144,7 +168,7 @@ public class MainActivity extends Activity {
         	InputQuery.setText(dialog, config.getLastBackup().get());
         	break;
         default:
-        	Log.w(TAG, "Invalid dialog id: "+id);
+        	Log.v(TAG, "Ignore dialog id: "+id);
     	}
     }
 
@@ -271,19 +295,7 @@ public class MainActivity extends Activity {
     		Log.w(TAG, "No database selected.");
     		return;
     	}
-    	Utils.displayYesNoQuestion(this, getString(R.string.deleteDatabaseQuestion), 
-    			new DialogInterface.OnClickListener() {
-		           public void onClick(DialogInterface dialog, int id) {
-		        	   if (!dbAdapter.deleteDatabase()) {
-				    	   Log.w(TAG, "Could not delete database.");
-				    	   return;
-		 	           }
-		        	   Log.i(TAG, "Deleting database "+dbName);
-		 	           config.deleteDatabase(dbName);
-		 	           setDbName(null);
-		 	           dialog.dismiss();
-		           }
-	       }, null);
+    	showDialog(DIALOG_DELETE_DATABASE, null);
     }
     
     private void exportDatabase() {
