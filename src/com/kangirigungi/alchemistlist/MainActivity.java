@@ -19,7 +19,6 @@ import android.widget.TextView;
 import com.kangirigungi.alchemistlist.Database.ConfigDbAdapter;
 import com.kangirigungi.alchemistlist.Database.DbAdapter;
 import com.kangirigungi.alchemistlist.tools.InputQuery;
-import com.kangirigungi.alchemistlist.tools.InputQueryResultListener;
 import com.kangirigungi.alchemistlist.tools.Utils;
 
 public class MainActivity extends Activity {
@@ -97,7 +96,7 @@ public class MainActivity extends Activity {
     	return InputQuery.create(this, 
         		getString(R.string.export_title),
     			getString(R.string.export_value),
-    			new InputQueryResultListener() {
+    			new InputQuery.ResultListener() {
 						@Override
 						public void onOk(String result) {
 							Log.i(TAG, "Backup database to file: " + result);
@@ -119,7 +118,7 @@ public class MainActivity extends Activity {
     	return InputQuery.create(this, 
         		getString(R.string.import_title),
     			getString(R.string.import_value),
-    			new InputQueryResultListener() {
+    			new InputQuery.ResultListener() {
 						@Override
 						public void onOk(String result) {
 							Log.i(TAG, "Restore database from file: " + result);

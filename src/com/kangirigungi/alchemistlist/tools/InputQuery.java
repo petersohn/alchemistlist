@@ -8,13 +8,20 @@ import android.util.Log;
 import android.widget.EditText;
 
 public class InputQuery {
+	
+	public interface ResultListener {
+		public void onOk(String result);
+		public void onCancel();
+	}
+
+	
 	private final static String TAG = "InputQuery";
 	
 	private final static int TEXT_ID = 1;
 	
 	public static Dialog create(Context context,
 			String title, String message, 
-			final InputQueryResultListener resultListener) {
+			final ResultListener resultListener) {
 		AlertDialog.Builder alertBuilder = new AlertDialog.Builder(context);
 		Log.v(TAG, "Creating. Title: " + title + ". Message: " + message + ".");
 		alertBuilder.setTitle(title);

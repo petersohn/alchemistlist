@@ -16,7 +16,6 @@ import android.widget.TextView;
 
 import com.kangirigungi.alchemistlist.Database.StringContainer;
 import com.kangirigungi.alchemistlist.tools.InputQuery;
-import com.kangirigungi.alchemistlist.tools.InputQueryResultListener;
 import com.kangirigungi.alchemistlist.tools.Utils;
 
 public abstract class ManageTextBase extends Activity {
@@ -74,7 +73,7 @@ public abstract class ManageTextBase extends Activity {
     private Dialog rename() {
     	return InputQuery.create(this, 
     			getRenameTitle(), getRenameMessage(), 
-    			new InputQueryResultListener() {
+    			new InputQuery.ResultListener() {
 					
 					@Override
 					public void onOk(String result) {
