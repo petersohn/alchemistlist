@@ -169,7 +169,8 @@ public class DbSqlQueries {
     			"assoc2."+INGREDIENT_EFFECT_INGREDIENT+" id2 from "+
     			TABLE_INGREDIENT_EFFECT+" assoc1, "+
     			TABLE_INGREDIENT_EFFECT+" assoc2 where "+
-    			"assoc1."+INGREDIENT_EFFECT_EFFECT+"="+
+    			"id1="+variable+
+    			" and assoc1."+INGREDIENT_EFFECT_EFFECT+"="+
     			"assoc2."+INGREDIENT_EFFECT_EFFECT+
     			") assoc on "+
     			searchExperiment2Where("assoc.id1", "assoc.id2")+
