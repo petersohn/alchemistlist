@@ -165,8 +165,8 @@ public class DbSqlQueries {
     static String getExperimentQuery(String selectedColumns, String variable) {
     	return "select "+selectedColumns+", count(assoc.id1) count_ from "+
     			TABLE_EXPERIMENTS+" left join "+
-    			"(select assoc1."+INGREDIENTS_ID+" id1, "+
-    			"assoc2."+INGREDIENTS_ID+" id2 from "+
+    			"(select assoc1."+INGREDIENT_EFFECT_INGREDIENT+" id1, "+
+    			"assoc2."+INGREDIENT_EFFECT_INGREDIENT+" id2 from "+
     			TABLE_INGREDIENT_EFFECT+" assoc1, "+
     			TABLE_INGREDIENT_EFFECT+" assoc2 where "+
     			"assoc1."+INGREDIENT_EFFECT_EFFECT+"="+
