@@ -7,6 +7,10 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.kangirigungi.alchemistlist.EffectTextChooser;
+import com.kangirigungi.alchemistlist.IngredientTextChooser;
+import com.kangirigungi.alchemistlist.R;
+
 public class Utils {
 	public static final int MAX_EFFECT_PER_INGREDIENT = 4;
 	
@@ -67,6 +71,27 @@ public class Utils {
 	public static void startActivityWithDb(Activity activity, Class<?> cls, 
 			String dbName, int requestCode) {
 		startActivityWithDb(activity, cls, dbName, requestCode, null);
+	}
+	
+	public static void startTextChooser(Activity activity, Class<?> cls, 
+			String dbName, int requestCode, int backgroundColor, Bundle extras) {
+		if (extras == null) {
+			extras = new Bundle();
+		}
+		extras.putInt("background", backgroundColor);
+		startActivityWithDb(activity, cls, dbName, requestCode, extras);
+	}
+	
+	public static void startIngredientTextChooser(Activity activity,
+			String dbName, int requestCode, Bundle extras) {
+		startTextChooser(activity, IngredientTextChooser.class, dbName, 
+				requestCode, R.color.background_ingredient, extras);
+	}
+	
+	public static void startEffectTextChooser(Activity activity,
+			String dbName, int requestCode, Bundle extras) {
+		startTextChooser(activity, EffectTextChooser.class, dbName, 
+				requestCode, R.color.background_effect, extras);
 	}
 	
 	public static Bundle getExtrasIfExists(Intent intent) {

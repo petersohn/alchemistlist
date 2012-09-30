@@ -122,8 +122,8 @@ public class ExperimentActivity extends Activity {
     
     private void onAddEffectClick(View v) {
     	Log.v(TAG, "onAddEffectClick()");
-    	Utils.startActivityWithDb(this, EffectTextChooser.class, 
-    			dbName, ACTIVITY_ADD_EFFECT);
+    	Utils.startEffectTextChooser(this,  
+    			dbName, ACTIVITY_ADD_EFFECT, null);
     }
     
     private void fillTextId(final int num, int displayId, int clearId, int manageId) {
@@ -175,7 +175,7 @@ public class ExperimentActivity extends Activity {
     	Bundle extras = new Bundle();
     	extras.putInt("textId", textId);
     	extras.putString("value", textIds[textId].view.getText().toString());
-    	Utils.startActivityWithDb(this, IngredientTextChooser.class, 
+    	Utils.startIngredientTextChooser(this,
     			dbName, ACTIVITY_CHOOSE_INGREDIENT, extras);
     }
     

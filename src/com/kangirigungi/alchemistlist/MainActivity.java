@@ -367,8 +367,8 @@ public class MainActivity extends Activity {
     		Log.w(TAG, "No database selected.");
     		return;
     	}
-    	Utils.startActivityWithDb(this, IngredientTextChooser.class, 
-    			dbName, ACTIVITY_CHOOSE_INGREDIENT);
+    	Utils.startIngredientTextChooser(this,  
+    			dbName, ACTIVITY_CHOOSE_INGREDIENT, null);
     }
     
     private void launchEffectChooser() {
@@ -377,8 +377,8 @@ public class MainActivity extends Activity {
     		Log.w(TAG, "No database selected.");
     		return;
     	}
-    	Utils.startActivityWithDb(this, EffectTextChooser.class, 
-    			dbName, ACTIVITY_CHOOSE_EFFECT);
+    	Utils.startEffectTextChooser(this,  
+    			dbName, ACTIVITY_CHOOSE_EFFECT, null);
     }
 
 }

@@ -66,6 +66,8 @@ public class ManageEffect extends ManageTextBase {
         	Log.e(TAG, "No database.");
         	return;
         }
+        findViewById(R.id.mainLayout).
+				setBackgroundColor(getResources().getColor(R.color.background_effect));
 	}
 	
 	@Override

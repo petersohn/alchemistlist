@@ -14,6 +14,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.SimpleCursorAdapter;
 
 import com.kangirigungi.alchemistlist.Database.StringContainer;
@@ -25,9 +26,10 @@ public abstract class TextChooserBase extends Activity {
 	protected abstract StringContainer getStringContainer();
 	protected void prepareResult(Intent resultIntent) {}
 	
+	private RelativeLayout mainLayout;
 	private ListView list;
-	EditText valueField;
-	Button btnOk;
+	private EditText valueField;
+	private Button btnOk;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -77,6 +79,14 @@ public abstract class TextChooserBase extends Activity {
             	finish();
 			}
 		});
+        
+        mainLayout = (RelativeLayout)findViewById(R.id.activity_text_chooser);
+
+        Bundle extras = getIntent().getExtras();
+        Integer backgroundColor = extras.getInt("background");
+        if (backgroundColor != null) {
+        	mainLayout.setBackgroundColor(getResources().getColor(backgroundColor));
+        }
     }
     
     @Override

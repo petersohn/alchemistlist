@@ -68,6 +68,8 @@ public class ManageIngredient extends ManageTextBase {
         	Log.e(TAG, "No database.");
         	return;
         }
+        findViewById(R.id.mainLayout).
+				setBackgroundColor(getResources().getColor(R.color.background_ingredient));
 	}
 	
 	@Override
@@ -154,8 +156,8 @@ public class ManageIngredient extends ManageTextBase {
 	
 	private void launchEffectChooser() {
     	Log.v(TAG, "launchEffectChooser()");
-        Utils.startActivityWithDb(this, EffectTextChooser.class, 
-        		dbAdapter.getDbName(), ACTIVITY_CHOOSE_EFFECT, null);
+    	Utils.startEffectTextChooser(this,  
+    			dbAdapter.getDbName(), ACTIVITY_CHOOSE_EFFECT, null);
     }
 	
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
