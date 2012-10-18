@@ -84,7 +84,8 @@ public abstract class TextChooserBase extends Activity {
 
         Bundle extras = getIntent().getExtras();
         Integer backgroundColor = extras.getInt("background");
-        if (backgroundColor != null) {
+        if (backgroundColor != null && backgroundColor != 0) {
+        	Log.v(TAG, String.format("Color = 0x%x", new Object[] {backgroundColor}));
         	mainLayout.setBackgroundColor(getResources().getColor(backgroundColor));
         }
     }

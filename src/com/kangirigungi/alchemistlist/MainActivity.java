@@ -74,11 +74,6 @@ public class MainActivity extends Activity {
         dbAdapter = new DbAdapter(this);
         setDbName(config.getLastDatabase().get());
         
-        String lastDatabase = config.getLastBackup().get();
-        if (lastDatabase == null) {
-        	lastDatabase = "backup.db";
-        }
-        
     }
     
     @Override
@@ -105,7 +100,7 @@ public class MainActivity extends Activity {
 							Log.i(TAG, "Backup database to file: " + result);
 							try {
 								dbAdapter.backupDatabase(result);
-								config.getLastBackup().set(result);
+								dbAdapter.getLastBackup().set(result);
 							} catch (IOException e) {
 								Log.e(TAG, e.getMessage());
 							}
@@ -127,7 +122,7 @@ public class MainActivity extends Activity {
 							Log.i(TAG, "Restore database from file: " + result);
 							try {
 								dbAdapter.restoreDatabase(result);
-								config.getLastBackup().set(result);
+								dbAdapter.getLastBackup().set(result);
 							} catch (IOException e) {
 								Log.e(TAG, e.getMessage());
 							}
@@ -165,7 +160,7 @@ public class MainActivity extends Activity {
     	switch(id) {
         case DIALOG_BACKUP_DATABASE:
         case DIALOG_RESTORE_DATABASE:
-        	InputQuery.setText(dialog, config.getLastBackup().get());
+        	InputQuery.setText(dialog, dbAdapter.getLastBackup().get());
         	break;
         default:
         	Log.v(TAG, "Ignore dialog id: "+id);

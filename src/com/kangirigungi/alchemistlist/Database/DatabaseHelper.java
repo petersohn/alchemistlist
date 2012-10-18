@@ -1,7 +1,6 @@
 package com.kangirigungi.alchemistlist.Database;
 
-import com.kangirigungi.alchemistlist.tools.Utils;
-
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -9,14 +8,19 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.kangirigungi.alchemistlist.tools.Utils;
+
 class DatabaseHelper extends SQLiteOpenHelper {
 
 	private static final String TAG = "DbAdapter.DatabaseHelper";
 	
-	private static final int DATABASE_VERSION = 7;
+	private static final int DATABASE_VERSION = 8;
+	
+	private String dbName;
 	
     DatabaseHelper(Context context, String dbName) {
         super(context, DbAdapter.DATABASE_NAME_BASE + dbName, null, DATABASE_VERSION);
+        this.dbName = dbName;
     }
 
     @Override
@@ -71,6 +75,7 @@ class DatabaseHelper extends SQLiteOpenHelper {
        createExperimentsTable(db);
        createEffectsTable(db);
        createIngredientEffectTable(db);
+       createLastBackupTable(db);
        db.execSQL("PRAGMA foreign_keys=ON;");
    }
 
@@ -87,38 +92,28 @@ class DatabaseHelper extends SQLiteOpenHelper {
    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
        Log.i(TAG, "Upgrading database from version " + oldVersion + " to "
                + newVersion);
-       if (oldVersion < 2) {
-       	recreateDatabase(db);
-       	return;
-       }
-       if (oldVersion < 3) {
-       	upgradeFrom2To3(db);
-       }
-       if (oldVersion < 4) {
-       	upgradeFrom3To4(db);
-       }
-       if (oldVersion < 6) {
-       	upgradeFrom4To6(db);
-       }
-       if (oldVersion < 7) {
-      	upgradeFrom6To7(db);
-      }
+		if (oldVersion < 2) {
+			recreateDatabase(db);
+			return;
+		}
+		if (oldVersion < 3) {
+			upgradeFrom2To3(db);
+		}
+		if (oldVersion < 4) {
+			upgradeFrom3To4(db);
+		}
+		if (oldVersion < 6) {
+			upgradeFrom4To6(db);
+		}
+		if (oldVersion < 7) {
+			upgradeFrom6To7(db);
+		}
+		if (oldVersion < 8) {
+			upgradeFrom7To8(db);
+		}
    }
    
-   private void upgradeFrom6To7(SQLiteDatabase db) {
-		createExperimentIndices(db);
-		long maxId = Utils.getCountQuery(db, 
-				"select max("+DbSqlQueries.EXPERIMENTS_ID+") from "+
-						DbSqlQueries.TABLE_EXPERIMENTS, null) + 1;
-		db.execSQL("insert into "+DbSqlQueries.TABLE_EXPERIMENTS+
-				" select "+DbSqlQueries.EXPERIMENTS_ID+"+"+maxId+" "+
-				DbSqlQueries.EXPERIMENTS_ID+", "+
-				DbSqlQueries.EXPERIMENTS_ID2+" "+DbSqlQueries.EXPERIMENTS_ID1+", "+
-				DbSqlQueries.EXPERIMENTS_ID1+" "+DbSqlQueries.EXPERIMENTS_ID2+" from "+
-				DbSqlQueries.TABLE_EXPERIMENTS);
-	}
-
-private void upgradeFrom2To3(SQLiteDatabase db) {
+   private void upgradeFrom2To3(SQLiteDatabase db) {
    	db.execSQL("alter table strings rename to " + DbSqlQueries.TABLE_INGREDIENTS);
    }
    
@@ -133,6 +128,23 @@ private void upgradeFrom2To3(SQLiteDatabase db) {
        		" select * from assoc");
        db.execSQL("drop table assoc");
    }
+   
+   private void upgradeFrom6To7(SQLiteDatabase db) {
+		createExperimentIndices(db);
+		long maxId = Utils.getCountQuery(db, 
+				"select max("+DbSqlQueries.EXPERIMENTS_ID+") from "+
+						DbSqlQueries.TABLE_EXPERIMENTS, null) + 1;
+		db.execSQL("insert into "+DbSqlQueries.TABLE_EXPERIMENTS+
+				" select "+DbSqlQueries.EXPERIMENTS_ID+"+"+maxId+" "+
+				DbSqlQueries.EXPERIMENTS_ID+", "+
+				DbSqlQueries.EXPERIMENTS_ID2+" "+DbSqlQueries.EXPERIMENTS_ID1+", "+
+				DbSqlQueries.EXPERIMENTS_ID1+" "+DbSqlQueries.EXPERIMENTS_ID2+" from "+
+				DbSqlQueries.TABLE_EXPERIMENTS);
+	}
+   
+   private void upgradeFrom7To8(SQLiteDatabase db) {
+	   createLastBackupTable(db);
+	}
    
    private void createEffectsTable(SQLiteDatabase db) {
    	db.execSQL("create table "+DbSqlQueries.TABLE_EFFECTS+" (" +
@@ -152,5 +164,14 @@ private void upgradeFrom2To3(SQLiteDatabase db) {
    			" ("+DbSqlQueries.INGREDIENT_EFFECT_INGREDIENT+")");
    	db.execSQL("create index ie_effect on "+DbSqlQueries.TABLE_INGREDIENT_EFFECT+
    			" ("+DbSqlQueries.INGREDIENT_EFFECT_EFFECT+")");
+   }
+   
+   private void createLastBackupTable(SQLiteDatabase db) {
+		db.execSQL("create table "+DbSqlQueries.TABLE_LAST_BACKUP+" (" +
+			DbSqlQueries.LAST_BACKUP_ID+" integer primary key," +
+			DbSqlQueries.LAST_BACKUP_NAME+" text not null);");
+		ContentValues values = new ContentValues();
+		values.put(DbSqlQueries.LAST_BACKUP_NAME, dbName+".db");
+		db.insert(DbSqlQueries.TABLE_LAST_BACKUP, null, values);
    }
 } // DatabaseHelper

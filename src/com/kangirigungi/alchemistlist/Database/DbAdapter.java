@@ -25,6 +25,7 @@ public class DbAdapter {
     
     private StringTable ingredientsWrapper;
     private StringTable effectsWrapper;
+    private SingleStringContainer lastBackup;
     
     
     /**
@@ -61,7 +62,10 @@ public class DbAdapter {
 	    	effectsWrapper = new StringTable(
 	    			database, DbSqlQueries.TABLE_EFFECTS, 
 	    			DbSqlQueries.EFFECTS_ID, 
-	    			  DbSqlQueries.EFFECTS_VALUE);
+	    			DbSqlQueries.EFFECTS_VALUE);
+	    	lastBackup = new SingleStringTable(database, 
+	    			DbSqlQueries.TABLE_LAST_BACKUP, 
+	    			DbSqlQueries.LAST_BACKUP_NAME);
 	    	this.dbName = dbName;
     	} catch (SQLException e) {
     		close();
@@ -296,6 +300,11 @@ public class DbAdapter {
 	
 	public void restoreDatabase(String filename) throws IOException {
 		dbManager.restoreDatabase(filename);
+		
+		// Reopen database so necessary upgrades are made
+		String dbNameTmp = dbName;
+		close();
+		open(dbNameTmp);
 	}
 	
 	public boolean deleteDatabase() {
@@ -311,5 +320,9 @@ public class DbAdapter {
 			return false;
 		}
 	}
+	
+	public SingleStringContainer getLastBackup() {
+    	return lastBackup;
+    }
 	
 }

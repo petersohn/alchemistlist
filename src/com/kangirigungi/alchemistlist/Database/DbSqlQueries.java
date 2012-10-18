@@ -25,6 +25,9 @@ public class DbSqlQueries {
     public static final int CATEGORY_MAYBE = 2;
     public static final int CATEGORY_NO = 3;
     
+    public static final String TABLE_LAST_BACKUP = "last_backup";
+    public static final String LAST_BACKUP_ID = "_id";
+    public static final String LAST_BACKUP_NAME = "name";
     
     
     static String columnSelector(String table, String column) {

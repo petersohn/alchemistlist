@@ -17,7 +17,6 @@ public class ConfigDbAdapter {
     private SQLiteDatabase database;
     private StringTable databasesWrapper;
     private SingleStringContainer lastDatabase;
-    private SingleStringContainer lastBackup;
     
     /**
      * Database creation sql statement
@@ -37,7 +36,7 @@ public class ConfigDbAdapter {
     public static final String LAST_BACKUP_ID = "_id";
     public static final String LAST_BACKUP_NAME = "name";
     
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 4;
 
     private class DatabaseHelper extends SQLiteOpenHelper {
 
@@ -56,9 +55,6 @@ public class ConfigDbAdapter {
             db.execSQL("create table "+TABLE_LAST_DATABASE+" (" +
             		LAST_DATABASE_ID+" integer primary key," +
             		LAST_DATABASE_NAME+" text not null);");
-            db.execSQL("create table "+TABLE_LAST_BACKUP+" (" +
-            		LAST_BACKUP_ID+" integer primary key," +
-            		LAST_BACKUP_NAME+" text not null);");
         }
 
         @Override
@@ -68,8 +64,8 @@ public class ConfigDbAdapter {
             if (oldVersion < 2) {
             	upgradeFrom1To2(db);
             }
-            if (oldVersion < 3) {
-            	upgradeFrom2To3(db);
+            if (oldVersion == 3) {
+            	upgradeFrom3To4(db);
             }
         }
         
@@ -79,10 +75,8 @@ public class ConfigDbAdapter {
             		LAST_DATABASE_NAME+" text not null);");
         }
         
-        private void upgradeFrom2To3(SQLiteDatabase db) {
-        	db.execSQL("create table "+TABLE_LAST_BACKUP+" (" +
-            		LAST_BACKUP_ID+" integer primary key," +
-            		LAST_BACKUP_NAME+" text not null);");
+        private void upgradeFrom3To4(SQLiteDatabase db) {
+        	db.execSQL("drop table last_backup");
         }
     } // DatabaseHelper
 
@@ -104,8 +98,6 @@ public class ConfigDbAdapter {
     			TABLE_DATABASES, DATABASES_ID, DATABASES_NAME);
     	lastDatabase = new SingleStringTable(database, 
     			TABLE_LAST_DATABASE, LAST_DATABASE_NAME);
-    	lastBackup = new SingleStringTable(database, 
-    			TABLE_LAST_BACKUP, LAST_BACKUP_NAME);
         return this;
     }
 
@@ -133,9 +125,5 @@ public class ConfigDbAdapter {
     
     public SingleStringContainer getLastDatabase() {
     	return lastDatabase;
-    }
-    
-    public SingleStringContainer getLastBackup() {
-    	return lastBackup;
     }
 }
