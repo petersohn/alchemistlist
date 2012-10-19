@@ -32,10 +32,6 @@ public class ConfigDbAdapter {
     public static final String LAST_DATABASE_ID = "_id";
     public static final String LAST_DATABASE_NAME = "name";
     
-    private static final String TABLE_LAST_BACKUP = "last_backup";
-    public static final String LAST_BACKUP_ID = "_id";
-    public static final String LAST_BACKUP_NAME = "name";
-    
     private static final int DATABASE_VERSION = 4;
 
     private class DatabaseHelper extends SQLiteOpenHelper {

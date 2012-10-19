@@ -104,8 +104,8 @@ public class ManageEffect extends ManageTextBase {
     	}
 	}
 	
-	private void addExcludedIngredientsAdapter(Vector<ListAdapter> adapters) {
-		Cursor cursor = dbAdapter.getExcludedIngredients(getId());
+	private void addNonEmptyExcludedIngredientsAdapter(Vector<ListAdapter> adapters) {
+		Cursor cursor = dbAdapter.getNonEmptyExcludedIngredients(getId());
     	if (cursor == null) {
     		Log.d(TAG, "No excluded result.");
     	} else {
@@ -123,11 +123,31 @@ public class ManageEffect extends ManageTextBase {
     	}
 	}
 	
+	private void addEmptyExcludedIngredientsAdapter(Vector<ListAdapter> adapters) {
+		Cursor cursor = dbAdapter.getEmptyExcludedIngredients(getId());
+    	if (cursor == null) {
+    		Log.d(TAG, "No excluded result.");
+    	} else {
+    		SubClickableOverride override = new SubClickableOverride();
+    		override.setOnClickListener(
+    				R.id.text1, 
+    				ingredientClicked);
+    		OverrideListAdapter excludedAdapter = new OverrideListAdapter(
+	    			new SimpleCursorAdapter(this, R.layout.manage_list_item_excluded_empty, 
+	    			cursor, new String[] {DbSqlQueries.EFFECTS_VALUE}, 
+	    			new int[] {R.id.text1}),
+	    			override);
+    		
+	    	adapters.add(excludedAdapter);
+    	}
+	}
+	
 	private void refreshList() {
 		Log.d(TAG, "refreshList()");
 		Vector<ListAdapter> adapters = new Vector<ListAdapter>();
 		addEffectsAdapter(adapters);
-		addExcludedIngredientsAdapter(adapters);
+		addNonEmptyExcludedIngredientsAdapter(adapters);
+		addEmptyExcludedIngredientsAdapter(adapters);
     	list.setAdapter(new MultiListAdapter(adapters));
 	}
 

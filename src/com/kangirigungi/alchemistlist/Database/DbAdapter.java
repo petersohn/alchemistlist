@@ -219,10 +219,19 @@ public class DbAdapter {
     
     
     
-    public Cursor getExcludedIngredients(long effectId) {
-    	Log.v(TAG, "getExcludedIngredients("+effectId+")");
+    public Cursor getNonEmptyExcludedIngredients(long effectId) {
+    	Log.v(TAG, "getNonEmptyExcludedIngredients("+effectId+")");
     	return dbManager.addCursor(Utils.query(database, 
-				DbSqlQueries.getExcludedIngredientsQuery(
+				DbSqlQueries.getNonEmptyExcludedIngredientsQuery(
+						DbSqlQueries.ingredientsIdAndValue(), "?1")+
+						" order by "+DbSqlQueries.INGREDIENTS_VALUE, 
+				new String[] {effectId+""}, TAG));
+    }
+    
+    public Cursor getEmptyExcludedIngredients(long effectId) {
+    	Log.v(TAG, "getEmptyExcludedIngredients("+effectId+")");
+    	return dbManager.addCursor(Utils.query(database, 
+				DbSqlQueries.getEmptyExcludedIngredientsQuery(
 						DbSqlQueries.ingredientsIdAndValue(), "?1")+
 						" order by "+DbSqlQueries.INGREDIENTS_VALUE, 
 				new String[] {effectId+""}, TAG));
@@ -301,7 +310,7 @@ public class DbAdapter {
 	public void restoreDatabase(String filename) throws IOException {
 		dbManager.restoreDatabase(filename);
 		
-		// Reopen database so necessary upgrades are made
+		// Reopen database so necessary upgrades are done
 		String dbNameTmp = dbName;
 		close();
 		open(dbNameTmp);

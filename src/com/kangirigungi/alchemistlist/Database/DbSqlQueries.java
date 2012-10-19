@@ -1,5 +1,7 @@
 package com.kangirigungi.alchemistlist.Database;
 
+import com.kangirigungi.alchemistlist.tools.Utils;
+
 public class DbSqlQueries {
 	static final String TABLE_INGREDIENTS = "ingredients";
     public static final String INGREDIENTS_ID = "_id";
@@ -110,14 +112,24 @@ public class DbSqlQueries {
 				" except "+getEffectsQuery(selectedColumns, variable);
     }
     
-    static String getExcludedIngredientsQuery(String selectedColumns, String variable) {
+    static String getNonEmptyExcludedIngredientsQuery(String selectedColumns, String variable) {
     	return "select distinct "+selectedColumns+" from "+
 				TABLE_INGREDIENT_EFFECT+", "+
 				TABLE_INGREDIENTS+", "+TABLE_EXPERIMENTS+" where "+
 				searchExperiment2Where(
 						TABLE_INGREDIENT_EFFECT+"."+INGREDIENT_EFFECT_INGREDIENT, 
 						TABLE_INGREDIENTS+"."+INGREDIENTS_ID)+" and "+
+				"("+getEffectNumQuery(TABLE_INGREDIENTS+"."+INGREDIENTS_ID)+
+				") < "+Utils.MAX_EFFECT_PER_INGREDIENT+" and "+
 				ingredientEffectEffectWhere(variable)+
+				" except "+getIngredientsQuery(selectedColumns, variable);
+    }
+    
+    static String getEmptyExcludedIngredientsQuery(String selectedColumns, String variable) {
+    	return "select distinct "+selectedColumns+" from "+
+				TABLE_INGREDIENTS+" where ("+
+				getEffectNumQuery(TABLE_INGREDIENTS+"."+INGREDIENTS_ID)+
+				") == "+Utils.MAX_EFFECT_PER_INGREDIENT+
 				" except "+getIngredientsQuery(selectedColumns, variable);
     }
     
@@ -170,8 +182,8 @@ public class DbSqlQueries {
     			TABLE_EXPERIMENTS+" left join "+
     			"(select assoc1."+INGREDIENT_EFFECT_INGREDIENT+" id1, "+
     			"assoc2."+INGREDIENT_EFFECT_INGREDIENT+" id2 from "+
-    			TABLE_INGREDIENT_EFFECT+" assoc1, "+
     			TABLE_INGREDIENT_EFFECT+" assoc2 where "+
+    			TABLE_INGREDIENT_EFFECT+" assoc1, "+
     			"id1="+variable+
     			" and assoc1."+INGREDIENT_EFFECT_EFFECT+"="+
     			"assoc2."+INGREDIENT_EFFECT_EFFECT+
