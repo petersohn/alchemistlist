@@ -182,8 +182,8 @@ public class DbSqlQueries {
     			TABLE_EXPERIMENTS+" left join "+
     			"(select assoc1."+INGREDIENT_EFFECT_INGREDIENT+" id1, "+
     			"assoc2."+INGREDIENT_EFFECT_INGREDIENT+" id2 from "+
-    			TABLE_INGREDIENT_EFFECT+" assoc2 where "+
     			TABLE_INGREDIENT_EFFECT+" assoc1, "+
+    			TABLE_INGREDIENT_EFFECT+" assoc2 where "+
     			"id1="+variable+
     			" and assoc1."+INGREDIENT_EFFECT_EFFECT+"="+
     			"assoc2."+INGREDIENT_EFFECT_EFFECT+
