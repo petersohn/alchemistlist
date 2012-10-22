@@ -6,10 +6,14 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ListAdapter;
 
 import com.kangirigungi.alchemistlist.EffectTextChooser;
 import com.kangirigungi.alchemistlist.IngredientTextChooser;
 import com.kangirigungi.alchemistlist.R;
+import com.kangirigungi.alchemistlist.tools.OverrideAdapter.AdapterOverride;
 
 public class Utils {
 	public static final int MAX_EFFECT_PER_INGREDIENT = 4;
@@ -96,6 +100,16 @@ public class Utils {
 	
 	public static Bundle getExtrasIfExists(Intent intent) {
 		return intent == null ? null : intent.getExtras();
+	}
+	
+	public static ListAdapter createColorCorrectListAdapter(final int color, ListAdapter other) {
+		return new OverrideListAdapter(other, new OverrideAdapter.AdapterOverride() {
+			@Override
+			public View onOverride(int position, View convertView, ViewGroup parent) {
+				convertView.setBackgroundColor(color);
+				return convertView;
+			}
+		});
 	}
 	
 }

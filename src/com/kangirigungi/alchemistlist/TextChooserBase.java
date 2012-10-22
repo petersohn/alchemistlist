@@ -13,11 +13,13 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.SimpleCursorAdapter;
 
 import com.kangirigungi.alchemistlist.Database.StringContainer;
+import com.kangirigungi.alchemistlist.tools.Utils;
 
 public abstract class TextChooserBase extends Activity {
 
@@ -30,6 +32,7 @@ public abstract class TextChooserBase extends Activity {
 	private ListView list;
 	private EditText valueField;
 	private Button btnOk;
+	private int backgroundColor;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -83,9 +86,8 @@ public abstract class TextChooserBase extends Activity {
         mainLayout = (RelativeLayout)findViewById(R.id.activity_text_chooser);
 
         Bundle extras = getIntent().getExtras();
-        Integer backgroundColor = extras.getInt("background");
-        if (backgroundColor != null && backgroundColor != 0) {
-        	Log.v(TAG, String.format("Color = 0x%x", new Object[] {backgroundColor}));
+        backgroundColor = extras.getInt("background");
+        if (backgroundColor != 0) {
         	mainLayout.setBackgroundColor(getResources().getColor(backgroundColor));
         }
     }
@@ -110,10 +112,14 @@ public abstract class TextChooserBase extends Activity {
     		Log.d(TAG, "No result.");
     		listView.setAdapter(null);
     	} else {
-	    	listView.setAdapter(new SimpleCursorAdapter(
+    		ListAdapter adapter = new SimpleCursorAdapter(
 	    			this, android.R.layout.simple_list_item_1, 
 	    			cursor, new String[] {cursor.getColumnName(1)}, 
-	    			new int[] {android.R.id.text1}));
+	    			new int[] {android.R.id.text1});
+//    		if (backgroundColor != 0) {
+//            	adapter = Utils.createColorCorrectListAdapter(backgroundColor, adapter);
+//            }
+	    	listView.setAdapter(adapter);
     	}
 	}
     

@@ -41,6 +41,7 @@ public class ManageEffect extends ManageTextBase {
 	
 	private ListView list;
 	private IngredientClicked ingredientClicked;
+	private int backgroundColor;
 	
 	
 	@Override
@@ -66,8 +67,8 @@ public class ManageEffect extends ManageTextBase {
         	Log.e(TAG, "No database.");
         	return;
         }
-        findViewById(R.id.mainLayout).
-				setBackgroundColor(getResources().getColor(R.color.background_effect));
+        backgroundColor = getResources().getColor(R.color.background_effect);
+        findViewById(R.id.mainLayout).setBackgroundColor(backgroundColor);
 	}
 	
 	@Override
@@ -100,7 +101,7 @@ public class ManageEffect extends ManageTextBase {
 	    			new int[] {R.id.text1}),
 	    			override);
 			
-			adapters.add(itemAdapter);
+			adapters.add(Utils.createColorCorrectListAdapter(backgroundColor, itemAdapter));
     	}
 	}
 	
@@ -119,7 +120,7 @@ public class ManageEffect extends ManageTextBase {
 	    			new int[] {R.id.text1}),
 	    			override);
     		
-	    	adapters.add(excludedAdapter);
+    		adapters.add(Utils.createColorCorrectListAdapter(backgroundColor, excludedAdapter));
     	}
 	}
 	
@@ -138,7 +139,7 @@ public class ManageEffect extends ManageTextBase {
 	    			new int[] {R.id.text1}),
 	    			override);
     		
-	    	adapters.add(excludedAdapter);
+    		adapters.add(Utils.createColorCorrectListAdapter(backgroundColor, excludedAdapter));
     	}
 	}
 	
