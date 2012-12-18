@@ -260,6 +260,7 @@ public class MainActivity extends Activity {
     }
     
     private void setDbName(String value) {
+    	Log.v(TAG, "setDbName("+value+")");
     	dbAdapter.close();
     	dbName = value;
     	TextView indicator = (TextView)findViewById(R.id.main_currentDatabase);

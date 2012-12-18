@@ -32,20 +32,20 @@ public class SingleStringTable implements SingleStringContainer {
         if (cursor != null && cursor.getCount() > 0) {
         	cursor.moveToFirst();
         	String result = cursor.getString(0);
-        	Log.d(TAG, "Found last database: " + result);
+        	Log.d(TAG, "Found value: " + result);
             return result;
         }
         if (cursor != null) {
         	cursor.close();
         }
-        Log.d(TAG, "Last database not found");
+        Log.d(TAG, "Value not found");
         return null;
 	}
 
 	@Override
 	public void set(String value) {
 		if (value != null) {
-    		Log.d(TAG, "saveLastDatabase("+value+")");
+    		Log.d(TAG, "set("+value+")");
 	    	ContentValues args = new ContentValues();
 	        args.put(columnValueName, value);
 	        if (get() == null) {
