@@ -48,13 +48,13 @@ class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     private void createExperimentIndices(SQLiteDatabase db) {
-    	db.execSQL("create index experiments_ids on "+
+    	db.execSQL("create index if not exists experiments_ids on "+
     			DbSqlQueries.TABLE_EXPERIMENTS+" ("+
     			DbSqlQueries.EXPERIMENTS_ID1+","+DbSqlQueries.EXPERIMENTS_ID1+")");
     }
     
     private void createExperimentsTable(SQLiteDatabase db) {
-   	 db.execSQL("create table "+DbSqlQueries.TABLE_EXPERIMENTS+" (" +
+   	 db.execSQL("create table  if not exists "+DbSqlQueries.TABLE_EXPERIMENTS+" (" +
    			DbSqlQueries.EXPERIMENTS_ID+" integer primary key," +
    			DbSqlQueries.EXPERIMENTS_ID1+" integer not null references "+
    			DbSqlQueries.TABLE_INGREDIENTS+"("+
@@ -69,7 +69,7 @@ class DatabaseHelper extends SQLiteOpenHelper {
    @Override
    public void onCreate(SQLiteDatabase db) {
    	Log.i(TAG, "Creating database.");
-       db.execSQL("create table "+DbSqlQueries.TABLE_INGREDIENTS+" (" +
+       db.execSQL("create table if not exists "+DbSqlQueries.TABLE_INGREDIENTS+" (" +
     		   DbSqlQueries.INGREDIENTS_ID+" integer primary key," +
     		   DbSqlQueries.INGREDIENTS_VALUE+" text not null);");
        createExperimentsTable(db);
@@ -147,27 +147,27 @@ class DatabaseHelper extends SQLiteOpenHelper {
 	}
    
    private void createEffectsTable(SQLiteDatabase db) {
-   	db.execSQL("create table "+DbSqlQueries.TABLE_EFFECTS+" (" +
+   	db.execSQL("create table if not exists "+DbSqlQueries.TABLE_EFFECTS+" (" +
    			DbSqlQueries.EFFECTS_ID+" integer primary key," +
    			DbSqlQueries.EFFECTS_VALUE+" text not null);");
    }
    
    private void createIngredientEffectTable(SQLiteDatabase db) {
-   	db.execSQL("create table "+DbSqlQueries.TABLE_INGREDIENT_EFFECT+" (" +
+   	db.execSQL("create table if not exists "+DbSqlQueries.TABLE_INGREDIENT_EFFECT+" (" +
    			DbSqlQueries.INGREDIENT_EFFECT_ID+" integer primary key," +
    			DbSqlQueries.INGREDIENT_EFFECT_INGREDIENT+" integer not null references "+
    			DbSqlQueries.TABLE_INGREDIENTS+"("+DbSqlQueries.INGREDIENTS_ID+") on delete cascade," +
    			DbSqlQueries.INGREDIENT_EFFECT_EFFECT+" integer not null references "+
    			DbSqlQueries.TABLE_EFFECTS+"("+DbSqlQueries.EFFECTS_ID+") on delete cascade" +
        		");");
-   	db.execSQL("create index ie_ingredient on "+DbSqlQueries.TABLE_INGREDIENT_EFFECT+
+   	db.execSQL("create index if not exists ie_ingredient on "+DbSqlQueries.TABLE_INGREDIENT_EFFECT+
    			" ("+DbSqlQueries.INGREDIENT_EFFECT_INGREDIENT+")");
-   	db.execSQL("create index ie_effect on "+DbSqlQueries.TABLE_INGREDIENT_EFFECT+
+   	db.execSQL("create index if not exists ie_effect on "+DbSqlQueries.TABLE_INGREDIENT_EFFECT+
    			" ("+DbSqlQueries.INGREDIENT_EFFECT_EFFECT+")");
    }
    
    private void createLastBackupTable(SQLiteDatabase db) {
-		db.execSQL("create table "+DbSqlQueries.TABLE_LAST_BACKUP+" (" +
+		db.execSQL("create table if not exists "+DbSqlQueries.TABLE_LAST_BACKUP+" (" +
 			DbSqlQueries.LAST_BACKUP_ID+" integer primary key," +
 			DbSqlQueries.LAST_BACKUP_NAME+" text not null);");
 		ContentValues values = new ContentValues();
